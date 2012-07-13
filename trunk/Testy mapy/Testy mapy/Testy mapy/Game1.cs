@@ -20,6 +20,7 @@ namespace Testy_mapy
         SpriteBatch spriteBatch;
         SpriteFont font;
         DrawMap mapa;
+        DrawBus drawBus;
         BusLogic busLogic;
 
         int a_fps = 0;
@@ -37,6 +38,7 @@ namespace Testy_mapy
             //graphics.PreferredBackBufferWidth = 1024;
 
             mapa = new DrawMap(this);
+            drawBus = new DrawBus();
             busLogic = new BusLogic(pos.X, pos.Y, 0, 0, 100, 200);
 
             Components.Add(mapa);
@@ -65,6 +67,8 @@ namespace Testy_mapy
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            drawBus.LoadContent(this.GraphicsDevice);
+
             font = Content.Load<SpriteFont>("font1");
 
             mapa.LoadMap("test.mp");
@@ -131,6 +135,8 @@ namespace Testy_mapy
             base.Draw(gameTime);
 
             // TODO: Add your drawing code here
+
+            drawBus.DrawPoints(busLogic.GetPointsToDraw());
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + pos.X, new Vector2(0, 0), Color.White);
