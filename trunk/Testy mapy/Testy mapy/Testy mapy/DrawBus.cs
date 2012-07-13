@@ -27,14 +27,15 @@ namespace Testy_mapy
             spriteBatch = new SpriteBatch(graphicsDevice);
         }
 
-        public void DrawPoints(List<Vector2> points)
+        public void DrawPoints(List<Vector3> points)
         {
             spriteBatch.Begin();
 
-            foreach (Vector2 point in points)
+            foreach (Vector3 point in points)
             {
                 Rectangle rect = new Rectangle((int)point.X - 2, (int)point.Y - 2, 4, 4);
-                Primitives2D.FillRectangle(spriteBatch, rect, Color.White);
+                Color color = (point.Z == 1 ? Color.Red : Color.White);
+                Primitives2D.FillRectangle(spriteBatch, rect, color);
             }
 
             spriteBatch.End();
