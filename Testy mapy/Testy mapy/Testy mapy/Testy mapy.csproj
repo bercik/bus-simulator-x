@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackgroundLogic.cs" />
+    <Compile Include="BusLogic.cs" />
     <Compile Include="DrawMap.cs" />
     <Compile Include="MapLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
