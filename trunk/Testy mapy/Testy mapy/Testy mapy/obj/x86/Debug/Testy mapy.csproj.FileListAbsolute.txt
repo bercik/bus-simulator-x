@@ -75,3 +75,4 @@ D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\ResolveAssemblyRefe
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\C3.XNA.Primitives2D.dll
