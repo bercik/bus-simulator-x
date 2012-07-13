@@ -1,0 +1,44 @@
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.exe
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.pdb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\beczka.xnb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb
+D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa2.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\beczka.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.exe
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.pdb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction1.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction2.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb
+C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction0.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\beczka.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction0.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction1.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction2.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.exe
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.pdb
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\ResolveAssemblyReference.cache
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
+H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
