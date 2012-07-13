@@ -7,8 +7,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\beczka.xnb</Output>
-      <Time>2012-07-05T17:28:30+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\beczka.xnb</Output>
+      <Time>2012-07-13T14:32:28.8180165+02:00</Time>
     </Item>
     <Item>
       <Source>junction0.png</Source>
@@ -16,8 +16,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction0.xnb</Output>
-      <Time>2012-07-11T13:35:56+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction0.xnb</Output>
+      <Time>2012-07-13T14:32:29.3670479+02:00</Time>
     </Item>
     <Item>
       <Source>junction1.png</Source>
@@ -25,8 +25,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction1.xnb</Output>
-      <Time>2012-07-11T13:35:56+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction1.xnb</Output>
+      <Time>2012-07-13T14:32:29.4130505+02:00</Time>
     </Item>
     <Item>
       <Source>junction2.png</Source>
@@ -34,8 +34,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction2.xnb</Output>
-      <Time>2012-07-11T13:35:58+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction2.xnb</Output>
+      <Time>2012-07-13T14:32:29.4410521+02:00</Time>
     </Item>
     <Item>
       <Source>pole.png</Source>
@@ -43,8 +43,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb</Output>
-      <Time>2012-07-05T17:28:30+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb</Output>
+      <Time>2012-07-13T14:32:28.8000154+02:00</Time>
     </Item>
     <Item>
       <Source>przystanek.png</Source>
@@ -52,8 +52,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb</Output>
-      <Time>2012-07-05T17:28:30+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb</Output>
+      <Time>2012-07-13T14:32:29.3820487+02:00</Time>
     </Item>
     <Item>
       <Source>street.png</Source>
@@ -61,8 +61,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street.xnb</Output>
-      <Time>2012-07-11T13:35:58+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street.xnb</Output>
+      <Time>2012-07-13T14:32:28.9520241+02:00</Time>
     </Item>
     <Item>
       <Source>trawa0.jpg</Source>
@@ -70,8 +70,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb</Output>
-      <Time>2012-07-08T22:33:16+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb</Output>
+      <Time>2012-07-13T14:32:29.3970496+02:00</Time>
     </Item>
     <Item>
       <Source>trawa1.jpg</Source>
@@ -79,8 +79,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb</Output>
-      <Time>2012-07-09T00:27:06+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb</Output>
+      <Time>2012-07-13T14:32:29.4270513+02:00</Time>
     </Item>
     <Item>
       <Source>font1.spritefont</Source>
@@ -88,8 +88,8 @@
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
       <Options>None</Options>
-      <Output>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb</Output>
-      <Time>2012-07-08T23:24:18+02:00</Time>
+      <Output>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb</Output>
+      <Time>2012-07-13T14:32:28.8320173+02:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -98,10 +98,10 @@
       <TargetProfile>HiDef</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapyContent\</RootDirectory>
-      <LoggerRootDirectory>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\</LoggerRootDirectory>
-      <IntermediateDirectory>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapyContent\</RootDirectory>
+      <LoggerRootDirectory>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\</LoggerRootDirectory>
+      <IntermediateDirectory>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
@@ -130,7 +130,7 @@
       </Assembly>
       <Assembly>
         <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2012-07-10T10:15:33.5416319+02:00</Value>
+        <Value>2012-07-13T12:06:46.298973+02:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>

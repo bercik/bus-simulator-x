@@ -42,3 +42,19 @@ H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\R
 H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
 H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
 H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\beczka.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction0.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction1.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction2.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.exe
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.pdb
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\ResolveAssemblyReference.cache
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
