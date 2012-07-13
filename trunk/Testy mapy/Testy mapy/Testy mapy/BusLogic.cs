@@ -48,7 +48,11 @@ namespace Testy_mapy
 
             int currentGear = 1;
             Gear[] gears = new Gear[5];
-            gears[0] = new Gear(10,10,10,10,10);
+
+            public GearBox()
+            {
+                gears[0] = new Gear();
+            }
         }
 
         public BusLogic(float x, float y, float direction, float speed, float width, float height) //constructor
@@ -112,6 +116,12 @@ namespace Testy_mapy
             
 
 
+        }
+
+        public List<Vector2> GetPointsToDraw() //temp
+        {
+            List<Vector2> points = GetCollisionPoints(position, direction);
+            return points;
         }
     }
 }

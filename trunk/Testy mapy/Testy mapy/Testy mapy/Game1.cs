@@ -20,11 +20,12 @@ namespace Testy_mapy
         SpriteBatch spriteBatch;
         SpriteFont font;
         DrawMap mapa;
+        BusLogic busLogic;
 
         int a_fps = 0;
         int fps = 60;
         double time = 0.0f;
-        Vector2 pos = new Vector2(400, 240);
+        Vector2 pos = new Vector2(400, 240); //poczatkowa pozycja
 
         public Game1()
         {
@@ -36,6 +37,7 @@ namespace Testy_mapy
             //graphics.PreferredBackBufferWidth = 1024;
 
             mapa = new DrawMap(this);
+            busLogic = new BusLogic(pos.X, pos.Y, 0, 0, 100, 200);
 
             Components.Add(mapa);
         }
