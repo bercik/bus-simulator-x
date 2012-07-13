@@ -114,38 +114,42 @@ namespace Testy_mapy
             return busPosition;
         }
         
-        private List<Vector2> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
+        private List<Vector3> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
         {                                                                                 //used in IsPositionAvailable function
-            Vector2 p1, p2, p3, p4; //create 4 points
+            Vector3 p1, p2, p3, p4; //create 4 points
 
             p3.X = busPosition.X + (width * (float)Math.Sin(45 - busDirection) / 2); //calculate their positions
             p3.Y = busPosition.Y + (width * (float)Math.Cos(45 - busDirection) / 2);
+            p3.Z = 1;
 
             p4.X = busPosition.X - (width * (float)Math.Sin(45 - busDirection) / 2);
             p4.Y = busPosition.Y - (width * (float)Math.Cos(45 - busDirection) / 2);
+            p4.Z = 0;
 
             p1.X = p4.X + (height * (float)Math.Sin(busDirection));
             p1.Y = p4.Y - (height * (float)Math.Cos(busDirection));
+            p1.Z = 0;
 
             p2.X = p3.X + (height * (float)Math.Sin(busDirection));
             p2.Y = p3.Y - (height * (float)Math.Cos(busDirection));
+            p2.Z = 0;
 
-            var pointsList = new List<Vector2> {p1, p2, p3 , p4 }; //create list and add points
+            var pointsList = new List<Vector3> {p1, p2, p3 , p4 }; //create list and add points
             return pointsList;
         }
 
         private bool IsPositionAvailable(Vector2 busPosition, float busDirection) //check if new position is available
         {            
-            List<Vector2> pointsList = GetCollisionPoints(busPosition, busDirection); //create list of the points
+           // List<Vector2> pointsList = GetCollisionPoints(busPosition, busDirection); //create list of the points
 
-            foreach(Vector2 point in pointsList)
-            {
+           // foreach(Vector2 point in pointsList)
+            //{
                 //[!marker] check if there is no collision on the map
                 /*something like
                  if (isCollision(point))
                    return false;
                  */
-            }
+           // }
 
             return true;
         }
@@ -204,10 +208,15 @@ namespace Testy_mapy
 
         }
 
-        public List<Vector2> GetPointsToDraw() //temp
+        public List<Vector3> GetPointsToDraw() //temp
         {
-            List<Vector2> points = GetCollisionPoints(position, direction);
-            points.Add(position);
+            List<Vector3> points = GetCollisionPoints(position, direction);
+            Vector3 point = new Vector3();
+            point.X = position.X;
+            point.Y = position.Y;
+            point.Z = 1;
+
+            points.Add(point);
             return points;
         }
     }
