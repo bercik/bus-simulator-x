@@ -136,7 +136,7 @@ namespace Testy_mapy
 
             // TODO: Add your drawing code here
 
-            drawBus.DrawPoints(busLogic.GetPointsToDraw());
+            drawBus.DrawPoints(busLogic.GetPointsToDraw(), pos, new Vector2(800, 480));
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + pos.X, new Vector2(0, 0), Color.White);

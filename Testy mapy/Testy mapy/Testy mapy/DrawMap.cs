@@ -116,6 +116,8 @@ namespace Testy_mapy
 
             junctions = new Dictionary<string, Texture2D>();
 
+            // kierunki dodawaæ w kolejnoœci: GÓRA, PRAWO, DÓ£, LEWO
+
             junctions.Add("junction0", Game.Content.Load<Texture2D>("junction0"));
             directions = new Direction[] { Direction.Up, Direction.Right, Direction.Down, Direction.Left };
             size = new Vector2(junctions["junction0"].Width, junctions["junction0"].Height);
