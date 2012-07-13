@@ -14,24 +14,24 @@ namespace Testy_mapy
         private float sideAcc;
         private float width;
         private float height;
-        private GearBox gearBox;     
+
+        private float brakeAcc = 2;
+        private float turnAcc = 2;
+        private float sideAccLoss = (float)0.5;
+        private float speedLoss = (float)0.5;
+
+
+        private GearBox gearBox = new GearBox();     
 
         class GearBox //gearbox is responsible for calculating accelerations of the bus...
         {
             class Gear //...it is full of the gears...
             {
-                public Gear(float optimalSpeed, float accelerationMultiplier, float addToSpeed, float logBase, float addToAll)
-                {
-                    this.accCurve = new AccelerationCurve(addToSpeed, logBase, addToAll);
-                    this.optimalSpeed = optimalSpeed;
-                    this.accelerationMultiplier = accelerationMultiplier;
-                }
-
                 class AccelerationCurve //...and gears are basically curves
                 {
-                    float addToSpeed;
-                    float logBase;
-                    float addToAll;
+                    public float addToSpeed;
+                    public float logBase;
+                    public float addToAll;
                     
                     public AccelerationCurve(float addToSpeed, float logBase, float addToAll) //constructor
                     {
@@ -44,23 +44,53 @@ namespace Testy_mapy
                 float optimalSpeed;
                 float accelerationMultiplier;
                 AccelerationCurve accCurve;
+
+                public Gear(float optimalSpeed, float accelerationMultiplier, float addToSpeed, float logBase, float addToAll) //constructor
+                {
+                    this.accCurve = new AccelerationCurve(addToSpeed, logBase, addToAll);
+                    this.optimalSpeed = optimalSpeed;
+                    this.accelerationMultiplier = accelerationMultiplier;
+                }
+
+                public float GetAcceleration(float busSpeed) //each gear can calculate its own acceleration for given speed
+                {
+                    if (busSpeed < optimalSpeed) //if below opimal speed recalculate it to get the right curve
+                        busSpeed = optimalSpeed + (optimalSpeed - busSpeed);
+
+                    float acceleration = accelerationMultiplier * ((float)Math.Log(busSpeed + accCurve.addToSpeed, accCurve.logBase) + accCurve.addToAll);
+                    return acceleration;
+                }
             }
 
             int currentGear = 1;
-            Gear[] gears = new Gear[5];
+            int minGear = 0;
+            int maxGear = 5;
+            Gear[] gears = new Gear[6];
 
-          /*  public float GetAcceleration()
-            {
-                float acceleration;
-
-                acceleration = gears[currentGear];
-
-                return acceleration;
-            }*/
-
-            public GearBox()
+            public GearBox() //constructor
             {
                 gears[1] = new Gear(0, 1, 10, (float)0.55, 5);
+                gears[2] = new Gear(10, 1, 8, (float)0.5, 5);
+                gears[3] = new Gear(25, 1, 0, (float)0.5, (float)5.3);
+                gears[4] = new Gear(40, 1, 0, (float)0.4, (float)4.5);
+                gears[5] = new Gear(60, 1, 0, (float)0.35, (float)4.2);
+            }
+
+            public float GetAcceleration(float busSpeed)
+            {
+                return gears[currentGear].GetAcceleration(busSpeed);
+            }
+
+            public void GearUp()
+            {
+                if (currentGear < maxGear)
+                    currentGear++;
+            }
+
+            public void GearDown()
+            {
+                if (currentGear > minGear)
+                    currentGear--;
             }
         }
 
@@ -120,16 +150,64 @@ namespace Testy_mapy
             return true;
         }
 
+        private Vector2 CalculateNewPosition(float busSpeed, float busDirection)
+        {
+            Vector2 newPosition;
+            newPosition.X = position.X + (busSpeed * (float)Math.Sin(busDirection));
+            newPosition.Y = position.Y - (busSpeed * (float)Math.Cos(busDirection));
+            return newPosition;
+        }
+
+        private void Collision()
+        {
+            speed = 0;
+        }
+
         public void Update(bool accelerate, bool brake, bool left, bool right, TimeSpan framesInterval) //main update function adjsuting speed, direction and so on
         {
-            
+            if (accelerate)
+                speed += gearBox.GetAcceleration(speed);
 
+            if (brake)
+                speed -= brakeAcc;
+
+            if (left)
+                sideAcc -= turnAcc;
+
+            if (right)
+                sideAcc += turnAcc;
+
+            if (!left && !right && sideAcc != 0)
+                if (sideAcc > 0)
+                {
+                    sideAcc -= sideAccLoss;
+                    if (sideAcc < 0)
+                        sideAcc = 0;
+                }
+                else
+                {
+                    sideAcc += sideAccLoss;
+                    if (sideAcc > 0)
+                        sideAcc = 0;
+                }
+
+            float newDirection = direction + sideAcc;                        //calculate new postion and direction, they cant be
+            Vector2 newPosition = CalculateNewPosition(speed, newDirection); //changed without collisions check
+
+            if (IsPositionAvailable(newPosition, newDirection))
+            {
+                position = newPosition;
+                direction = newDirection;
+            }
+            else
+                Collision();
 
         }
 
         public List<Vector2> GetPointsToDraw() //temp
         {
             List<Vector2> points = GetCollisionPoints(position, direction);
+            points.Add(position);
             return points;
         }
     }
