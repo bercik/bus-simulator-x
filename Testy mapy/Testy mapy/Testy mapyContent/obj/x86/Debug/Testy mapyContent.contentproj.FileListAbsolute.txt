@@ -1,3 +1,4 @@
 D:\multimedia\Projects\Testy mapy\Testy mapy\Testy mapyContent\obj\x86\Debug\ResolveAssemblyReference.cache
 C:\Users\Robert\Documents\Visual Studio 2010\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapyContent\obj\x86\Debug\ResolveAssemblyReference.cache
 H:\Projects\Projects\testy mapy\Testy mapy\Testy mapy\Testy mapyContent\obj\x86\Debug\ResolveAssemblyReference.cache
+K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapyContent\obj\x86\Debug\ResolveAssemblyReference.cache
