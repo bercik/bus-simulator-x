@@ -51,6 +51,7 @@ namespace Testy_mapy
 
             public GearBox()
             {
+                public Gear(float optimalSpeed, float accelerationMultiplier, float addToSpeed, float logBase, float addToAll)
                 gears[0] = new Gear();
             }
         }
