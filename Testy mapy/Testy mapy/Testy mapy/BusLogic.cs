@@ -49,10 +49,18 @@ namespace Testy_mapy
             int currentGear = 1;
             Gear[] gears = new Gear[5];
 
+          /*  public float GetAcceleration()
+            {
+                float acceleration;
+
+                acceleration = gears[currentGear];
+
+                return acceleration;
+            }*/
+
             public GearBox()
             {
-                public Gear(float optimalSpeed, float accelerationMultiplier, float addToSpeed, float logBase, float addToAll)
-                gears[0] = new Gear();
+                gears[1] = new Gear(0, 1, 10, (float)0.55, 5);
             }
         }
 
