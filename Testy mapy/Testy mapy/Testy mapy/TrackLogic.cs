@@ -8,16 +8,32 @@ using System.IO;
 namespace Testy_mapy
 {
     enum Rotation {rot0 = 0, rot90 = 1, rot180 = 2, rot270 = 3}
+    enum Location { vertical, horizontal } // polozenie ulicy (pionowe lub poziome)
 
     struct Connection
     {
         public readonly Vector2 point1; // punkt wyjscia z jednego skrzyzowania (tylko do odczytu)
-        public Vector2 point2; // -||- z drugiego skrzyżowania(jezeli (0,0) to znaczy, ze nie zainicjowano tego punktu)
+        public Vector2 point2; // !!! -||- z drugiego skrzyżowania(jezeli (0,0) to znaczy, ze nie zainicjowano tego punktu)
 
         public Connection(Vector2 point1)
         {
             this.point1 = point1;
             point2 = Vector2.Zero;
+        }
+
+        public Vector2 DifferenceDistance()
+        {
+            return new Vector2(Math.Abs(point2.X - point1.X), Math.Abs(point2.Y - point1.Y));
+        }
+
+        public bool IsPoint1HigherThanPoint2()
+        {
+            if (point1.X > point2.X)
+                return true;
+            else if (point1.Y > point2.Y)
+                return true;
+            else
+                return false;
         }
     }
 
@@ -88,6 +104,10 @@ namespace Testy_mapy
             this.origin = origin;
             this.size = size;
             this.rotation = rotation;
+
+            for (int i = 0; i < connections.Length; ++i)
+                connections[i] = new Connection(connections[i].point1 + pos);
+
             this.connections = connections;
         }
 
@@ -99,11 +119,46 @@ namespace Testy_mapy
         public readonly string name; // nazwa
     }
 
+    class Street
+    {
+        public readonly Vector2 pos;
+        public readonly Vector2 origin;
+        public readonly Vector2 size;
+        public readonly string name;
+        public readonly Location location;
+        public readonly float rotation;
+
+        public Street(int id, Vector2 pos, Vector2 size, Location location)
+        {
+            this.name = "street" + id.ToString();
+            this.pos = pos;
+            this.size = size;
+            this.location = location;
+            this.rotation = (int)location * 90;
+            this.origin = size / 2;
+        }
+    }
+
     class TrackLogic
     {
-        List<Junction> junctions;
         List<JunctionType> junctionTypes;
-        List<Vector2> streetTypes;
+        List<Junction> junctions;
+        List<Street> streets;
+        List<Connection> connections;
+        Vector2 streetSize;
+        Vector2 streetOrigin;
+        int amountOfStreets;
+        Random rand;
+
+        public TrackLogic()
+        {
+            junctions = new List<Junction>();
+            junctionTypes = new List<JunctionType>();
+            streets = new List<Street>();
+            connections = new List<Connection>();
+
+            rand = new Random();
+        }
 
         private void AddJunction(string s_object)
         {
@@ -120,16 +175,90 @@ namespace Testy_mapy
             AddJunction(id, pos, rotation, points.ToArray());
         }
 
-        public void AddJunction(int id, Vector2 pos, Rotation rotation, Vector2[] points)
+        private void GenerateStreet(Connection connection)
         {
-            junctions.Add(junctionTypes[id].Create(pos, rotation));
+            // można dodać metodę pozwalająca generować drogę pod każdym kątem
+            Vector2 differenceDistance = connection.DifferenceDistance();
+            
+            Location location; // polozenie ulic (poziome lub pionowe)
+            float startPosition; // startowa pozycja dodawania ulic
+            int numberOfStreets; // ilosc ulic pomiedzy polaczeniem
+
+            if ((numberOfStreets = (int)(differenceDistance.X / streetSize.Y)) != 0)
+            {
+                location = Location.horizontal;
+                startPosition = connection.point1.X;
+            }
+            else if ((numberOfStreets = (int)(differenceDistance.Y / streetSize.Y)) != 0)
+            {
+                location = Location.vertical;
+                startPosition = connection.point1.Y;
+            }
+            else
+            {
+                return;
+            }
+
+            Vector2 pos = (location == Location.horizontal) ? new Vector2(0, connection.point1.Y) 
+                    : new Vector2(connection.point1.X, 0);
+
+            for (int i = 0; i < numberOfStreets; ++i)
+            {
+                int id = rand.Next(0, amountOfStreets);
+
+                float f_pos = startPosition + streetOrigin.Y + streetSize.Y * i;
+                if (location == Location.horizontal)
+                    pos.X = f_pos;
+                else
+                    pos.Y = f_pos;
+
+                streets.Add(new Street(id, pos, streetSize, location));
+            }
         }
 
-        public TrackLogic()
+        private void AddConnections(Junction junction)
         {
-            junctions = new List<Junction>();
-            junctionTypes = new List<JunctionType>();
-            streetTypes = new List<Vector2>();
+            foreach (Connection connection in junction.connections)
+            {
+                if (!ContainConnection(connection) && connection.point1 != Vector2.Zero && connection.point2 != Vector2.Zero)
+                {
+                    Connection c = connection;
+
+                    if (connection.IsPoint1HigherThanPoint2())
+                    {
+                        c = new Connection(connection.point2);
+                        c.point2 = connection.point1;
+                    }
+
+                    connections.Add(c);
+                    GenerateStreet(c);
+                }
+            }
+        }
+
+        private bool ContainConnection(Connection connection)
+        {
+            for (int i = 0; i < connections.Count; ++i)
+            {
+                if ((connections[i].point1 == connection.point2 || connections[i].point1 == connection.point1)
+                    && (connections[i].point2 == connection.point1 || connections[i].point2 == connection.point2))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void AddJunction(int id, Vector2 pos, Rotation rotation, Vector2[] points)
+        {
+            Junction junction = junctionTypes[id].Create(pos, rotation);
+
+            for (int i = 0; i < points.Length; ++i)
+            {
+                junction.connections[i].point2 = points[i];
+            }
+
+            AddConnections(junction);
+            junctions.Add(junction);
         }
 
         public void AddJunctionType(Vector2 size, Direction[] directions)
@@ -137,21 +266,28 @@ namespace Testy_mapy
             junctionTypes.Add(new JunctionType(size, directions, junctionTypes.Count));
         }
 
-        public void AddStreetType(Vector2 size)
-        {
-            streetTypes.Add(size);
-        }
-
         public List<Object> getObjects()
         {
             List<Object> objects = new List<Object>();
 
+            foreach (Street street in streets)
+            {
+                objects.Add(new Object(street.name, street.pos, street.size, street.rotation));
+            }
             foreach (Junction junction in junctions)
             {
                 objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation));
             }
 
             return objects;
+        }
+
+        // nalezy wywolac ZAWSZE po wczytaniu tekstur ulic
+        public void SetStreetSize(Vector2 streetSize, int amountOfStreets)
+        {
+            this.streetSize = streetSize;
+            this.streetOrigin = streetSize / 2;
+            this.amountOfStreets = amountOfStreets;
         }
 
         // laduje trase z pliku
@@ -162,6 +298,8 @@ namespace Testy_mapy
             if (File.Exists(path))
             {
                 junctions.Clear();
+                streets.Clear();
+                connections.Clear();
 
                 FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
                 StreamReader sr = new StreamReader(fs);
