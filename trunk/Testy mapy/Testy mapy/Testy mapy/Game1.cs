@@ -65,6 +65,9 @@ namespace Testy_mapy
         /// </summary>
         protected override void LoadContent()
         {
+            // ustawianie wielkoœci ekranu w klasie Helper
+            Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
