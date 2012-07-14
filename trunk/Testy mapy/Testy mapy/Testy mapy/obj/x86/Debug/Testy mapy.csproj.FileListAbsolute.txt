@@ -64,8 +64,6 @@ D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction1.x
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\junction2.xnb
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\pole.xnb
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\przystanek.xnb
-D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street.xnb
-D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa1.xnb
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\font1.xnb
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Testy mapy.exe
@@ -76,3 +74,6 @@ D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Microsoft.Xna.Frame
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.exe
 D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\obj\x86\Debug\Testy mapy.pdb
 K:\SVN\Bus\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\C3.XNA.Primitives2D.dll
+D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street1.xnb
+D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\trawa0.xnb
+D:\testy mapy\Testy mapy\Testy mapy\Testy mapy\bin\x86\Debug\Content\street0.xnb

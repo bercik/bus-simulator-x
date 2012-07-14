@@ -142,10 +142,12 @@ namespace Testy_mapy
             size = new Vector2(junctions["junction2"].Width, junctions["junction2"].Height);
             trackLogic.AddJunctionType(size, directions);
 
-            // ladowanie tekstur i typow ulic
-            junctions.Add("street", Game.Content.Load<Texture2D>("street"));
-            size = new Vector2(junctions["street"].Width, junctions["street"].Height);
-            trackLogic.AddStreetType(size);
+            // ladowanie tekstur ulic
+            junctions.Add("street0", Game.Content.Load<Texture2D>("street0"));
+            junctions.Add("street1", Game.Content.Load<Texture2D>("street1"));
+
+            size = new Vector2(junctions["street0"].Width, junctions["street0"].Height);
+            trackLogic.SetStreetSize(size, 2);
 
             base.LoadContent();
         }
