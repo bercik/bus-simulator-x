@@ -23,6 +23,8 @@ namespace Testy_mapy
         DrawBus drawBus;
         BusLogic busLogic;
 
+        bool left, right, brake, accelerate, up, down, prevup, prevdown; //tymczasowe zmienne sluzace do sterowana autobusem
+
         int a_fps = 0;
         int fps = 60;
         double time = 0.0f;
@@ -39,7 +41,7 @@ namespace Testy_mapy
 
             mapa = new DrawMap(this);
             drawBus = new DrawBus();
-            busLogic = new BusLogic(pos.X, pos.Y, 0, 0, 100, 200);
+            busLogic = new BusLogic(pos.X, pos.Y, 0, 0, 50, 100); //stworz bus logic
 
             Components.Add(mapa);
         }
@@ -98,26 +100,50 @@ namespace Testy_mapy
             // TODO: Add your update logic here
             // obsluga klawiatury
             KeyboardState keybState = Keyboard.GetState();
-            if (keybState.IsKeyDown(Keys.Down))
-                pos.Y += 5.0f;
-            if (keybState.IsKeyDown(Keys.Up))
-                pos.Y -= 5.0f;
-            if (keybState.IsKeyDown(Keys.Right))
-                pos.X += 5.0f;
-            if (keybState.IsKeyDown(Keys.Left))
-                pos.X -= 5.0f;
-            if (keybState.IsKeyDown(Keys.Space))
-                pos = new Vector2(400, 240);
 
-            if (keybState.IsKeyDown(Keys.Escape))
-                Exit();
+            if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false; //powinien hamowac?
+
+            if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; //powinien przyspieszac?
+
+            if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false; //skrecamy w prawo?
+
+            if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false; //skrecamy w lewo?
+
+            if (keybState.IsKeyDown(Keys.Space)) busLogic.position = pos; //przywroc
+
+            if (keybState.IsKeyDown(Keys.Escape)) Exit(); //wyjdz
+
+            /*ZMIANY BIEGOW byc moze zostanie przeniesione do bus logic zeby nie smiecic, to wszystko zapobiega zmienieniu biegu z kazdym tickiem
+             ma sie zmieniac tylko przy nacisnieciu*/
+            if (keybState.IsKeyDown(Keys.A) && prevup)
+            {
+                up = true;
+                prevup = false;
+            }
+            else
+                up = false;
+
+            if (keybState.IsKeyUp(Keys.A))
+                prevup = true;
+
+            if (keybState.IsKeyDown(Keys.Z) && prevdown)
+            {
+                down = true;
+                prevdown = false;
+            }
+            else
+                down = false;
+
+            if (keybState.IsKeyUp(Keys.Z))
+                prevdown = true;
+            /*ZMIANY BIEGOW END*/
             
             if (keybState.IsKeyDown(Keys.L))
                 mapa.LoadMap("test.mp");
 
-            pos += new Vector2(0, 0);
+            busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
 
-            mapa.SetPosition(pos);
+            mapa.SetPosition(busLogic.position); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
 
             base.Update(gameTime);
         }
@@ -139,8 +165,12 @@ namespace Testy_mapy
             drawBus.DrawPoints(busLogic.GetPointsToDraw(), pos, new Vector2(800, 480));
 
             // zmienne pomocnicze rysowane na ekranie:
-            spriteBatch.DrawString(font, "X: " + pos.X, new Vector2(0, 0), Color.White);
-            spriteBatch.DrawString(font, "Y: " + pos.Y, new Vector2(0, 30), Color.White);
+            spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
+            spriteBatch.DrawString(font, "Y: " + busLogic.position.Y, new Vector2(0, 30), Color.White);
+            spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
+            spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 120), Color.White);
+            spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 150), Color.White);
+            spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 180), Color.White);
 
             // licznik FPS
             time += gameTime.ElapsedGameTime.TotalMilliseconds;
