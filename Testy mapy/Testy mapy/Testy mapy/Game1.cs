@@ -69,7 +69,7 @@ namespace Testy_mapy
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            drawBus.LoadContent(this.GraphicsDevice);
+            drawBus.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("font1");
 
@@ -161,8 +161,6 @@ namespace Testy_mapy
             base.Draw(gameTime);
 
             // TODO: Add your drawing code here
-
-            drawBus.DrawPoints(busLogic.GetPointsToDraw(), pos, new Vector2(800, 480));
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
