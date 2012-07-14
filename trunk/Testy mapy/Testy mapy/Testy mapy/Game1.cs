@@ -41,7 +41,7 @@ namespace Testy_mapy
 
             mapa = new DrawMap(this);
             drawBus = new DrawBus();
-            busLogic = new BusLogic(pos.X, pos.Y, 0, 0, 50, 100); //stworz bus logic
+            busLogic = new BusLogic(pos.X, pos.Y, 0, 0, new Vector2(50, 100)); //stworz bus logic
 
             Components.Add(mapa);
         }
@@ -146,7 +146,7 @@ namespace Testy_mapy
 
             busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
 
-            mapa.SetPosition(busLogic.position); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+            mapa.SetPosition(busLogic.GetBusPosition()); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
 
             base.Update(gameTime);
         }
@@ -164,6 +164,9 @@ namespace Testy_mapy
             base.Draw(gameTime);
 
             // TODO: Add your drawing code here
+
+            Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection());
+            drawBus.Draw(spriteBatch, busLogic.GetBusPosition(), bus);
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
