@@ -27,18 +27,18 @@ namespace Testy_mapy
             spriteBatch = new SpriteBatch(graphicsDevice);
         }
 
-        public void DrawPoints(List<Vector3> points, Vector2 screenPos, Vector2 screenSize)
+        public void DrawPoints(List<Vector2> points, Vector2 screenPos, Vector2 screenSize)
         {
             spriteBatch.Begin();
 
-            foreach (Vector3 point in points)
+            foreach (Vector2 point in points)
             {
                 Point p_point = new Point();
                 p_point.X = (int)(point.X - (screenPos.X - screenSize.X / 2));
                 p_point.Y = (int)(point.Y - (screenPos.Y - screenSize.Y / 2));
 
                 Rectangle rect = new Rectangle(p_point.X, p_point.Y, 4, 4);
-                Color color = (point.Z == 1 ? Color.Red : Color.White);
+                Color color = Color.White;
                 Primitives2D.FillRectangle(spriteBatch, rect, color);
             }
 

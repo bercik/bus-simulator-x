@@ -8,20 +8,51 @@ namespace Testy_mapy
 {
     class BusLogic
     {
-        private Vector2 position;
+        public Vector2 position;
         private float direction;
         private float speed;
         private float sideAcc;
         private float width;
         private float height;
 
-        private float brakeAcc = 2;
-        private float turnAcc = 2;
-        private float sideAccLoss = (float)0.5;
-        private float speedLoss = (float)0.5;
+        private float speedMultiplier = 2;
+        private float brakeAcc = 10;
+        private float turnAcc = (float)0.005;
+        private float sideAccLoss = (float)0.01;
+        private float speedDecay = (float)0.5;
 
+        private GearBox gearBox = new GearBox();
+        private Wheel wheel = new Wheel();     
 
-        private GearBox gearBox = new GearBox();     
+        public int GetCurrentGear()
+        {
+            return gearBox.currentGear;
+        }
+
+        public float GetCurrentSpeed()
+        {
+            return speed;
+        }
+
+        public float GetCurrentDirection()
+        {
+            return direction;
+        }
+        
+        public float GetCurrentAcceleration()
+        {
+            return gearBox.GetAcceleration(speed);
+        }
+        
+        public Vector2 GetBusPosition() //Get the center of the bus to draw the center of the map
+        {
+            Vector2 busPosition;
+
+            busPosition.X = position.X + (height * (float)Math.Sin(DegToRad(direction)) / 2);
+            busPosition.Y = position.Y - (height * (float)Math.Cos(DegToRad(direction)) / 2);
+
+            return busPosition;
+        }
 
         class GearBox //gearbox is responsible for calculating accelerations of the bus...
         {
@@ -62,18 +93,19 @@ namespace Testy_mapy
                 }
             }
 
-            int currentGear = 1;
+            public int currentGear = 1;
             int minGear = 0;
             int maxGear = 5;
             Gear[] gears = new Gear[6];
 
             public GearBox() //constructor
             {
-                gears[1] = new Gear(0, 1, 10, (float)0.55, 5);
-                gears[2] = new Gear(10, 1, 8, (float)0.5, 5);
-                gears[3] = new Gear(25, 1, 0, (float)0.5, (float)5.3);
-                gears[4] = new Gear(40, 1, 0, (float)0.4, (float)4.5);
-                gears[5] = new Gear(60, 1, 0, (float)0.35, (float)4.2);
+                gears[0] = new Gear(0, 1, 1, 1, 1);
+                gears[1] = new Gear(0, 5, 10, (float)0.55, 5);
+                gears[2] = new Gear(10, 5, 8, (float)0.5, 5);
+                gears[3] = new Gear(25, 5, 0, (float)0.5, (float)5.3);
+                gears[4] = new Gear(40, 5, 0, (float)0.4, (float)4.5);
+                gears[5] = new Gear(60, 5, 0, (float)0.35, (float)4.2);
             }
 
             public float GetAcceleration(float busSpeed)
@@ -94,6 +126,42 @@ namespace Testy_mapy
             }
         }
 
+        class Wheel //wheel is responsible for calculating changes in direction...
+        {
+            class AccelerationCurve //...and it is basically a curve
+            {
+                public float addToSpeed;
+                public bool numberIsNegative;
+                public float logBase;
+                public float addToAll;
+                public float ratio;
+
+                public AccelerationCurve(float addToSpeed, bool numberIsNegative, float logBase, float addToAll, float ratio) //constructor
+                {
+                    this.addToSpeed = addToSpeed;
+                    this.numberIsNegative = numberIsNegative;
+                    this.logBase = logBase;
+                    this.addToAll = addToAll;
+                    this.ratio = ratio;
+                }
+            }
+
+            private float optimalSpeed;
+            AccelerationCurve[] curves = new AccelerationCurve[2];
+
+            public Wheel() //constructor
+            {
+                curves[0] = new AccelerationCurve(20, true, (float)0.5, 5, (float)0.5);
+                curves[1] = new AccelerationCurve(20, false, (float)0.35, (float)5.3, (float)0.5);
+                optimalSpeed = 12;
+            }
+
+            /*public float GetAcceleration(float busSpeed)
+            {
+                //return;
+            }*/
+        }
+
         public BusLogic(float x, float y, float direction, float speed, float width, float height) //constructor
         {
             this.position.X = x;
@@ -102,39 +170,30 @@ namespace Testy_mapy
             this.speed = speed;
             this.width = width;
             this.height = height;
-        }
+        }        
 
-        public Vector2 GetBusPosition() //Get the center of the bus to draw the center of the map
+        private float DegToRad(float degrees) //convert degrees to radians
         {
-            Vector2 busPosition;
-
-            busPosition.X = position.X + (height * (float)Math.Sin(direction) / 2);
-            busPosition.Y = position.Y - (height * (float)Math.Cos(direction) / 2);
-
-            return busPosition;
+            return degrees * (float)Math.PI / 180;
         }
         
-        private List<Vector3> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
+        private List<Vector2> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
         {                                                                                 //used in IsPositionAvailable function
-            Vector3 p1, p2, p3, p4; //create 4 points
+            Vector2 p1, p2, p3, p4; //create 4 points
 
-            p3.X = busPosition.X + (width * (float)Math.Sin(45 - busDirection) / 2); //calculate their positions
-            p3.Y = busPosition.Y + (width * (float)Math.Cos(45 - busDirection) / 2);
-            p3.Z = 1;
+            p3.X = busPosition.X + ((width * (float)Math.Cos(DegToRad(busDirection))) / 2); //calculate their positions
+            p3.Y = busPosition.Y + ((width * (float)Math.Sin(DegToRad(busDirection))) / 2);
 
-            p4.X = busPosition.X - (width * (float)Math.Sin(45 - busDirection) / 2);
-            p4.Y = busPosition.Y - (width * (float)Math.Cos(45 - busDirection) / 2);
-            p4.Z = 0;
+            p4.X = busPosition.X - (width * (float)Math.Cos(DegToRad(busDirection)) / 2);
+            p4.Y = busPosition.Y - (width * (float)Math.Sin(DegToRad(busDirection)) / 2);
 
-            p1.X = p4.X + (height * (float)Math.Sin(busDirection));
-            p1.Y = p4.Y - (height * (float)Math.Cos(busDirection));
-            p1.Z = 0;
+            p1.X = p4.X + (height * (float)Math.Sin(DegToRad(busDirection)));
+            p1.Y = p4.Y - (height * (float)Math.Cos(DegToRad(busDirection)));
 
-            p2.X = p3.X + (height * (float)Math.Sin(busDirection));
-            p2.Y = p3.Y - (height * (float)Math.Cos(busDirection));
-            p2.Z = 0;
+            p2.X = p3.X + (height * (float)Math.Sin(DegToRad(busDirection)));
+            p2.Y = p3.Y - (height * (float)Math.Cos(DegToRad(busDirection)));
 
-            var pointsList = new List<Vector3> {p1, p2, p3 , p4 }; //create list and add points
+            var pointsList = new List<Vector2> {p1, p2, p3 , p4 }; //create list and add points
             return pointsList;
         }
 
@@ -157,8 +216,8 @@ namespace Testy_mapy
         private Vector2 CalculateNewPosition(float busSpeed, float busDirection)
         {
             Vector2 newPosition;
-            newPosition.X = position.X + (busSpeed * (float)Math.Sin(busDirection));
-            newPosition.Y = position.Y - (busSpeed * (float)Math.Cos(busDirection));
+            newPosition.X = position.X + (speedMultiplier * busSpeed * (float)Math.Sin(DegToRad(busDirection)));
+            newPosition.Y = position.Y - (speedMultiplier * busSpeed * (float)Math.Cos(DegToRad(busDirection)));
             return newPosition;
         }
 
@@ -167,19 +226,33 @@ namespace Testy_mapy
             speed = 0;
         }
 
-        public void Update(bool accelerate, bool brake, bool left, bool right, TimeSpan framesInterval) //main update function adjsuting speed, direction and so on
+        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, TimeSpan framesInterval) //main update function adjsuting speed, direction and so on
         {
+            float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000;
+
             if (accelerate)
-                speed += gearBox.GetAcceleration(speed);
+                speed += gearBox.GetAcceleration(speed) * timeCoherenceMultiplier;
 
             if (brake)
-                speed -= brakeAcc;
+                speed -= brakeAcc * timeCoherenceMultiplier;
+
+            if (speed < 0)
+                speed = 0;
 
             if (left)
                 sideAcc -= turnAcc;
 
             if (right)
                 sideAcc += turnAcc;
+
+            if (gearUp)
+                gearBox.GearUp();
+
+            if (gearDown)
+                gearBox.GearDown();
+
+            if (speed > 0)
+                speed = speed - speedDecay * timeCoherenceMultiplier;
 
             if (!left && !right && sideAcc != 0)
                 if (sideAcc > 0)
@@ -196,7 +269,13 @@ namespace Testy_mapy
                 }
 
             float newDirection = direction + sideAcc;                        //calculate new postion and direction, they cant be
-            Vector2 newPosition = CalculateNewPosition(speed, newDirection); //changed without collisions check
+            Vector2 newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection); //changed without collisions check
+
+            if (newDirection > 360)
+                newDirection -= 360;
+
+            if (newDirection < 0)
+                newDirection += 360;
 
             if (IsPositionAvailable(newPosition, newDirection))
             {
@@ -208,15 +287,20 @@ namespace Testy_mapy
 
         }
 
-        public List<Vector3> GetPointsToDraw() //temp
+        public List<Vector2> GetPointsToDraw() //temp
         {
-            List<Vector3> points = GetCollisionPoints(position, direction);
-            Vector3 point = new Vector3();
+            List<Vector2> points = GetCollisionPoints(position, direction);
+            Vector2 point = new Vector2();
             point.X = position.X;
             point.Y = position.Y;
-            point.Z = 1;
 
             points.Add(point);
+
+            point.X = GetBusPosition().X;
+            point.Y = GetBusPosition().Y;
+
+            points.Add(point);
+
             return points;
         }
     }
