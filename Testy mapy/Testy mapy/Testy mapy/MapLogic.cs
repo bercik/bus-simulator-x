@@ -91,8 +91,8 @@ namespace Testy_mapy
 
                 // metoda obliczajaca wspolrzedne punktow obiektu przy rotacji
                 float f_rotate = o.rotate;
-                Vector2 new_pos = o.pos - o.origin;
-                Vector2 center = new_pos + o.origin;
+                Vector2 new_pos = o.pos - o.origin; // lewy gorny punkt obiektu we wspolrzednych mapy
+                Vector2 center = new_pos + o.origin; // srodek
 
                 if (f_rotate > 180)
                     f_rotate -= 180;
