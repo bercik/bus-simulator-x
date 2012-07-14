@@ -12,10 +12,9 @@ namespace Testy_mapy
         private float direction;
         private float speed;
         private float sideAcc;
-        private float width;
-        private float height;
+        private Vector2 size;
 
-        private float speedMultiplier = 2;
+        private float speedMultiplier = 4;
         private float brakeAcc = 10;
         private float turnAcc = (float)0.005;
         private float sideAccLoss = (float)0.01;
@@ -48,10 +47,25 @@ namespace Testy_mapy
         {
             Vector2 busPosition;
 
-            busPosition.X = position.X + (height * (float)Math.Sin(DegToRad(direction)) / 2);
-            busPosition.Y = position.Y - (height * (float)Math.Cos(DegToRad(direction)) / 2);
+            busPosition.X = position.X + (size.Y * (float)Math.Sin(DegToRad(direction)) / 2);
+            busPosition.Y = position.Y - (size.Y * (float)Math.Cos(DegToRad(direction)) / 2);
 
             return busPosition;
+        }
+
+        public Vector2 GetOrigin()
+        {
+            return size / 2;
+        }
+
+        public Vector2 GetSize()
+        {
+            return size;
+        }
+
+        public float GetDirection()
+        {
+            return direction;
         }
 
         class GearBox //gearbox is responsible for calculating accelerations of the bus...
@@ -94,18 +108,18 @@ namespace Testy_mapy
             }
 
             public int currentGear = 1;
-            int minGear = 0;
+            int minGear = 1;
             int maxGear = 5;
             Gear[] gears = new Gear[6];
 
             public GearBox() //constructor
             {
                 gears[0] = new Gear(0, 1, 1, 1, 1);
-                gears[1] = new Gear(0, 5, 10, (float)0.55, 5);
-                gears[2] = new Gear(10, 5, 8, (float)0.5, 5);
-                gears[3] = new Gear(25, 5, 0, (float)0.5, (float)5.3);
-                gears[4] = new Gear(40, 5, 0, (float)0.4, (float)4.5);
-                gears[5] = new Gear(60, 5, 0, (float)0.35, (float)4.2);
+                gears[1] = new Gear(0, 10, 10, (float)0.55, 5);
+                gears[2] = new Gear(10, 10, 8, (float)0.5, 5);
+                gears[3] = new Gear(25, 10, 0, (float)0.5, (float)5.3);
+                gears[4] = new Gear(40, 10, 0, (float)0.4, (float)4.5);
+                gears[5] = new Gear(60, 10, 0, (float)0.35, (float)4.2);
             }
 
             public float GetAcceleration(float busSpeed)
@@ -156,42 +170,47 @@ namespace Testy_mapy
                 optimalSpeed = 12;
             }
 
-            /*public float GetAcceleration(float busSpeed)
+          /*  public float GetAcceleration(float busSpeed)
             {
+                float acceleration;
+                AccelerationCurve curve;
+
+               // if (busSpeed >= )
+
+               // acceleration = Math.Log();
                 //return;
             }*/
         }
 
-        public BusLogic(float x, float y, float direction, float speed, float width, float height) //constructor
+        public BusLogic(float x, float y, float direction, float speed, Vector2 size) //constructor
         {
             this.position.X = x;
             this.position.Y = y;
             this.direction = direction;
             this.speed = speed;
-            this.width = width;
-            this.height = height;
-        }        
+            this.size = size;
+        }
 
         private float DegToRad(float degrees) //convert degrees to radians
         {
-            return degrees * (float)Math.PI / 180;
+            return MathHelper.ToRadians(degrees);
         }
         
         private List<Vector2> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
         {                                                                                 //used in IsPositionAvailable function
             Vector2 p1, p2, p3, p4; //create 4 points
 
-            p3.X = busPosition.X + ((width * (float)Math.Cos(DegToRad(busDirection))) / 2); //calculate their positions
-            p3.Y = busPosition.Y + ((width * (float)Math.Sin(DegToRad(busDirection))) / 2);
+            p3.X = busPosition.X + ((size.X * (float)Math.Cos(DegToRad(busDirection))) / 2); //calculate their positions
+            p3.Y = busPosition.Y + ((size.X * (float)Math.Sin(DegToRad(busDirection))) / 2);
 
-            p4.X = busPosition.X - (width * (float)Math.Cos(DegToRad(busDirection)) / 2);
-            p4.Y = busPosition.Y - (width * (float)Math.Sin(DegToRad(busDirection)) / 2);
+            p4.X = busPosition.X - (size.X * (float)Math.Cos(DegToRad(busDirection)) / 2);
+            p4.Y = busPosition.Y - (size.X * (float)Math.Sin(DegToRad(busDirection)) / 2);
 
-            p1.X = p4.X + (height * (float)Math.Sin(DegToRad(busDirection)));
-            p1.Y = p4.Y - (height * (float)Math.Cos(DegToRad(busDirection)));
+            p1.X = p4.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
+            p1.Y = p4.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
-            p2.X = p3.X + (height * (float)Math.Sin(DegToRad(busDirection)));
-            p2.Y = p3.Y - (height * (float)Math.Cos(DegToRad(busDirection)));
+            p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
+            p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
             var pointsList = new List<Vector2> {p1, p2, p3 , p4 }; //create list and add points
             return pointsList;

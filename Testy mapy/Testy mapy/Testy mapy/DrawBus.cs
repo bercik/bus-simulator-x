@@ -24,12 +24,14 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
-            busTexture = content.Load<Texture2D>("beczka");
+            busTexture = content.Load<Texture2D>("bus");
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 pos)
+        public void Draw(SpriteBatch spriteBatch, Vector2 mapPosition, Object bus)
         {
-            spriteBatch.Draw(busTexture, pos, Color.White);
+            Vector2 position = Helper.MapPosToScreenPos(mapPosition, bus.pos);
+            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)bus.size.X, (int)bus.size.Y);
+            spriteBatch.Draw(busTexture, rect, null, Color.White, MathHelper.ToRadians(bus.rotate), bus.origin, SpriteEffects.None, 1);
         }
     }
 }
