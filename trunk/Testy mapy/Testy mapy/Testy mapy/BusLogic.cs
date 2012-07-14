@@ -11,13 +11,10 @@ namespace Testy_mapy
         public Vector2 position;
         private float direction;
         private float speed;
-        private float sideAcc;
         private Vector2 size;
-
+        
         private float speedMultiplier = 4;
-        private float brakeAcc = 10;
-        private float turnAcc = (float)0.005;
-        private float sideAccLoss = (float)0.01;
+        private float brakeAcc = 20;
         private float speedDecay = (float)0.5;
 
         private GearBox gearBox = new GearBox();
@@ -56,6 +53,11 @@ namespace Testy_mapy
         public Vector2 GetOrigin()
         {
             return size / 2;
+        }
+        
+        public float GetSideAcceleration()
+        {
+            return wheel.GetSideAcceleration();
         }
 
         public Vector2 GetSize()
@@ -162,24 +164,83 @@ namespace Testy_mapy
 
             private float optimalSpeed;
             AccelerationCurve[] curves = new AccelerationCurve[2];
+            private float sideAcc;
+            private float sideAccLoss = (float)1;
+            private float maxSideAcc = 1;
 
             public Wheel() //constructor
             {
-                curves[0] = new AccelerationCurve(20, true, (float)0.5, 5, (float)0.5);
-                curves[1] = new AccelerationCurve(20, false, (float)0.35, (float)5.3, (float)0.5);
+                curves[0] = new AccelerationCurve(20, true, (float)0.5, 5, (float)1);
+                curves[1] = new AccelerationCurve(20, false, (float)0.35, (float)5.3, (float)1);
                 optimalSpeed = 12;
             }
 
-          /*  public float GetAcceleration(float busSpeed)
+            public float GetSideAcceleration()
             {
-                float acceleration;
+                return sideAcc;
+            }
+
+            private float GetAcceleration(float busSpeed)
+            {
+                if (busSpeed == 0)
+                    return 0;
+                
                 AccelerationCurve curve;
 
-               // if (busSpeed >= )
+                if (busSpeed >= optimalSpeed)
+                    curve = curves[1];
+                else
+                    curve = curves[0];
 
-               // acceleration = Math.Log();
-                //return;
-            }*/
+                float speed = busSpeed;
+
+
+                if (curve.numberIsNegative)
+                    speed = -speed;
+
+                float acceleration = ((float)Math.Log(speed + curve.addToSpeed, curve.logBase) + curve.addToAll) * curve.ratio;
+                return acceleration;
+            }
+
+            public float GetDirectionChange(float busSpeed, bool right, bool left, float timeCoherenceMultiplier)
+            {
+                if (right)
+                    sideAcc = sideAcc + GetAcceleration(busSpeed) * timeCoherenceMultiplier;
+
+                if (left)
+                    sideAcc = sideAcc - GetAcceleration(busSpeed) * timeCoherenceMultiplier;
+
+                float maximalSideAcc;
+
+                if (busSpeed < 5)
+                    maximalSideAcc = (float)maxSideAcc / 2;
+                else
+                    maximalSideAcc = maxSideAcc;
+
+                if (sideAcc > maximalSideAcc)
+                    sideAcc = maximalSideAcc;
+
+                if (sideAcc < -maximalSideAcc)
+                    sideAcc = -maximalSideAcc;
+
+                if (sideAcc != 0 && !right && !left)
+                {
+                    if (sideAcc > 0)
+                    {
+                        sideAcc = sideAcc - sideAccLoss * timeCoherenceMultiplier;
+                        if (sideAcc < 0)
+                            sideAcc = 0;
+                    }
+                    else
+                    {
+                        sideAcc = sideAcc + sideAccLoss * timeCoherenceMultiplier;
+                        if (sideAcc > 0)
+                            sideAcc = 0;
+                    }
+                }
+
+                return sideAcc;
+            }
         }
 
         public BusLogic(float x, float y, float direction, float speed, Vector2 size) //constructor
@@ -258,12 +319,6 @@ namespace Testy_mapy
             if (speed < 0)
                 speed = 0;
 
-            if (left)
-                sideAcc -= turnAcc;
-
-            if (right)
-                sideAcc += turnAcc;
-
             if (gearUp)
                 gearBox.GearUp();
 
@@ -273,28 +328,8 @@ namespace Testy_mapy
             if (speed > 0)
                 speed = speed - speedDecay * timeCoherenceMultiplier;
 
-            if (!left && !right && sideAcc != 0)
-                if (sideAcc > 0)
-                {
-                    sideAcc -= sideAccLoss;
-                    if (sideAcc < 0)
-                        sideAcc = 0;
-                }
-                else
-                {
-                    sideAcc += sideAccLoss;
-                    if (sideAcc > 0)
-                        sideAcc = 0;
-                }
-
-            float newDirection = direction + sideAcc;                        //calculate new postion and direction, they cant be
+            float newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier); 
             Vector2 newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection); //changed without collisions check
-
-            if (newDirection > 360)
-                newDirection -= 360;
-
-            if (newDirection < 0)
-                newDirection += 360;
 
             if (IsPositionAvailable(newPosition, newDirection))
             {
