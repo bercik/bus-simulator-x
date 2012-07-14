@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace Testy_mapy
 {
-    enum Direction { Left, Right, Up, Down }
+    enum Direction { Up = 0, Right = 1, Down = 2, Left = 3 }
 
     class Grass
     {

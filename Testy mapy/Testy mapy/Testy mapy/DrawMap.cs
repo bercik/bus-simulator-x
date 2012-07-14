@@ -80,8 +80,17 @@ namespace Testy_mapy
                 foreach (Object o in objectsToShow)
                 {
                     Rectangle destinationRect = new Rectangle((int)o.pos.X, (int)o.pos.Y, (int)o.size.X, (int)o.size.Y);
-                    spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, SpriteEffects.None, 1);
+                    
+                    if (junctions.ContainsKey(o.name))
+                    {
+                        spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
+                                o.original_origin, SpriteEffects.None, 1);
+                    }
+                    else if (textures.ContainsKey(o.name))
+                    {
+                        spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
+                                o.original_origin, SpriteEffects.None, 1);
+                    }
                 }
 
                 spriteBatch.End();
@@ -100,7 +109,7 @@ namespace Testy_mapy
             textures.Add("pole", Game.Content.Load<Texture2D>("pole"));
             textures.Add("przystanek", Game.Content.Load<Texture2D>("przystanek"));
 
-            mapLogic.SetStandartObjectsSize(textures);
+            mapLogic.AddStandartObjectsSize(textures);
 
             // ladowanie tekstur trawy
             grass = new Dictionary<string, Texture2D>();
@@ -148,7 +157,10 @@ namespace Testy_mapy
 
         public void LoadTrack(string path)
         {
-            trackLogic.LoadTrack(path);
+            if (trackLogic.LoadTrack(path))
+            {
+                mapLogic.AddObjectsToChunks(trackLogic.getObjects(), true);
+            }
         }
 
         public void SetPosition(Vector2 pos)

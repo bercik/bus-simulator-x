@@ -31,6 +31,11 @@ namespace Testy_mapy
                                                          // uwzględnij rotację o 45 stopni
                                                          //(czyli przemnoż przez pierwiastek z 2)
 
+        public MapLogic()
+        {
+            standart_size = new Dictionary<string, Vector2>();
+        }
+
         private void CreateChunks(int screenWidth, int screenHeight, int mapWidth, int mapHeight)
         {
             screenSize.Width = screenWidth;
@@ -51,7 +56,7 @@ namespace Testy_mapy
             }
         }
 
-        private void AddObjectToChunk(string s_object, Dictionary<string, Vector2> standart_size)
+        private void AddObjectToChunk(string s_object)
         {
             string[] split = s_object.Split(new char[] { ';' });
 
@@ -60,6 +65,11 @@ namespace Testy_mapy
             Vector2 size = new Vector2(Int32.Parse(split[3]), Int32.Parse(split[4]));
             float rotate = float.Parse(split[5]);
 
+            AddObjectToChunk(name, pos, size, rotate, false);
+        }
+
+        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, bool atTheBeginning)
+        {
             if (size.X == 0)
                 size.X = standart_size[name].X;
             if (size.Y == 0)
@@ -70,7 +80,7 @@ namespace Testy_mapy
             int x = (int)pos.X / chunkSize.Width;
             int y = (int)pos.Y / chunkSize.Height;
 
-            chunks[x, y].AddObject(o);
+            chunks[x, y].AddObject(o, atTheBeginning);
         }
 
         private void GetObjectsToShowFromChunk(ref List<Object> objectsToShow, int x, int y, Vector2 pos)
@@ -112,7 +122,12 @@ namespace Testy_mapy
 
 
                 // SPRAWDZANIE PUNKTOW
-                Vector2 differenceSize = o.size - standart_size[o.name];
+                Vector2 differenceSize;
+
+                if (standart_size.ContainsKey(o.name))
+                    differenceSize = o.size - standart_size[o.name];
+                else
+                    differenceSize = new Vector2(0, 0);
 
                 if (SmallWidth(Math.Abs(pos.X - x1) - differenceSize.X))
                     b_x = true;
@@ -128,7 +143,10 @@ namespace Testy_mapy
                     Object oToAdd = new Object(o.name, new Vector2(0, 0), o.size, o.rotate);
                     oToAdd.pos.X = o.pos.X - (pos.X - screenSize.Width / 2);
                     oToAdd.pos.Y = o.pos.Y - (pos.Y - screenSize.Height / 2);
-                    oToAdd.original_origin = standart_size[o.name] / 2;
+                    if (standart_size.ContainsKey(o.name))
+                        oToAdd.original_origin = standart_size[o.name] / 2;
+                    else
+                        oToAdd.original_origin = o.origin;
                     //oToAdd.pos += o.origin; //nieaktywne - sprawia, ze wspolrzedne pozycji wyznaczaja srodek obiektu; aktywne - lewy gorny rog
                     objectsToShow.Add(oToAdd);
                 }
@@ -162,10 +180,25 @@ namespace Testy_mapy
                     chunks[i, j].Clear();
         }
 
-        // należy wywołać ZAWSZE po wczytaniu tekstur obiektów
-        public void SetStandartObjectsSize(Dictionary<string, Microsoft.Xna.Framework.Graphics.Texture2D> textures)
+        public void AddObjectToChunk(Object o, bool atTheBeginning)
         {
-            standart_size = new Dictionary<string, Vector2>();
+            AddObjectToChunk(o.name, o.pos, o.size, o.rotate, atTheBeginning);
+        }
+
+        public void AddObjectsToChunks(List<Object> objects, bool atTheBeginning)
+        {
+            foreach (Object o in objects)
+                AddObjectToChunk(o, atTheBeginning);
+        }
+
+        public void ClearStandartObjectsSize()
+        {
+            standart_size.Clear();
+        }
+
+        // należy wywołać ZAWSZE po wczytaniu tekstur obiektów
+        public void AddStandartObjectsSize(Dictionary<string, Microsoft.Xna.Framework.Graphics.Texture2D> textures)
+        {
             List<string> keys = textures.Keys.ToList();
 
             foreach (string key in keys)
@@ -197,7 +230,7 @@ namespace Testy_mapy
 
                 while ((s_object = sr.ReadLine()) != null)
                 {
-                    AddObjectToChunk(s_object, standart_size);
+                    AddObjectToChunk(s_object);
                 }
 
                 return true;
@@ -252,9 +285,12 @@ namespace Testy_mapy
             objects = new List<Object>();
         }
 
-        public void AddObject(Object o)
+        public void AddObject(Object o, bool atTheBeginning)
         {
-            objects.Add(o);
+            if (atTheBeginning)
+                objects.Insert(0, o);
+            else
+                objects.Add(o);
         }
 
         public List<Object> GetObjects()

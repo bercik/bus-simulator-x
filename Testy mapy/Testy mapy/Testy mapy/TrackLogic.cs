@@ -7,12 +7,12 @@ using System.IO;
 
 namespace Testy_mapy
 {
-    enum Rotation {rot0 = 0, rot90 = 90, rot180 = 180, rot270 = 270}
+    enum Rotation {rot0 = 0, rot90 = 1, rot180 = 2, rot270 = 3}
 
     struct Connection
     {
-        public readonly Vector2 point1;
-        public Vector2 point2; // jezeli (0,0) to znaczy, ze nie zainicjowano tego punktu
+        public readonly Vector2 point1; // punkt wyjscia z jednego skrzyzowania (tylko do odczytu)
+        public Vector2 point2; // -||- z drugiego skrzyżowania(jezeli (0,0) to znaczy, ze nie zainicjowano tego punktu)
 
         public Connection(Vector2 point1)
         {
@@ -23,61 +23,80 @@ namespace Testy_mapy
 
     class JunctionType
     {
-        public Vector2 origin;
-        public Connection[] connections; // względem środka
-        protected int connectionsCount;
+        private Vector2 origin; // srodek skrzyzowania
+        private string name;
+        private Vector2 size;
+        private Direction[] directions; // kierunki wychodzenia tras
+        private static Vector2[] standartExitsPoint; // standartowe 4 punkty wychodzenia tras względem środka
 
         protected JunctionType()
         {
 
         }
 
-        public JunctionType(Vector2 size, Direction[] directions)
+        public JunctionType(Vector2 size, Direction[] directions, int id)
         {
-            origin = size / 2;
-            connectionsCount = directions.Length;
-            connections = new Connection[connectionsCount];
+            this.size = size;
+            this.origin = size / 2;
+            this.directions = directions;
+            this.name = "junction" + id.ToString();
+
+            if (standartExitsPoint == null)
+            {
+                standartExitsPoint = new Vector2[4];
+
+                standartExitsPoint[0] = new Vector2(0, -origin.Y); // GORA
+                standartExitsPoint[1] = new Vector2(origin.X, 0); // PRAWO
+                standartExitsPoint[2] = new Vector2(0, origin.Y); // DOL
+                standartExitsPoint[3] = new Vector2(-origin.X, 0); // LEWO
+            }
+        }
+
+        private Connection[] ComputeConnections(Rotation rotation)
+        {
+            Connection[] newConnections = new Connection[directions.Length];
+
+            int shift = (int)rotation;
 
             for (int i = 0; i < directions.Length; ++i)
             {
-                switch (directions[i])
-                {
-                    case Direction.Up:
-                        connections[i] = new Connection(new Vector2(0, -origin.Y));
-                        break;
-                    case Direction.Right:
-                        connections[i] = new Connection(new Vector2(origin.X, 0));
-                        break;
-                    case Direction.Down:
-                        connections[i] = new Connection(new Vector2(0, origin.Y));
-                        break;
-                    case Direction.Left:
-                        connections[i] = new Connection(new Vector2(-origin.X, 0));
-                        break;
-                }
+                directions[i] += shift;
+
+                if ((int)directions[i] > 3)
+                    directions[i] -= 4;
+
+                newConnections[i] = new Connection(standartExitsPoint[(int)directions[i]]);
             }
+
+            return newConnections;
         }
 
         public Junction Create(Vector2 pos, Rotation rotation)
         {
-            Junction junction = new Junction(); // raport pelikana film obejrzeć
-            
-            junction.connectionsCount = this.connectionsCount;
-            junction.connections = this.connections;
-            junction.origin = this.origin;
-            junction.pos = pos;
-            junction.rotation = rotation;
-
-            return junction;
+            // raport pelikana film obejrzeć
+            return new Junction(this.name, pos, this.origin, this.size, (int)rotation * 90, ComputeConnections(rotation));
         }
     }
 
-    class Junction : JunctionType
+    class Junction
     {
-        public Junction() { } // NIE tworzyć obiektów (wykorzystać do tego funkcje JunctionType.Create())
+        // NIE tworzyć obiektów (wykorzystać do tego funkcje JunctionType.Create())
+        public Junction(string name, Vector2 pos, Vector2 origin, Vector2 size, float rotation, Connection[] connections)
+        {
+            this.name = name;
+            this.pos = pos;
+            this.origin = origin;
+            this.size = size;
+            this.rotation = rotation;
+            this.connections = connections;
+        }
 
-        public Rotation rotation;
-        public Vector2 pos;
+        public readonly float rotation; // 0 - 0 stopni, 1 - 90 stopni, 2 - 180 stopni, 3 - 270 stopni
+        public readonly Vector2 pos; // pozycja srodka na mapie
+        public readonly Vector2 origin; // srodek skrzyzowania
+        public readonly Vector2 size; // wielkosc skrzyzowania
+        public readonly Connection[] connections; // polaczenia
+        public readonly string name; // nazwa
     }
 
     class TrackLogic
@@ -115,12 +134,24 @@ namespace Testy_mapy
 
         public void AddJunctionType(Vector2 size, Direction[] directions)
         {
-            junctionTypes.Add(new JunctionType(size, directions));
+            junctionTypes.Add(new JunctionType(size, directions, junctionTypes.Count));
         }
 
         public void AddStreetType(Vector2 size)
         {
             streetTypes.Add(size);
+        }
+
+        public List<Object> getObjects()
+        {
+            List<Object> objects = new List<Object>();
+
+            foreach (Junction junction in junctions)
+            {
+                objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation));
+            }
+
+            return objects;
         }
 
         // laduje trase z pliku
