@@ -28,7 +28,7 @@ namespace Testy_mapy
         int a_fps = 0;
         int fps = 60;
         double time = 0.0f;
-        Vector2 pos = new Vector2(1000, 600); //poczatkowa pozycja
+        Vector2 pos = new Vector2(1441, 1341); //poczatkowa pozycja
 
         public Game1()
         {

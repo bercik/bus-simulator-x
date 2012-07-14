@@ -81,12 +81,43 @@ namespace Testy_mapy
             int y = (int)pos.Y / chunkSize.Height;
 
             chunks[x, y].AddObject(o, atTheBeginning);
+
+            // dla obiektow wiekszych niz zakladane
+            bool b_x = false, b_y = false; // czy obiekt jest wiekszy od zakladanej wielkosci (na szerokosc i dlugosc)
+            
+            if (o.size.X > maxObjectSize.Width)
+            {
+                b_x = true;
+
+                if (x + 1 < numberOfChunks.X)
+                    chunks[x + 1, y].AddObject(o, atTheBeginning);
+                if (x - 1 > 0)
+                    chunks[x - 1, y].AddObject(o, atTheBeginning);
+            }
+            if (o.size.Y > maxObjectSize.Height)
+            {
+                b_y = true;
+
+                if (y + 1 < numberOfChunks.Y)
+                    chunks[x, y + 1].AddObject(o, atTheBeginning);
+                if (y - 1 > 0)
+                    chunks[x, y - 1].AddObject(o, atTheBeginning);
+            }
+
+            if (b_x || b_y)
+            {
+                //if (x + 1 < numberOfChunks.X && y + 1 < numberOfChunks.Y)
+                    //chunks[x + 1, y + 1].AddObject(o, atTheBeginning);
+            }
         }
 
-        private void GetObjectsToShowFromChunk(ref List<Object> objectsToShow, int x, int y, Vector2 pos)
+        private void GetObjectsToShowFromChunk(ref List<Object> objectsToShow, int x, int y, Vector2 mapPos)
         {
             foreach (Object o in chunks[x, y].GetObjects())
             {
+                if (objectsToShow.Contains(o)) // jezeli jest juz taki obiekt do wyswietlenia to nie dodajemy go
+                    continue;
+
                 bool b_x = false, b_y = false;
 
                 // metoda obliczajaca wspolrzedne punktow obiektu przy rotacji
@@ -122,27 +153,32 @@ namespace Testy_mapy
 
 
                 // SPRAWDZANIE PUNKTOW
-                Vector2 differenceSize;
-
-                if (standart_size.ContainsKey(o.name))
-                    differenceSize = o.size - standart_size[o.name];
-                else
-                    differenceSize = new Vector2(0, 0);
-
-                if (SmallWidth(Math.Abs(pos.X - x1) - differenceSize.X))
+                if (SmallWidth(Math.Abs(mapPos.X - x1)))
                     b_x = true;
-                else if (SmallWidth(Math.Abs(pos.X - x2) - differenceSize.X))
+                else if (SmallWidth(Math.Abs(mapPos.X - x2)))
                     b_x = true;
-                if (SmallHeight(Math.Abs(pos.Y - y1) - differenceSize.Y))
+                if (SmallHeight(Math.Abs(mapPos.Y - y1)))
                     b_y = true;
-                else if (SmallHeight(Math.Abs(pos.Y - y2) - differenceSize.Y))
+                else if (SmallHeight(Math.Abs(mapPos.Y - y2)))
                     b_y = true;
+                
+
+                if (!b_x) // sprawdzamy czy współrzędne X obiektu nie znajdują się pomiędzy ekranem
+                {
+                    if (CheckCord(mapPos.X, x1, x2, screenSize.Width))
+                        b_x = true;
+                }
+                if (!b_y) // analogicznie jak wyżej dla współrzędnych Y
+                {
+                    if (CheckCord(mapPos.Y, y1, y2, screenSize.Height))
+                        b_y = true;
+                }
 
                 if (b_x && b_y)
                 {
                     Object oToAdd = new Object(o.name, new Vector2(0, 0), o.size, o.rotate);
-                    oToAdd.pos.X = o.pos.X - (pos.X - screenSize.Width / 2);
-                    oToAdd.pos.Y = o.pos.Y - (pos.Y - screenSize.Height / 2);
+                    oToAdd.pos.X = o.pos.X - (mapPos.X - screenSize.Width / 2);
+                    oToAdd.pos.Y = o.pos.Y - (mapPos.Y - screenSize.Height / 2);
                     if (standart_size.ContainsKey(o.name))
                         oToAdd.original_origin = standart_size[o.name] / 2;
                     else
@@ -151,6 +187,19 @@ namespace Testy_mapy
                     objectsToShow.Add(oToAdd);
                 }
             }
+        }
+
+        // p1 - pierwsza współrzędna, p2 - druga współrzędna, screenSize - wielkość ekranu
+        private bool CheckCord(float mapPos, float p1, float p2, int screenSize)
+        {
+            if (p1 > p2) // sprawdzamy i ew. zmieniamy, zeby p1 bylo mniejsze od p2
+            {
+                float temp = p1;
+                p1 = p2;
+                p2 = temp;
+            }
+
+            return (p1 < mapPos - screenSize / 2 && p2 > mapPos + screenSize / 2);
         }
 
         private float ComputeRotationX(Vector2 point, Vector2 center, float angel)
@@ -239,18 +288,18 @@ namespace Testy_mapy
             return false;
         }
 
-        // pobiera liste obiektow do wyswietlenia (z odpowiednimi wspolrzednymi ekranowymi)
-        public List<Object> GetOBjectsToShow(Vector2 pos)
+        // pobiera liste obiektow do wyswietlenia (pos - pozycja srodka mapy)
+        public List<Object> GetOBjectsToShow(Vector2 mapPos)
         {
             List<Object> objectsToShow = new List<Object>();
 
             // x i y kawałka na którym się znajdujemy
-            int x = (int)pos.X / chunkSize.Width;
-            int y = (int)pos.Y / chunkSize.Height;
+            int x = (int)mapPos.X / chunkSize.Width;
+            int y = (int)mapPos.Y / chunkSize.Height;
 
             // bezwzgledna pozycja x i y (wobec krawedzi kawałka)
-            int abs_x = (int)pos.X - chunkSize.Width * x; 
-            int abs_y = (int)pos.Y - chunkSize.Height * y;
+            int abs_x = (int)mapPos.X - chunkSize.Width * x;
+            int abs_y = (int)mapPos.Y - chunkSize.Height * y;
             
             // od którego kawałka będziemy rozpoczynać wczytywanie listy obiektów do wyświetlenia
             int ch_x = (abs_x < chunkSize.Width / 2) ? -1 : 0;
@@ -268,7 +317,7 @@ namespace Testy_mapy
                     if (chunk_y < 0 || chunk_y >= numberOfChunks.Y)
                         continue;
 
-                    GetObjectsToShowFromChunk(ref objectsToShow, chunk_x, chunk_y, pos);
+                    GetObjectsToShowFromChunk(ref objectsToShow, chunk_x, chunk_y, mapPos);
                 }
             }
 
