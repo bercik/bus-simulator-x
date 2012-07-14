@@ -171,11 +171,12 @@ namespace Testy_mapy
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
             spriteBatch.DrawString(font, "Y: " + busLogic.position.Y, new Vector2(0, 30), Color.White);
-            spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
-            spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 120), Color.White);
-            spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 150), Color.White);
-            spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 180), Color.White);
+            spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);            
+            spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);            
+            spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);
 
+            spriteBatch.DrawString(font, "Speed: " + Math.Round(busLogic.GetCurrentSpeed()), new Vector2(0, 400), Color.White);
+            spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
             // licznik FPS
             time += gameTime.ElapsedGameTime.TotalMilliseconds;
             ++a_fps;
