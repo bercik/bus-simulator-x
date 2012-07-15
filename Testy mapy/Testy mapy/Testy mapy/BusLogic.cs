@@ -91,9 +91,11 @@ namespace Testy_mapy
                 float optimalSpeed;
                 float accelerationMultiplier;
                 AccelerationCurve accCurve;
+                bool reversedGear;
 
-                public Gear(float optimalSpeed, float accelerationMultiplier, float addToSpeed, float logBase, float addToAll) //constructor
+                public Gear(bool reversedGear, float optimalSpeed, float accelerationMultiplier, float addToSpeed, float logBase, float addToAll) //constructor
                 {
+                    this.reversedGear = reversedGear;
                     this.accCurve = new AccelerationCurve(addToSpeed, logBase, addToAll);
                     this.optimalSpeed = optimalSpeed;
                     this.accelerationMultiplier = accelerationMultiplier;
@@ -101,27 +103,48 @@ namespace Testy_mapy
 
                 public float GetAcceleration(float busSpeed) //each gear can calculate its own acceleration for given speed
                 {
-                    if (busSpeed < optimalSpeed) //if below opimal speed recalculate it to get the right curve
-                        busSpeed = optimalSpeed + (optimalSpeed - busSpeed);
+                    float calculationsSpeed = busSpeed;
 
-                    float acceleration = accelerationMultiplier * ((float)Math.Log(busSpeed + accCurve.addToSpeed, accCurve.logBase) + accCurve.addToAll);
+                    if (!reversedGear)
+                    {
+                        if (busSpeed < optimalSpeed) //if below opimal speed recalculate it to get the right curve
+                            calculationsSpeed = optimalSpeed + (optimalSpeed - busSpeed);
+                    }
+                    else
+                    {
+                        if (calculationsSpeed < 0)
+                            calculationsSpeed = -calculationsSpeed;
+
+                        if (busSpeed > 0)
+                            calculationsSpeed = 0;
+                    }
+
+                    float acceleration = accelerationMultiplier * ((float)Math.Log(calculationsSpeed + accCurve.addToSpeed, accCurve.logBase) + accCurve.addToAll);
+
+                    if (!reversedGear && busSpeed < 0 && acceleration < 0)
+                        acceleration = -acceleration;
+
+                    if (reversedGear && acceleration > 0)
+                        acceleration = -acceleration;
+
+
                     return acceleration;
                 }
             }
 
             public int currentGear = 1;
-            int minGear = 1;
+            int minGear = 0;
             int maxGear = 5;
             Gear[] gears = new Gear[6];
 
             public GearBox() //constructor
             {
-                gears[0] = new Gear(0, 1, 1, 1, 1);
-                gears[1] = new Gear(0, 10, 10, (float)0.55, 5);
-                gears[2] = new Gear(10, 10, 8, (float)0.5, 5);
-                gears[3] = new Gear(25, 10, 0, (float)0.5, (float)5.3);
-                gears[4] = new Gear(40, 10, 0, (float)0.4, (float)4.5);
-                gears[5] = new Gear(60, 10, 0, (float)0.35, (float)4.2);
+                gears[0] = new Gear(true, 0, 10, 10, (float)0.55, 5);
+                gears[1] = new Gear(false, 0, 10, 10, (float)0.55, 5);
+                gears[2] = new Gear(false, 10, 10, 8, (float)0.5, 5);
+                gears[3] = new Gear(false, 25, 10, 0, (float)0.5, (float)5.3);
+                gears[4] = new Gear(false, 40, 10, 0, (float)0.4, (float)4.5);
+                gears[5] = new Gear(false, 60, 10, 0, (float)0.35, (float)4.2);
             }
 
             public float GetAcceleration(float busSpeed)
@@ -170,7 +193,7 @@ namespace Testy_mapy
 
             public Wheel() //constructor
             {
-                curves[0] = new AccelerationCurve(20, true, (float)0.5, 5, (float)1);
+                curves[0] = new AccelerationCurve(20, true, (float)0.6, 6, (float)1);
                 curves[1] = new AccelerationCurve(20, false, (float)0.35, (float)5.3, (float)1);
                 optimalSpeed = 12;
             }
@@ -212,7 +235,7 @@ namespace Testy_mapy
 
                 float maximalSideAcc;
 
-                if (busSpeed < 5)
+                if (busSpeed < 10)
                     maximalSideAcc = (float)maxSideAcc / 2;
                 else
                     maximalSideAcc = maxSideAcc;
@@ -314,10 +337,21 @@ namespace Testy_mapy
                 speed += gearBox.GetAcceleration(speed) * timeCoherenceMultiplier;
 
             if (brake)
-                speed -= brakeAcc * timeCoherenceMultiplier;
+            {
+                if (speed > 0)
+                {
+                    speed -= brakeAcc * timeCoherenceMultiplier;
+                    if (speed < 0)
+                        speed = 0;
+                }
 
-            if (speed < 0)
-                speed = 0;
+                if (speed < 0)
+                {
+                    speed += brakeAcc * timeCoherenceMultiplier;
+                    if (speed > 0)
+                        speed = 0;
+                }
+            }
 
             if (gearUp)
                 gearBox.GearUp();
