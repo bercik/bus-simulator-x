@@ -414,7 +414,6 @@ namespace Testy_mapy
             }
             else
                 Collision();
-
         }
 
         public List<Vector2> GetPointsToDraw() //temp
