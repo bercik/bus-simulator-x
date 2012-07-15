@@ -272,11 +272,11 @@ namespace Testy_mapy
 
             foreach (Street street in streets)
             {
-                objects.Add(new Object(street.name, street.pos, street.size, street.rotation));
+                objects.Add(new Object(street.name, street.pos, street.size, street.rotation, false));
             }
             foreach (Junction junction in junctions)
             {
-                objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation));
+                objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation, false));
             }
 
             return objects;

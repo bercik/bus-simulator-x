@@ -20,6 +20,11 @@ namespace Testy_mapy
             this.point3 = point3;
             this.point4 = point4;
         }
+
+        public bool IsInside(Vector2 point) // czy punkt jest w środku kwadratu
+        {
+            return Helper.IsInside(point, this);
+        }
     }
 
     struct Size
@@ -31,6 +36,18 @@ namespace Testy_mapy
         {
             this.Width = Width;
             this.Height = Height;
+        }
+    }
+
+    struct Line
+    {
+        public Vector2 start; //punkt poczatkowy
+        public Vector2 end; //punkt koncowy
+
+        public Line(Vector2 start, Vector2 end)
+        {
+            this.start = start;
+            this.end = end;
         }
     }
 
@@ -48,18 +65,6 @@ namespace Testy_mapy
             return pos - (currentMapPos - screenSize / 2);
         }
 
-        public struct Line
-        {
-            public Vector2 start; //punkt poczatkowy
-            public Vector2 end; //punkt koncowy
-
-            public Line(Vector2 start, Vector2 end)
-            {
-                this.start = start;
-                this.end = end;
-            }
-        }
-
         public static bool IsInside(Vector2 point, MyRectangle rectangle) //podaj punkt i kwadrat 
         {
             Line line1 = new Line(rectangle.point1, rectangle.point2);
@@ -73,7 +78,7 @@ namespace Testy_mapy
                 return false;
         }
         
-        private static bool CheckOneLine(Vector2 point, Line line) //sprawdza jeden bok prostokata dla IsInside, nieprzydatne do niczego innego
+        private static bool CheckOneLine(Vector2 point, Line line) //sprawdza jeden bok prostokata dla IsInside
         {
             //A * x + B * y + C = 0
             float A = -(line.end.Y - line.start.Y);
