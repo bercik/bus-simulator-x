@@ -169,5 +169,10 @@ namespace Testy_mapy
         {
             this.pos = pos;
         }
+
+        public bool IsCollision(Vector2 point)
+        {
+            return mapLogic.isCollision(point);
+        }
     }
 }
