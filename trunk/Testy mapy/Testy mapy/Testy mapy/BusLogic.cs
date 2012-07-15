@@ -187,6 +187,7 @@ namespace Testy_mapy
 
             private float optimalSpeed;
             AccelerationCurve[] curves = new AccelerationCurve[2];
+            AccelerationCurve[] maxCurves = new AccelerationCurve[2];
             private float sideAcc;
             private float sideAccLoss = (float)1;
             private float maxSideAcc = 1;
@@ -195,6 +196,8 @@ namespace Testy_mapy
             {
                 curves[0] = new AccelerationCurve(20, true, (float)0.6, 6, (float)1);
                 curves[1] = new AccelerationCurve(20, false, (float)0.35, (float)5.3, (float)1);
+                maxCurves[0] = new AccelerationCurve(20, true, (float)0.6, 6, (float)0.5);
+                maxCurves[1] = new AccelerationCurve(20, false, (float)0.35, (float)5.3, (float)0.5);
                 optimalSpeed = 12;
             }
 
@@ -216,7 +219,33 @@ namespace Testy_mapy
                     curve = curves[0];
 
                 float speed = busSpeed;
+                
+                if (busSpeed < 0)
+                    busSpeed = -busSpeed;
 
+                if (curve.numberIsNegative)
+                    speed = -speed;
+
+                float acceleration = ((float)Math.Log(speed + curve.addToSpeed, curve.logBase) + curve.addToAll) * curve.ratio;
+                return acceleration;
+            }
+
+            private float GetMaxSideAcceleration(float busSpeed)
+            {
+                if (busSpeed == 0)
+                    return 0;
+                
+                AccelerationCurve curve;
+
+                if (busSpeed >= optimalSpeed)
+                    curve = maxCurves[1];
+                else
+                    curve = maxCurves[0];
+
+                float speed = busSpeed;
+
+                if (busSpeed < 0)
+                    speed = -busSpeed;
 
                 if (curve.numberIsNegative)
                     speed = -speed;
@@ -235,10 +264,12 @@ namespace Testy_mapy
 
                 float maximalSideAcc;
 
-                if (busSpeed < 10)
+               /* if (busSpeed < 10)
                     maximalSideAcc = (float)maxSideAcc / 2;
                 else
-                    maximalSideAcc = maxSideAcc;
+                    maximalSideAcc = maxSideAcc;*/
+
+                maximalSideAcc = GetMaxSideAcceleration(busSpeed);
 
                 if (sideAcc > maximalSideAcc)
                     sideAcc = maximalSideAcc;
@@ -360,7 +391,18 @@ namespace Testy_mapy
                 gearBox.GearDown();
 
             if (speed > 0)
+            {
                 speed = speed - speedDecay * timeCoherenceMultiplier;
+                if (speed < 0)
+                    speed = 0;
+            }
+
+            if (speed < 0)
+            {
+                speed = speed + speedDecay * timeCoherenceMultiplier;
+                if (speed > 0)
+                    speed = 0;
+            }
 
             float newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier); 
             Vector2 newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection); //changed without collisions check
