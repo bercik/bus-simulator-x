@@ -8,7 +8,6 @@ using System.IO;
 namespace Testy_mapy
 {
     enum Rotation {rot0 = 0, rot90 = 1, rot180 = 2, rot270 = 3}
-    enum Location { vertical, horizontal } // polozenie ulicy (pionowe lub poziome)
 
     struct Connection
     {
@@ -317,6 +316,7 @@ namespace Testy_mapy
 
             return false;
         }
+        
         /*
         public Line CreateTrack(Vector2 size)
         {

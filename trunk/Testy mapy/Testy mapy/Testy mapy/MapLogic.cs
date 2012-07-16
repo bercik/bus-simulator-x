@@ -13,8 +13,9 @@ namespace Testy_mapy
         Size chunkSize;
         Size screenSize;
         Point numberOfChunks;
+        Vector2 mapPos;
         Dictionary<string, Vector2> standart_size;
-        List<Object> objectsToShow;
+        List<Object> objectsInRange;
 
         Size maxObjectSize = new Size(300, 300); // maksymalny możliwy rozmiar obiektu
                                                          // uwzględnij rotację o 45 stopni
@@ -156,11 +157,11 @@ namespace Testy_mapy
             myRect.point4 = ComputeRotation(pos1, center, f_rotate);
         }
 
-        private void GetObjectsToShowFromChunk(ref List<Object> objectsToShow, int x, int y, Vector2 mapPos)
+        private void GetObjectsInRangeFromChunk(ref List<Object> objectsInRange, int x, int y, Vector2 mapPos)
         {
             foreach (Object o in chunks[x, y].GetObjects())
             {
-                if (objectsToShow.Contains(o)) // jezeli jest juz taki obiekt do wyswietlenia to nie dodajemy go
+                if (objectsInRange.Contains(o)) // jezeli jest juz taki obiekt do wyswietlenia to nie dodajemy go
                     continue;
 
                 bool b_x = false, b_y = false;
@@ -193,15 +194,16 @@ namespace Testy_mapy
 
                 if (b_x && b_y)
                 {
-                    Object oToAdd = new Object(o.name, new Vector2(0, 0), o.size, o.rotate, o.collide);
-                    oToAdd.pos.X = o.pos.X - (mapPos.X - screenSize.Width / 2);
-                    oToAdd.pos.Y = o.pos.Y - (mapPos.Y - screenSize.Height / 2);
+                    Object oToAdd = new Object(o.name, o.pos, o.size, o.rotate, o.collide);
+
                     if (standart_size.ContainsKey(o.name))
                         oToAdd.original_origin = standart_size[o.name] / 2;
                     else
                         oToAdd.original_origin = o.origin;
+
                     //oToAdd.pos += o.origin; //nieaktywne - sprawia, ze wspolrzedne pozycji wyznaczaja srodek obiektu; aktywne - lewy gorny rog
-                    objectsToShow.Add(oToAdd);
+                    
+                    objectsInRange.Add(oToAdd);
                 }
             }
         }
@@ -318,10 +320,13 @@ namespace Testy_mapy
             return false;
         }
 
-        // pobiera liste obiektow do wyswietlenia (pos - pozycja srodka mapy)
-        public List<Object> GetOBjectsToShow(Vector2 mapPos)
+        // ustawia obiekty do wyswietlenia (pos - pozycja srodka mapy)
+        public void SetOBjectsInRange(Vector2 mapPos)
         {
-            List<Object> objectsToShow = new List<Object>();
+            // przypisujemy aktualna pozycje mapy
+            this.mapPos = mapPos;
+
+            List<Object> objectsInRange = new List<Object>();
 
             // x i y kawałka na którym się znajdujemy
             int x = (int)mapPos.X / chunkSize.Width;
@@ -347,22 +352,42 @@ namespace Testy_mapy
                     if (chunk_y < 0 || chunk_y >= numberOfChunks.Y)
                         continue;
 
-                    GetObjectsToShowFromChunk(ref objectsToShow, chunk_x, chunk_y, mapPos);
+                    GetObjectsInRangeFromChunk(ref objectsInRange, chunk_x, chunk_y, mapPos);
                 }
             }
 
-            this.objectsToShow = objectsToShow;
+            this.objectsInRange = objectsInRange;
+        }
+
+        // pobiera liste obiektow do wyswietlenia przeliczonych na wspolrzedne ekranowe (zapisana po wywolaniu metody SetObjectsInRange)
+        public List<Object> GetObjectsToShow()
+        {
+            List<Object> objectsToShow = new List<Object>(objectsInRange.Count);
+
+            for (int i = 0; i < objectsInRange.Count; ++i)
+            {
+                objectsToShow.Add((Object)objectsInRange[i].Clone());
+                objectsToShow[i].pos.X -= (mapPos.X - screenSize.Width / 2);
+                objectsToShow[i].pos.Y -= (mapPos.Y - screenSize.Height / 2);
+            }
 
             return objectsToShow;
+        }
+
+        // pobiera liste obiektow w zasiegu w wspolrzednych ekranowych (zapisana po wywolaniu metody SetObjectsInRange)
+        public List<Object> GetObjectsInRange()
+        {
+            return objectsInRange;
         }
 
         // zwraca true jezeli kolizja wystepuje
         public bool IsCollision(Vector2 point)
         {
-            foreach (Object o in objectsToShow)
+            foreach (Object o in objectsInRange)
             {
-                if (CheckCollision(o, point))
-                    return true;
+                if (o.collide)
+                    if (CheckCollision(o, point))
+                        return true;
             }
 
             return false;
@@ -409,7 +434,7 @@ namespace Testy_mapy
         }
     }
 
-    class Object
+    class Object : ICloneable
     {
         public string name;
         public float rotate;
@@ -440,6 +465,13 @@ namespace Testy_mapy
             this.size = size;
             this.rotate = rotate;
             this.collide = collide;
+        }
+
+        public object Clone()
+        {
+            Object other = (Object)this.MemberwiseClone();
+
+            return other;
         }
     }
 }

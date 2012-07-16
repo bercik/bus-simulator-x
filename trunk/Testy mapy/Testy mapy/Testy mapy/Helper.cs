@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework;
 
 namespace Testy_mapy
 {
+    enum Location { vertical, horizontal } // polozenie (pionowe lub poziome)
+
     struct MyRectangle
     {
         public Vector2 point1;
