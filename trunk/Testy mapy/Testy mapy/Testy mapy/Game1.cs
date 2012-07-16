@@ -147,19 +147,18 @@ namespace Testy_mapy
 
             /*---<LOGIKA AUTOBUSU>---*/
             busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
-            List<Vector2> collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
-            bool available = true;
-            foreach (Vector2 point in collisionPoints)
-                if (mapa.IsCollision(point))
-                    available = false;
-
-            if (available)
-                busLogic.AcceptNewPositionAndDirection();
-            else
-                busLogic.Collision();
+            Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
             /*---</LOGIKA AUTOBUSU>---*/
 
-            mapa.SetPosition(busLogic.GetBusPosition()); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+            mapa.SetPosition(busLogic.GetDesiredPosition()); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+
+            if (!mapa.IsCollision(collisionPoints))
+                busLogic.AcceptNewPositionAndDirection();
+            else
+            {
+                busLogic.Collision();
+                mapa.SetPosition(busLogic.GetBusPosition());
+            }
 
             base.Update(gameTime);
         }
