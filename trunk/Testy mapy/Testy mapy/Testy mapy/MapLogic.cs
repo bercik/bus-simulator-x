@@ -251,7 +251,7 @@ namespace Testy_mapy
                     chunks[i, j].Clear();
         }
 
-        private bool checkCollision(Object o, Vector2 point)
+        private bool CheckCollision(Object o, Vector2 point)
         {
             MyRectangle myRect;
             ComputePointsOnRotation(o, out myRect);
@@ -357,11 +357,11 @@ namespace Testy_mapy
         }
 
         // zwraca true jezeli kolizja wystepuje
-        public bool isCollision(Vector2 point)
+        public bool IsCollision(Vector2 point)
         {
             foreach (Object o in objectsToShow)
             {
-                if (checkCollision(o, point))
+                if (CheckCollision(o, point))
                     return true;
             }
 
@@ -369,11 +369,11 @@ namespace Testy_mapy
         }
 
         // zwraca true jezeli dla ktoregokolwiek punktu kolizja wystepuje
-        public bool isCollision(Vector2[] points)
+        public bool IsCollision(Vector2[] points)
         {
             foreach (Vector2 point in points)
             {
-                if (isCollision(point))
+                if (IsCollision(point))
                     return true;
             }
 
