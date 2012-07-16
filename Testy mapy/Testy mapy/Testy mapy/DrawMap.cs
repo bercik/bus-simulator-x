@@ -68,7 +68,7 @@ namespace Testy_mapy
                 backgroundLogic.UpdatePos(pos);
 
                 List<Grass> grassToShow = backgroundLogic.getGrassToShow();
-                List<Object> objectsToShow = mapLogic.GetOBjectsToShow(pos);
+                List<Object> objectsToShow = mapLogic.GetObjectsToShow();
 
                 spriteBatch.Begin();
 
@@ -168,6 +168,8 @@ namespace Testy_mapy
         public void SetPosition(Vector2 pos)
         {
             this.pos = pos;
+
+            mapLogic.SetOBjectsInRange(pos);
         }
 
         public bool IsCollision(Vector2 point)
