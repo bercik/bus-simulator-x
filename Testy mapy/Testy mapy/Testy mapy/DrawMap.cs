@@ -172,7 +172,12 @@ namespace Testy_mapy
 
         public bool IsCollision(Vector2 point)
         {
-            return mapLogic.isCollision(point);
+            return mapLogic.IsCollision(point);
+        }
+
+        public bool IsCollision(Vector2[] points)
+        {
+            return mapLogic.IsCollision(points);
         }
     }
 }
