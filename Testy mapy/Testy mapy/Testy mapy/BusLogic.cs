@@ -314,7 +314,7 @@ namespace Testy_mapy
             return MathHelper.ToRadians(degrees);
         }
         
-        public List<Vector2> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
+        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
         {                                                                                 //used in IsPositionAvailable function
             Vector2 p1, p2, p3, p4; //create 4 points
 
@@ -330,9 +330,9 @@ namespace Testy_mapy
             p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
             p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
-            List<Vector2> pointsList = new List<Vector2> {p1, p2, p3 , p4 }; //create list and add points
+            Vector2[] pointsArray = new Vector2[4] {p1, p2, p3 , p4 }; //create list and add points
 
-            return pointsList;
+            return pointsArray;
         }
 
         public Vector2 GetDesiredPosition()
@@ -410,23 +410,6 @@ namespace Testy_mapy
 
             newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier); 
             newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection);
-        }
-
-        public List<Vector2> GetPointsToDraw() //temp
-        {
-            List<Vector2> points = GetCollisionPoints(position, direction);
-            Vector2 point = new Vector2();
-            point.X = position.X;
-            point.Y = position.Y;
-
-            points.Add(point);
-
-            point.X = GetBusPosition().X;
-            point.Y = GetBusPosition().Y;
-
-            points.Add(point);
-
-            return points;
         }
     }
 }
