@@ -367,6 +367,18 @@ namespace Testy_mapy
 
             return false;
         }
+
+        // zwraca true jezeli dla ktoregokolwiek punktu kolizja wystepuje
+        public bool isCollision(Vector2[] points)
+        {
+            foreach (Vector2 point in points)
+            {
+                if (isCollision(point))
+                    return true;
+            }
+
+            return false;
+        }
     }
 
     class Chunk

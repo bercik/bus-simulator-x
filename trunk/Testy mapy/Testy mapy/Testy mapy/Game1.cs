@@ -194,7 +194,7 @@ namespace Testy_mapy
             // licznik FPS
             time += gameTime.ElapsedGameTime.TotalMilliseconds;
             ++a_fps;
-
+            
             spriteBatch.DrawString(font, "FPS: " + fps, new Vector2(0, 60), Color.White);
 
             if (time > 1000)

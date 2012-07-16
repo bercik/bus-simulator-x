@@ -266,6 +266,7 @@ namespace Testy_mapy
             junctionTypes.Add(new JunctionType(size, directions, junctionTypes.Count));
         }
 
+        // zwraca liste obiektow (skrzyzowan i ulic) do dodania do obiektow mapy (w celu pozniejszego wyswietlania)
         public List<Object> getObjects()
         {
             List<Object> objects = new List<Object>();
@@ -316,5 +317,15 @@ namespace Testy_mapy
 
             return false;
         }
+        /*
+        public Line CreateTrack(Vector2 size)
+        {
+
+        }
+
+        public Line ChangeTrack(Vector2 endPoint)
+        {
+
+        }*/
     }
 }
