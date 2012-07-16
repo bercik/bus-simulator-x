@@ -12,6 +12,9 @@ namespace Testy_mapy
         private float direction;
         private float speed;
         private Vector2 size;
+
+        private Vector2 newPosition;
+        private float newDirection;
         
         private float speedMultiplier = 4;
         private float brakeAcc = 20;
@@ -311,7 +314,7 @@ namespace Testy_mapy
             return MathHelper.ToRadians(degrees);
         }
         
-        private List<Vector2> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
+        public List<Vector2> GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
         {                                                                                 //used in IsPositionAvailable function
             Vector2 p1, p2, p3, p4; //create 4 points
 
@@ -327,24 +330,25 @@ namespace Testy_mapy
             p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
             p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
-            var pointsList = new List<Vector2> {p1, p2, p3 , p4 }; //create list and add points
+            List<Vector2> pointsList = new List<Vector2> {p1, p2, p3 , p4 }; //create list and add points
+
             return pointsList;
         }
 
-        private bool IsPositionAvailable(Vector2 busPosition, float busDirection) //check if new position is available
-        {            
-           // List<Vector2> pointsList = GetCollisionPoints(busPosition, busDirection); //create list of the points
+        public Vector2 GetDesiredPosition()
+        {
+            return newPosition;
+        }
 
-           // foreach(Vector2 point in pointsList)
-            //{
-                //[!marker] check if there is no collision on the map
-                /*something like
-                 if (isCollision(point))
-                   return false;
-                 */
-           // }
+        public float GetDesiredDirection()
+        {
+            return newDirection;
+        }
 
-            return true;
+        public void AcceptNewPositionAndDirection()
+        {
+            direction = newDirection;
+            position = newPosition;
         }
 
         private Vector2 CalculateNewPosition(float busSpeed, float busDirection)
@@ -355,7 +359,7 @@ namespace Testy_mapy
             return newPosition;
         }
 
-        private void Collision()
+        public void Collision()
         {
             speed = 0;
         }
@@ -404,16 +408,8 @@ namespace Testy_mapy
                     speed = 0;
             }
 
-            float newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier); 
-            Vector2 newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection); //changed without collisions check
-
-            if (IsPositionAvailable(newPosition, newDirection))
-            {
-                position = newPosition;
-                direction = newDirection;
-            }
-            else
-                Collision();
+            newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier); 
+            newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection);
         }
 
         public List<Vector2> GetPointsToDraw() //temp
