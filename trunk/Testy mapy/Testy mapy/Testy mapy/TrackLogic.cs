@@ -546,7 +546,6 @@ namespace Testy_mapy
                 }
 
                 connection = possibleConnections[rand.Next(possibleConnections.Length)];
-                junction = SearchJunctionFromEndPoint(connection.point2);
                 origin = junction.pos;
             }
             else
