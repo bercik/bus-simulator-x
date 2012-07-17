@@ -114,6 +114,7 @@
     <Compile Include="BusLogic.cs" />
     <Compile Include="DrawBus.cs" />
     <Compile Include="DrawMap.cs" />
+    <Compile Include="DrawTraffic.cs" />
     <Compile Include="MapLogic.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

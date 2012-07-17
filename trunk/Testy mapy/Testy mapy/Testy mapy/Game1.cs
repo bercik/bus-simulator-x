@@ -22,6 +22,8 @@ namespace Testy_mapy
         DrawMap mapa;
         DrawBus drawBus;
         BusLogic busLogic;
+        TrafficLogic trafficLogic;
+        DrawTraffic drawTraffic;
 
         bool left, right, brake, accelerate, up, down, prevup, prevdown; //tymczasowe zmienne sluzace do sterowana autobusem
 
@@ -42,6 +44,8 @@ namespace Testy_mapy
             mapa = new DrawMap(this);
             drawBus = new DrawBus();
             busLogic = new BusLogic(pos.X, pos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
+            trafficLogic = new TrafficLogic();
+            drawTraffic = new DrawTraffic();
 
             Components.Add(mapa);
         }
@@ -73,6 +77,7 @@ namespace Testy_mapy
 
             // TODO: use this.Content to load your game content here
             drawBus.LoadContent(this.Content);
+            drawTraffic.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("font1");
 
@@ -160,6 +165,8 @@ namespace Testy_mapy
                 mapa.SetPosition(busLogic.GetBusPosition());
             }
 
+            trafficLogic.Update(mapa, busLogic, gameTime.ElapsedGameTime);
+
             base.Update(gameTime);
         }
 
@@ -177,6 +184,10 @@ namespace Testy_mapy
 
             // TODO: Add your drawing code here
 
+            List<Object> vehiclesList = trafficLogic.GetAllVehicles();
+            foreach (Object vehicle in vehiclesList)
+               drawTraffic.Draw(spriteBatch, vehicle);
+            
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection(), false);
             drawBus.Draw(spriteBatch, bus);
 

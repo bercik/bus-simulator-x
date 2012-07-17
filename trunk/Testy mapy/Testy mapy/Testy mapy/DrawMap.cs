@@ -193,9 +193,9 @@ namespace Testy_mapy
         }
 
         // size okreœla o ile od krawêdzi mapy mo¿e byæ oddalone skrzy¿owanie
-        public void CreateTrack(Vector2 size)
+        public Connection CreateTrack(Vector2 size)
         {
-            trackLogic.CreateTrack(size);
+            return trackLogic.CreateTrack(size);
         }
 
         public void ChangeTrack(Vector2 endPoint, out Connection connection, out Vector2 origin)
