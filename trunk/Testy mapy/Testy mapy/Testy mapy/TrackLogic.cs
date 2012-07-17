@@ -409,6 +409,17 @@ namespace Testy_mapy
             return new Connection();
         }
 
+        private Junction SearchJunctionFromEndPoint(Vector2 endPoint)
+        {
+            foreach (Junction junction in junctions)
+            {
+                if (ContainEndPoint(junction, endPoint))
+                    return junction;
+            }
+
+            return null;
+        }
+
         public void AddJunction(int id, Vector2 pos, Rotation rotation, Vector2[] points)
         {
             Junction junction = junctionTypes[id].Create(pos, rotation, id);
@@ -518,30 +529,31 @@ namespace Testy_mapy
 
         public void ChangeTrack(Vector2 endPoint, out Connection connection, out Vector2 origin)
         {
-            foreach (Junction junction in junctions)
+            Junction junction = SearchJunctionFromEndPoint(endPoint);
+
+            if (junction != null)
             {
-                if (ContainEndPoint(junction, endPoint)) // szukamy skrzyzowania z ktorego wychodzi endPoint
+                Connection[] possibleConnections = new Connection[junction.connections.Length - 1];
+                int i = 0; // licznik
+
+                foreach (Connection c in junction.connections)
                 {
-                    Connection[] possibleConnections = new Connection[junction.connections.Length - 1];
-                    int i = 0; // licznik
-
-                    foreach (Connection c in junction.connections)
+                    if (c.point1 != endPoint && c.point2 != new Vector2(0, 0))
                     {
-                        if (c.point1 != endPoint && c.point2 != new Vector2(0, 0))
-                        {
-                            possibleConnections[i] = c;
-                            ++i;
-                        }
+                        possibleConnections[i] = c;
+                        ++i;
                     }
-
-                    connection = possibleConnections[rand.Next(possibleConnections.Length)];
-                    origin = junction.pos;
-                    return;
                 }
-            }
 
-            connection = new Connection();
-            origin = Vector2.Zero;
+                connection = possibleConnections[rand.Next(possibleConnections.Length)];
+                junction = SearchJunctionFromEndPoint(connection.point2);
+                origin = junction.pos;
+            }
+            else
+            {
+                connection = new Connection();
+                origin = Vector2.Zero;
+            }
         }
     }
 }
