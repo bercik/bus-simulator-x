@@ -9,7 +9,7 @@ namespace Testy_mapy
 {
     enum Rotation {rot0 = 0, rot90 = 1, rot180 = 2, rot270 = 3}
 
-    struct Connection
+    public struct Connection
     {
         public readonly Vector2 point1; // punkt wyjscia z jednego skrzyzowania (tylko do odczytu)
         public Vector2 point2; // !!! -||- z drugiego skrzyżowania(jezeli (0,0) to znaczy, ze nie zainicjowano tego punktu)
@@ -34,6 +34,15 @@ namespace Testy_mapy
             else
                 return false;
         }
+
+        // zwraca true jezeli obydwa punkty maja (0,0)
+        public bool IsEmpty()
+        {
+            if (point1 == Vector2.Zero && point2 == Vector2.Zero)
+                return true;
+            else
+                return false;
+        }
     }
 
     class JunctionType
@@ -47,6 +56,11 @@ namespace Testy_mapy
         protected JunctionType()
         {
 
+        }
+
+        public Direction[] GetDirections()
+        {
+            return directions;
         }
 
         public JunctionType(Vector2 size, Direction[] directions, int id)
@@ -75,29 +89,30 @@ namespace Testy_mapy
 
             for (int i = 0; i < directions.Length; ++i)
             {
-                directions[i] += shift;
+                int index = (int)directions[i] + shift;
 
-                if ((int)directions[i] > 3)
-                    directions[i] -= 4;
+                if (index > 3)
+                    index -= 4;
 
-                newConnections[i] = new Connection(standartExitsPoint[(int)directions[i]]);
+                newConnections[i] = new Connection(standartExitsPoint[index]);
             }
 
             return newConnections;
         }
 
-        public Junction Create(Vector2 pos, Rotation rotation)
+        public Junction Create(Vector2 pos, Rotation rotation, int id)
         {
             // raport pelikana film obejrzeć
-            return new Junction(this.name, pos, this.origin, this.size, (int)rotation * 90, ComputeConnections(rotation));
+            return new Junction(id, this.name, pos, this.origin, this.size, (int)rotation * 90, ComputeConnections(rotation));
         }
     }
 
     class Junction
     {
         // NIE tworzyć obiektów (wykorzystać do tego funkcje JunctionType.Create())
-        public Junction(string name, Vector2 pos, Vector2 origin, Vector2 size, float rotation, Connection[] connections)
+        public Junction(int id, string name, Vector2 pos, Vector2 origin, Vector2 size, float rotation, Connection[] connections)
         {
+            this.id = id;
             this.name = name;
             this.pos = pos;
             this.origin = origin;
@@ -116,6 +131,7 @@ namespace Testy_mapy
         public readonly Vector2 size; // wielkosc skrzyzowania
         public readonly Connection[] connections; // polaczenia
         public readonly string name; // nazwa
+        public readonly int id; // typ skrzyzowania
     }
 
     class Street
@@ -247,9 +263,156 @@ namespace Testy_mapy
             return false;
         }
 
+        // sprawdza czy dany punkt nalezy do skrzyzowania
+        private bool ContainEndPoint(Junction junction, Vector2 endPoint)
+        {
+            foreach (Connection connection in junction.connections)
+            {
+                if (connection.point1 == endPoint) // point1 to punkt wyjścia
+                    return true;
+            }
+
+            return false;
+        }
+
+        // pobiera skrzyzowania z obszaru wiekszego od wielkosci ekranu, mniejszego od wielkosci ekranu + zadanego
+        private List<Junction> GetJunctionsFromArea(Vector2 size, Vector2 mapPos)
+        {
+            List<Junction> junctionsFromArea = new List<Junction>();
+
+            foreach (Junction junction in junctions)
+            {
+                Vector2 distance = new Vector2();
+                distance.X = Math.Abs(mapPos.X - junction.pos.X) - junction.origin.X;
+                distance.Y = Math.Abs(mapPos.Y - junction.pos.Y) - junction.origin.Y;
+
+                Vector2 halfScreenSize = Helper.screenSize / 2;
+
+                // sprawdzamy czy dane skrzyzowanie jest w naszym zadanym obszarze dla szerokosci
+                if (distance.X > halfScreenSize.X && distance.X < halfScreenSize.X + size.X
+                        && distance.Y < halfScreenSize.Y + size.Y)
+                {
+                    junctionsFromArea.Add(junction);
+                    continue;
+                }
+
+                // j.w. dla wysokosci
+                if (distance.Y > halfScreenSize.Y && distance.Y < halfScreenSize.Y + size.Y
+                        && distance.X < halfScreenSize.X + size.X)
+                {
+                    junctionsFromArea.Add(junction);
+                    continue;
+                }
+            }
+
+            return junctionsFromArea;
+        }
+
+        // zwraca umiejscowienie skrzyzowania wzgledem obszaru ekranu
+        private Position GetJunctionPosition(Vector2 junctionPos, Vector2 junctionOrigin, Vector2 mapPos)
+        {
+            Position position_x, position_y; // pozycja wzgledem obszaru ekranu
+
+            Vector2 distance = mapPos - junctionPos; // dystans pomiedzy srodkiem mapy i srodkiem skrzyzowania
+            Vector2 halfScreenSize = Helper.screenSize / 2;
+            bool d_x = false, d_y = false; // czy skrzyzowanie wykracza poza ekran na szerokosc (d_x) i wysokosc (d_y)
+
+            if (Math.Abs(distance.X) > halfScreenSize.X + junctionOrigin.X)
+                d_x = true;
+            if (Math.Abs(distance.Y) > halfScreenSize.Y + junctionOrigin.Y)
+                d_y = true;
+
+            if (distance.X > 0)
+                position_x = Position.left;
+            else
+                position_x = Position.right;
+
+            if (distance.Y > 0)
+                position_y = Position.up;
+            else
+                position_y = Position.down;
+
+            if (d_x && d_y)
+            {
+                Position position;
+
+                if (position_y == Position.up)
+                    position = position_x + 1;
+                else
+                    position = position_x - 1;
+
+                return position;
+            }
+            else if (d_x)
+            {
+                return position_x;
+            }
+            else
+            {
+                return position_y;
+            }
+        }
+
+        /* zwraca polaczenie zgodnie z polozeniem skrzyzowania wzgledem ekranu (zwraca polaczenie w strone ekranu)
+         jezeli takiego polaczenia nie ma zwraca puste polaczenie */
+        private Connection GetConnectionFromPosition(Junction junction, Position position)
+        {
+            Direction[] directions = junctionTypes[junction.id].GetDirections(); // kierunki bez rotacji
+
+            int shift = (int)junction.rotation / 90; // przesuniecie kierunkow
+
+            for (int i = 0; i < directions.Length; ++i)
+            {
+                // obliczamy kierunki wychodzenia tras z skrzyzowania po rotacji
+                Direction newDirection = directions[i] + shift;
+
+                if ((int)newDirection > 3)
+                    newDirection -= 4;
+
+                // sprawdzamy czy skrzyzowanie posiada trase wychodzaca w kierunku ekranu
+                switch (position)
+                {
+                    case Position.down:
+                        if (newDirection == Direction.Up)
+                            return junction.connections[i];
+                        break;
+                    case Position.up:
+                        if (newDirection == Direction.Down)
+                            return junction.connections[i];
+                        break;
+                    case Position.left:
+                        if (newDirection == Direction.Right)
+                            return junction.connections[i];
+                        break;
+                    case Position.right:
+                        if (newDirection == Direction.Left)
+                            return junction.connections[i];
+                        break;
+                    case Position.upLeft:
+                        if (newDirection == Direction.Right || newDirection == Direction.Down)
+                            return junction.connections[i];
+                        break;
+                    case Position.upRight:
+                        if (newDirection == Direction.Left || newDirection == Direction.Down)
+                            return junction.connections[i];
+                        break;
+                    case Position.downRight:
+                        if (newDirection == Direction.Left || newDirection == Direction.Up)
+                            return junction.connections[i];
+                        break;
+                    case Position.downLeft:
+                        if (newDirection == Direction.Right || newDirection == Direction.Up)
+                            return junction.connections[i];
+                        break;
+                }
+            }
+
+            return new Connection();
+        }
+
         public void AddJunction(int id, Vector2 pos, Rotation rotation, Vector2[] points)
         {
-            Junction junction = junctionTypes[id].Create(pos, rotation);
+            Junction junction = junctionTypes[id].Create(pos, rotation, id);
 
             for (int i = 0; i < points.Length; ++i)
             {
@@ -308,7 +471,8 @@ namespace Testy_mapy
 
                 while ((s_object = sr.ReadLine()) != null)
                 {
-                    AddJunction(s_object);
+                    if (!s_object.StartsWith("//"))
+                        AddJunction(s_object);
                 }
 
                 return true;
@@ -316,16 +480,64 @@ namespace Testy_mapy
 
             return false;
         }
-        
-        /*
-        public Line CreateTrack(Vector2 size)
-        {
 
+        // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
+        public Connection CreateTrack(Vector2 size, Vector2 mapPos)
+        {
+            List<Junction> junctionsFromArea = GetJunctionsFromArea(size, mapPos);
+
+            if (junctionsFromArea.Count == 0)
+                return new Connection();
+
+            Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
+
+            Position position = GetJunctionPosition(junction.pos, junction.origin, mapPos);
+
+            Connection newTrack = GetConnectionFromPosition(junction, position);
+
+            if (newTrack.IsEmpty())
+            {
+                int i = 0; // licznik
+                while (i < 5) // zwiekszyc jezeli chcemy zwiekszyc szanse na zwrocenie drogi (niekoniecznie zwroconej w strone ekranu)
+                {
+                    newTrack = junction.connections[rand.Next(junction.connections.Length)];
+                    ++i;
+
+                    if (newTrack.point2 != Vector2.Zero)
+                        return newTrack;
+                }
+            }
+            else if (newTrack.point2 != Vector2.Zero)
+            {
+                return newTrack;
+            }
+
+            return new Connection();
         }
 
-        public Line ChangeTrack(Vector2 endPoint)
+        public Connection ChangeTrack(Vector2 endPoint)
         {
+            foreach (Junction junction in junctions)
+            {
+                if (ContainEndPoint(junction, endPoint)) // szukamy skrzyzowania z ktorego wychodzi endPoint
+                {
+                    Connection[] possibleConnections = new Connection[junction.connections.Length - 1];
+                    int i = 0; // licznik
 
-        }*/
+                    foreach (Connection connection in junction.connections)
+                    {
+                        if (connection.point1 != endPoint && connection.point2 != new Vector2(0, 0))
+                        {
+                            possibleConnections[i] = connection;
+                            ++i;
+                        }
+                    }
+
+                    return possibleConnections[rand.Next(possibleConnections.Length)];
+                }
+            }
+
+            return new Connection();
+        }
     }
 }

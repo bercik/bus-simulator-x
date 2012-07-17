@@ -1,6 +1,4 @@
-6600;7800
-przystanek;800;500;200;200;140,0;1
-przystanek;500;600;0;0;0,0;1
-beczka;1000;1000;0;0;50,0;1
-beczka;800;700;0;0;45,0;1
-pole;1600;1300;500;500;0,0;0
+//szerokosc;wysokosc mapy
+//
+1800;2400
+//nazwa;pozycja x;pozycja y(srodka);szerokosc;wysokosc(domyslne-0);rotacja(0-360);kolizja;efekty(0-bez,1-odwroc poziomo,2-odwroc pionowo)
