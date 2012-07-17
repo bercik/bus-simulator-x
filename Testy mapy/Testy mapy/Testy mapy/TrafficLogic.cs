@@ -70,7 +70,7 @@ namespace Testy_mapy
 
             private float CalculateDirection(Vector2 start, Vector2 destination) //oblicz kierunek miedzy dwoma punktami 
             {
-                return MathHelper.ToDegrees((float)Math.Atan(destination.X - start.X / start.Y - destination.Y));
+                return MathHelper.ToDegrees((float)Math.Atan2(start.Y - destination.Y, destination.X - start.X));
             }
 
             private void CalculateLane()
@@ -102,7 +102,7 @@ namespace Testy_mapy
                         lane.coordinate = start.Y - width;
 
                     lane.line.start = new Vector2(start.X, lane.coordinate);
-                    lane.line.end = new Vector2(start.X, lane.coordinate);
+                    lane.line.end = new Vector2(destination.X, lane.coordinate);
                 }
             }
         }
@@ -205,7 +205,7 @@ namespace Testy_mapy
             public class RoadsSwitching
             {
                 private float bezierT = 0;
-                private float bezierTInc = (float)0.01;
+                private float bezierTInc = (float)0.005;
                 private Vector2 start;
                 private Vector2 destination;
                 private Vector2 controlPoint;
@@ -280,19 +280,24 @@ namespace Testy_mapy
                 {
                     Vector2 newPoint = roadsSwitching.GetNewPoint();
                     float newDirection = roadsSwitching.CalculateDirection(position, newPoint);
-
-                    if (newPoint == road.lane.line.start)
-                        redirecting = false;
-
+                    
                     direction = newDirection;
                     position = newPoint;
+
+                    if (newPoint == road.lane.line.start)
+                    {
+                        redirecting = false;
+                        direction = road.lane.direction;
+                    }
+
+                    
                 }
             }
         }
         
         private List<Vehicle> vehicles = new List<Vehicle>();
-        private int maxVehicles = 100; //maksymalna liczba pojazdow
-        private float spawnInterval = 1; //co ile spawnowac nowe pojazdy [s]
+        private int maxVehicles = 1; //maksymalna liczba pojazdow
+        private float spawnInterval = 0; //co ile spawnowac nowe pojazdy [s]
         private float lastSpawn = 0; //ostatni spawn [s]
         private Vector2 spawnDistance = new Vector2(500, 500);
 
@@ -334,6 +339,9 @@ namespace Testy_mapy
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
             {
                 Connection road = drawMap.CreateTrack(spawnDistance);
+
+                if (!(road.point1.X == 900 && road.point1.Y == 1050))
+                    return;
 
                 if (!road.IsEmpty())
                 {
