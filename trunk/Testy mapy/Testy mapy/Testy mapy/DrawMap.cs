@@ -146,6 +146,11 @@ namespace Testy_mapy
             size = new Vector2(junctions["junction2"].Width, junctions["junction2"].Height);
             trackLogic.AddJunctionType(size, directions);
 
+            junctions.Add("junction3", Game.Content.Load<Texture2D>("junction3"));
+            directions = new Direction[] { Direction.Right, Direction.Down };
+            size = new Vector2(junctions["junction3"].Width, junctions["junction3"].Height);
+            trackLogic.AddJunctionType(size, directions);
+
             // ladowanie tekstur ulic
             junctions.Add("street0", Game.Content.Load<Texture2D>("street0"));
             junctions.Add("street1", Game.Content.Load<Texture2D>("street1"));
@@ -188,14 +193,16 @@ namespace Testy_mapy
         }
 
         // size okreœla o ile od krawêdzi mapy mo¿e byæ oddalone skrzy¿owanie
-        public Connection CreateTrack(Vector2 size)
+        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin)
         {
-            return trackLogic.CreateTrack(size);
+            trackLogic.CreateTrack(size, out connection, out origin);
         }
 
-        public Connection ChangeTrack(Vector2 endPoint)
+        public void ChangeTrack(Vector2 endPoint, out Connection connection, out Vector2 origin)
         {
-            return trackLogic.ChangeTrack(endPoint);
+            trackLogic.ChangeTrack(endPoint, out connection, out origin);
         }
+
+
     }
 }
