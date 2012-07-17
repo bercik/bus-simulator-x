@@ -178,7 +178,7 @@ namespace Testy_mapy
             // TODO: Add your drawing code here
 
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection(), false);
-            drawBus.Draw(spriteBatch, busLogic.GetBusPosition(), bus);
+            drawBus.Draw(spriteBatch, bus);
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);

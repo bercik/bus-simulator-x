@@ -276,15 +276,15 @@ namespace Testy_mapy
         }
 
         // pobiera skrzyzowania z obszaru wiekszego od wielkosci ekranu, mniejszego od wielkosci ekranu + zadanego
-        private List<Junction> GetJunctionsFromArea(Vector2 size, Vector2 mapPos)
+        private List<Junction> GetJunctionsFromArea(Vector2 size)
         {
             List<Junction> junctionsFromArea = new List<Junction>();
 
             foreach (Junction junction in junctions)
             {
                 Vector2 distance = new Vector2();
-                distance.X = Math.Abs(mapPos.X - junction.pos.X) - junction.origin.X;
-                distance.Y = Math.Abs(mapPos.Y - junction.pos.Y) - junction.origin.Y;
+                distance.X = Math.Abs(Helper.mapPos.X - junction.pos.X) - junction.origin.X;
+                distance.Y = Math.Abs(Helper.mapPos.Y - junction.pos.Y) - junction.origin.Y;
 
                 Vector2 halfScreenSize = Helper.screenSize / 2;
 
@@ -309,11 +309,11 @@ namespace Testy_mapy
         }
 
         // zwraca umiejscowienie skrzyzowania wzgledem obszaru ekranu
-        private Position GetJunctionPosition(Vector2 junctionPos, Vector2 junctionOrigin, Vector2 mapPos)
+        private Position GetJunctionPosition(Vector2 junctionPos, Vector2 junctionOrigin)
         {
             Position position_x, position_y; // pozycja wzgledem obszaru ekranu
 
-            Vector2 distance = mapPos - junctionPos; // dystans pomiedzy srodkiem mapy i srodkiem skrzyzowania
+            Vector2 distance = Helper.mapPos - junctionPos; // dystans pomiedzy srodkiem mapy i srodkiem skrzyzowania
             Vector2 halfScreenSize = Helper.screenSize / 2;
             bool d_x = false, d_y = false; // czy skrzyzowanie wykracza poza ekran na szerokosc (d_x) i wysokosc (d_y)
 
@@ -482,16 +482,16 @@ namespace Testy_mapy
         }
 
         // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
-        public Connection CreateTrack(Vector2 size, Vector2 mapPos)
+        public Connection CreateTrack(Vector2 size)
         {
-            List<Junction> junctionsFromArea = GetJunctionsFromArea(size, mapPos);
+            List<Junction> junctionsFromArea = GetJunctionsFromArea(size);
 
             if (junctionsFromArea.Count == 0)
                 return new Connection();
 
             Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
 
-            Position position = GetJunctionPosition(junction.pos, junction.origin, mapPos);
+            Position position = GetJunctionPosition(junction.pos, junction.origin);
 
             Connection newTrack = GetConnectionFromPosition(junction, position);
 

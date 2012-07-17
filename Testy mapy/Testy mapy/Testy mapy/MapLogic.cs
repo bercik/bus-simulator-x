@@ -14,7 +14,21 @@ namespace Testy_mapy
         Size chunkSize;
         Size screenSize;
         Point numberOfChunks;
-        Vector2 mapPos;
+        
+        private Vector2 v_mapPos;
+        Vector2 mapPos
+        {
+            get
+            {
+                return v_mapPos;
+            }
+            set
+            {
+                v_mapPos = value;
+                Helper.mapPos = v_mapPos;
+            }
+        }
+
         Dictionary<string, Vector2> standart_size;
         List<Object> objectsInRange;
 
