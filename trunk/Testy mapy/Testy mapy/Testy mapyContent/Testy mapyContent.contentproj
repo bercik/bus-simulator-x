@@ -47,6 +47,11 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
+    <Compile Include="junction1.png">
+      <Name>junction1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
     <Compile Include="pole.png">
       <Name>pole</Name>
       <Importer>TextureImporter</Importer>
@@ -80,11 +85,6 @@
   <ItemGroup>
     <Compile Include="junction0.png">
       <Name>junction0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="junction1.png">
-      <Name>junction1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
