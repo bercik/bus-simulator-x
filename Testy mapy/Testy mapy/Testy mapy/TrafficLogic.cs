@@ -17,6 +17,44 @@ namespace Testy_mapy
                 public float direction;
             }
 
+            public bool EndReached(Vector2 position)
+            {
+                if (lane.isVertical)
+                {
+                    if (lane.direction == 0)
+                    {
+                        if (position.Y < destination.Y)
+                            return true;
+                        else
+                            return false;
+                    }
+                    else
+                    {
+                        if (position.Y > destination.Y)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                else
+                {
+                    if (lane.direction == 90)
+                    {
+                        if (position.X > destination.X)
+                            return true;
+                        else
+                            return false;
+                    }
+                    else
+                    {
+                        if (position.X < destination.X)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+            }
+
             public Vector2 start; //punkt poczatkowy
             public Vector2 destination; //punkt końcowy (cel)
             public Lane lane; //pas ruchu
@@ -65,10 +103,12 @@ namespace Testy_mapy
             public RoadsSwitching roadsSwitching;
             public RoadsFollowing roadsFollowing;
 
-            private bool driving; //jedzie czy został zmuszony do zatrzymania się?
-            public bool redirecting; //true kieruje sie do nowej drogi
+            private bool driving = true; //jedzie czy został zmuszony do zatrzymania się?
+            public bool redirecting = false; //true kieruje sie do nowej drogi
             private float speed; //aktualna predkosc
-            private Vector2 position;
+            private Vector2 position; //aktualna pozycja
+            private Vector2 size = new Vector2(50, 100);
+            private float direction;
 
             private float normalSpeed = 30; //predkosc standardowa przyjmowana podczas normalnego poruszania sie
             private float acceleration = 20; //standardowe przyspieszenie
@@ -78,10 +118,36 @@ namespace Testy_mapy
 
             public Vehicle(Vector2 start, Vector2 destination) //constructor
             {
-                this.road.start = start;
-                this.road.destination = destination;
+                this.road = new Road(start, destination);
                 this.position = start;
+                this.direction = road.lane.direction;
             }
+
+            public Vector2[] GetCollisionPoints() //returns 4 collision points
+            {
+                Vector2 p1, p2, p3, p4; //create 4 points
+
+                p3.X = position.X + ((size.X * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2); //calculate their positions
+                p3.Y = position.Y + ((size.X * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
+
+                p4.X = position.X - (size.X * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
+                p4.Y = position.Y - (size.X * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
+
+                p1.X = p4.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p1.Y = p4.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                p2.X = p3.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p2.Y = p3.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                Vector2[] pointsArray = new Vector2[4] {p4, p3, p2, p1}; //create list and add points
+
+                return pointsArray;
+            }
+
+            /*public Vector2[] GetDetectionPoints()
+            {
+
+            }*/
 
             public class RoadsSwitching
             {
@@ -122,34 +188,72 @@ namespace Testy_mapy
             {
                 public void Update()
                 {
-            
+
                 }
 
+            }
+
+            public void Update(BusLogic busLogic)
+            {
+               // if (!IsRoadClear())
+
+                if (!redirecting)
+                {
+                    if (road.EndReached(position))
+                    {
+
+                    }
+                    else
+                    {
+                        roadsFollowing.Update();
+                    }
+                }
             }
         }
         
         private List<Vehicle> vehicles;
-        private int maxVehicles = 10;
+        private int maxVehicles = 10; //maksymalna liczba pojazdow
+        private float spawnInterval = 1; //co ile spawnowac nowe pojazdy [s]
+        private float lastSpawn = 0; //ostatni spawn [s]
+        private Vector2 spawnDistance = new Vector2(500, 500);
 
-        private void CreateNewVehicles() //tworzenie nowych pojazdów
+        private bool IsRoadClear(Vector2[] points, BusLogic busLogic) //sprawdzanie czy mozna jechac czy trzeba hamowac
         {
-            int currentAmountOfVehicles = vehicles.Count();
-
-            if (currentAmountOfVehicles < maxVehicles)
-            { 
-                int neededVehicles = maxVehicles - currentAmountOfVehicles;
-                for (int i = 0; i < neededVehicles; i++)
+            foreach (Vector2 point in points)
+            {
+                Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
+                MyRectangle rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
+                if (Helper.IsInside(point, rectangle))
+                    return false;
+                
+                foreach (Vehicle vehicle in vehicles)
                 {
-                    //tworzenie pojazdow podajac im poczatek i koniec z funkcji roberta
+                    collisionPoints = vehicle.GetCollisionPoints();
+                    rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
+                    if (Helper.IsInside(point, rectangle))
+                        return false;
                 }
+            }
+
+            return true;
+        }
+        
+        private void CreateNewVehicles(TrackLogic trackLogic, Vector2 mapPosition) //tworzenie nowych pojazdów
+        {
+            if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
+            {
+                Connection road = trackLogic.CreateTrack(spawnDistance, mapPosition);
+                Vehicle vehicle = new Vehicle(road.point1, road.point2);
+                vehicles.Add(vehicle);    
             }
         }
 
-        public void Update(TimeSpan framesInterval)
+        public void Update(TrackLogic trackLogic, BusLogic busLogic, Vector2 mapPosition, TimeSpan framesInterval)
         {
-            float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000;
+            float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000; //czas pomiedzy dwoma tickami sluzacy do utrzymania spojnosci obliczen [s]
 
-            CreateNewVehicles();
+            lastSpawn += timeCoherenceMultiplier; //zwiekszmy czas od ostatniego spawnu
+            CreateNewVehicles(trackLogic, mapPosition); //stworzmy nowe pojazdy
 
             foreach (Vehicle vehicle in vehicles)
             {

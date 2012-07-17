@@ -150,7 +150,7 @@ namespace Testy_mapy
             Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
             /*---</LOGIKA AUTOBUSU>---*/
 
-            mapa.SetPosition(busLogic.GetDesiredPosition()); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+            mapa.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
 
             if (!mapa.IsCollision(collisionPoints))
                 busLogic.AcceptNewPositionAndDirection();
