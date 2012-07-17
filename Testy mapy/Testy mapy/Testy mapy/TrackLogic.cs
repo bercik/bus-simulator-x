@@ -51,7 +51,7 @@ namespace Testy_mapy
         private string name;
         private Vector2 size;
         private Direction[] directions; // kierunki wychodzenia tras
-        private static Vector2[] standartExitsPoint; // standartowe 4 punkty wychodzenia tras względem środka
+        private Vector2[] standartExitsPoint; // standartowe 4 punkty wychodzenia tras względem środka
 
         protected JunctionType()
         {
@@ -70,15 +70,11 @@ namespace Testy_mapy
             this.directions = directions;
             this.name = "junction" + id.ToString();
 
-            if (standartExitsPoint == null)
-            {
-                standartExitsPoint = new Vector2[4];
-
-                standartExitsPoint[0] = new Vector2(0, -origin.Y); // GORA
-                standartExitsPoint[1] = new Vector2(origin.X, 0); // PRAWO
-                standartExitsPoint[2] = new Vector2(0, origin.Y); // DOL
-                standartExitsPoint[3] = new Vector2(-origin.X, 0); // LEWO
-            }
+            standartExitsPoint = new Vector2[4];
+            standartExitsPoint[0] = new Vector2(0, -origin.Y); // GORA
+            standartExitsPoint[1] = new Vector2(origin.X, 0); // PRAWO
+            standartExitsPoint[2] = new Vector2(0, origin.Y); // DOL
+            standartExitsPoint[3] = new Vector2(-origin.X, 0); // LEWO
         }
 
         private Connection[] ComputeConnections(Rotation rotation)
@@ -219,7 +215,10 @@ namespace Testy_mapy
 
             for (int i = 0; i < numberOfStreets; ++i)
             {
-                int id = rand.Next(0, amountOfStreets);
+                // id 0 to typowa trasa. ustalamy ile razy czesciej ma sie losowac wlasnie ona
+                int id = rand.Next(0, amountOfStreets + 1);
+                if (id == amountOfStreets)
+                    id = 0;
 
                 float f_pos = startPosition + streetOrigin.Y + streetSize.Y * i;
                 if (location == Location.horizontal)
@@ -482,13 +481,17 @@ namespace Testy_mapy
         }
 
         // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
-        public Connection CreateTrack(Vector2 size)
+        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin)
         {
             List<Junction> junctionsFromArea = GetJunctionsFromArea(size);
 
             if (junctionsFromArea.Count == 0)
-                return new Connection();
-
+            {
+                connection = new Connection();
+                origin = Vector2.Zero;
+                return;
+            }
+                
             Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
 
             Position position = GetJunctionPosition(junction.pos, junction.origin);
@@ -504,18 +507,25 @@ namespace Testy_mapy
                     ++i;
 
                     if (newTrack.point2 != Vector2.Zero)
-                        return newTrack;
+                    {
+                        connection = newTrack;
+                        origin = junction.pos;
+                        return;
+                    }
                 }
             }
             else if (newTrack.point2 != Vector2.Zero)
             {
-                return newTrack;
+                connection = newTrack;
+                origin = junction.pos;
+                return;
             }
 
-            return new Connection();
+            connection = new Connection();
+            origin = Vector2.Zero;
         }
 
-        public Connection ChangeTrack(Vector2 endPoint)
+        public void ChangeTrack(Vector2 endPoint, out Connection connection, out Vector2 origin)
         {
             foreach (Junction junction in junctions)
             {
@@ -524,20 +534,23 @@ namespace Testy_mapy
                     Connection[] possibleConnections = new Connection[junction.connections.Length - 1];
                     int i = 0; // licznik
 
-                    foreach (Connection connection in junction.connections)
+                    foreach (Connection c in junction.connections)
                     {
-                        if (connection.point1 != endPoint && connection.point2 != new Vector2(0, 0))
+                        if (c.point1 != endPoint && c.point2 != new Vector2(0, 0))
                         {
-                            possibleConnections[i] = connection;
+                            possibleConnections[i] = c;
                             ++i;
                         }
                     }
 
-                    return possibleConnections[rand.Next(possibleConnections.Length)];
+                    connection = possibleConnections[rand.Next(possibleConnections.Length)];
+                    origin = junction.pos;
+                    return;
                 }
             }
 
-            return new Connection();
+            connection = new Connection();
+            origin = Vector2.Zero;
         }
     }
 }
