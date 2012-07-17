@@ -144,10 +144,19 @@ namespace Testy_mapy
                 return pointsArray;
             }
 
-            /*public Vector2[] GetDetectionPoints()
+            public Vector2[] GetDetectionPoints()
             {
+                Vector2 p1, p2; //create 2 points
 
-            }*/
+                p1.X = position.X + ((size.Y + 120) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p1.Y = position.Y - ((size.Y + 120) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                p2.X = position.X + ((size.Y + 60) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p2.Y = position.Y - ((size.Y + 60) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                Vector2[] array = new Vector2[2] {p1, p2};
+                return array;
+            }
 
             public class RoadsSwitching
             {
@@ -238,22 +247,22 @@ namespace Testy_mapy
             return true;
         }
         
-        private void CreateNewVehicles(TrackLogic trackLogic, Vector2 mapPosition) //tworzenie nowych pojazdów
+        private void CreateNewVehicles(TrackLogic trackLogic) //tworzenie nowych pojazdów
         {
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
             {
-                Connection road = trackLogic.CreateTrack(spawnDistance, mapPosition);
+                Connection road = trackLogic.CreateTrack(spawnDistance);
                 Vehicle vehicle = new Vehicle(road.point1, road.point2);
                 vehicles.Add(vehicle);    
             }
         }
 
-        public void Update(TrackLogic trackLogic, BusLogic busLogic, Vector2 mapPosition, TimeSpan framesInterval)
+        public void Update(TrackLogic trackLogic, BusLogic busLogic, TimeSpan framesInterval)
         {
             float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000; //czas pomiedzy dwoma tickami sluzacy do utrzymania spojnosci obliczen [s]
 
             lastSpawn += timeCoherenceMultiplier; //zwiekszmy czas od ostatniego spawnu
-            CreateNewVehicles(trackLogic, mapPosition); //stworzmy nowe pojazdy
+            CreateNewVehicles(trackLogic); //stworzmy nowe pojazdy
 
             foreach (Vehicle vehicle in vehicles)
             {
