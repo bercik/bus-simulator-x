@@ -45,12 +45,17 @@ namespace Testy_mapy
         
         public Vector2 GetBusPosition() //Get the center of the bus to draw the center of the map
         {
-            Vector2 busPosition;
+            return CalculateCenter(position, direction);
+        }
 
-            busPosition.X = position.X + (size.Y * (float)Math.Sin(DegToRad(direction)) / 2);
-            busPosition.Y = position.Y - (size.Y * (float)Math.Cos(DegToRad(direction)) / 2);
+        public Vector2 CalculateCenter(Vector2 busPosition, float busDirection)
+        {
+            Vector2 center;
 
-            return busPosition;
+            center.X = busPosition.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)) / 2);
+            center.Y = busPosition.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)) / 2);
+
+            return center;
         }
 
         public Vector2 GetOrigin()
@@ -193,7 +198,6 @@ namespace Testy_mapy
             AccelerationCurve[] maxCurves = new AccelerationCurve[2];
             private float sideAcc;
             private float sideAccLoss = (float)1;
-            private float maxSideAcc = 1;
 
             public Wheel() //constructor
             {
@@ -314,8 +318,8 @@ namespace Testy_mapy
             return MathHelper.ToRadians(degrees);
         }
         
-        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points - they are
-        {                                                                                 //used in IsPositionAvailable function
+        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points
+        {
             Vector2 p1, p2, p3, p4; //create 4 points
 
             p3.X = busPosition.X + ((size.X * (float)Math.Cos(DegToRad(busDirection))) / 2); //calculate their positions
@@ -330,7 +334,7 @@ namespace Testy_mapy
             p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
             p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
-            Vector2[] pointsArray = new Vector2[4] {p1, p2, p3 , p4 }; //create list and add points
+            Vector2[] pointsArray = new Vector2[4] {p1, p2, p3 , p4}; //create list and add points
 
             return pointsArray;
         }
