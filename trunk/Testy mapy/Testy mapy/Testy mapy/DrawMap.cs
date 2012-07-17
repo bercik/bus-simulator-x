@@ -168,12 +168,6 @@ namespace Testy_mapy
             {
                 mapLogic.AddObjectsToChunks(trackLogic.getObjects(), true);
             }
-
-            Connection newTrack1 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
-            Connection newTrack2 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
-            Connection newTrack3 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
-            Connection newTrack4 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
-            Connection newTrack5 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
         }
 
         public void SetPosition(Vector2 pos)
@@ -194,9 +188,9 @@ namespace Testy_mapy
         }
 
         // size okreœla o ile od krawêdzi mapy mo¿e byæ oddalone skrzy¿owanie
-        public Connection CreateTrack(Vector2 size, Vector2 mapPos)
+        public Connection CreateTrack(Vector2 size)
         {
-            return trackLogic.CreateTrack(size, mapPos);
+            return trackLogic.CreateTrack(size);
         }
 
         public Connection ChangeTrack(Vector2 endPoint)
