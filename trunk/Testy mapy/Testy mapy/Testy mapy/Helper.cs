@@ -8,6 +8,8 @@ namespace Testy_mapy
 {
     enum Location { vertical, horizontal } // polozenie (pionowe lub poziome)
 
+    enum Position { up, downRight, right, upRight, down, downLeft, left, upLeft } // nie zmieniac kolejnosci
+
     struct MyRectangle
     {
         public Vector2 point1;

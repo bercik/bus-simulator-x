@@ -84,12 +84,12 @@ namespace Testy_mapy
                     if (junctions.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, SpriteEffects.None, 1);
+                                o.original_origin, o.spriteEffects, 1);
                     }
                     else if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, SpriteEffects.None, 1);
+                                o.original_origin, o.spriteEffects, 1);
                     }
                 }
 
@@ -108,6 +108,9 @@ namespace Testy_mapy
             textures.Add("beczka", Game.Content.Load<Texture2D>("beczka"));
             textures.Add("pole", Game.Content.Load<Texture2D>("pole"));
             textures.Add("przystanek", Game.Content.Load<Texture2D>("przystanek"));
+            textures.Add("budynek0", Game.Content.Load<Texture2D>("budynek0"));
+            textures.Add("znak_uwaga_zakret_w_lewo", Game.Content.Load<Texture2D>("znak_uwaga_zakret_w_lewo"));
+            textures.Add("drzewo", Game.Content.Load<Texture2D>("drzewo"));
 
             mapLogic.AddStandartObjectsSize(textures);
 
@@ -115,6 +118,7 @@ namespace Testy_mapy
             grass = new Dictionary<string, Texture2D>();
             grass.Add("trawa0", Game.Content.Load<Texture2D>("trawa0"));
             grass.Add("trawa1", Game.Content.Load<Texture2D>("trawa1"));
+            grass.Add("trawa2", Game.Content.Load<Texture2D>("trawa2"));
 
             Vector2 grassSize = new Vector2(grass[grass.Keys.ToList()[0]].Width, grass[grass.Keys.ToList()[0]].Width); // wielkosc tekstury trawy (MUSI byc jednakowa dla wszystkich tekstur trawy)
             backgroundLogic.SetProperties(Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height, grassSize, grass.Count);
@@ -145,9 +149,10 @@ namespace Testy_mapy
             // ladowanie tekstur ulic
             junctions.Add("street0", Game.Content.Load<Texture2D>("street0"));
             junctions.Add("street1", Game.Content.Load<Texture2D>("street1"));
+            junctions.Add("street2", Game.Content.Load<Texture2D>("street2"));
 
             size = new Vector2(junctions["street0"].Width, junctions["street0"].Height);
-            trackLogic.SetStreetSize(size, 2);
+            trackLogic.SetStreetSize(size, 3); // !!! zmieniæ przy dodaniu lub usunieciu tekstury ulicy
 
             base.LoadContent();
         }
@@ -163,6 +168,12 @@ namespace Testy_mapy
             {
                 mapLogic.AddObjectsToChunks(trackLogic.getObjects(), true);
             }
+
+            Connection newTrack1 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
+            Connection newTrack2 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
+            Connection newTrack3 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
+            Connection newTrack4 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
+            Connection newTrack5 = trackLogic.CreateTrack(new Vector2(500, 500), new Vector2(1000, 1000)); // test
         }
 
         public void SetPosition(Vector2 pos)
@@ -180,6 +191,17 @@ namespace Testy_mapy
         public bool IsCollision(Vector2[] points)
         {
             return mapLogic.IsCollision(points);
+        }
+
+        // size okreœla o ile od krawêdzi mapy mo¿e byæ oddalone skrzy¿owanie
+        public Connection CreateTrack(Vector2 size, Vector2 mapPos)
+        {
+            return trackLogic.CreateTrack(size, mapPos);
+        }
+
+        public Connection ChangeTrack(Vector2 endPoint)
+        {
+            return trackLogic.ChangeTrack(endPoint);
         }
     }
 }

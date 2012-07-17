@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Testy_mapy
 {
@@ -55,18 +56,20 @@ namespace Testy_mapy
             Vector2 size = new Vector2(Int32.Parse(split[3]), Int32.Parse(split[4]));
             float rotate = float.Parse(split[5]);
             bool collide = Convert.ToBoolean(Int32.Parse(split[6]));
+            SpriteEffects spriteEffects = (SpriteEffects)Int32.Parse(split[7]);
 
-            AddObjectToChunk(name, pos, size, rotate, collide, false);
+            AddObjectToChunk(name, pos, size, rotate, collide, false, spriteEffects);
         }
 
-        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, bool collide, bool atTheBeginning)
+        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, bool collide,
+                bool atTheBeginning, SpriteEffects spriteEffects = SpriteEffects.None)
         {
             if (size.X == 0)
                 size.X = standart_size[name].X;
             if (size.Y == 0)
                 size.Y = standart_size[name].Y;
 
-            Object o = new Object(name, pos, size, rotate, collide);
+            Object o = new Object(name, pos, size, rotate, collide, spriteEffects);
 
             int x = (int)pos.X / chunkSize.Width;
             int y = (int)pos.Y / chunkSize.Height;
@@ -75,7 +78,7 @@ namespace Testy_mapy
 
             // dla obiektow wiekszych niz zakladane
             bool b_x = false, b_y = false; // czy obiekt jest wiekszy od zakladanej wielkosci (na szerokosc i dlugosc)
-            
+
             if (o.size.X > maxObjectSize.Width)
             {
                 b_x = true;
@@ -98,7 +101,7 @@ namespace Testy_mapy
             if (b_x || b_y)
             {
                 //if (x + 1 < numberOfChunks.X && y + 1 < numberOfChunks.Y)
-                    //chunks[x + 1, y + 1].AddObject(o, atTheBeginning); // !!!DO EW. USUNIECIA!!!
+                //chunks[x + 1, y + 1].AddObject(o, atTheBeginning); // !!!DO EW. USUNIECIA!!! jezeli wyswietlanie obiektow wiekszych od maksymalnego zakladanego bedzie dzialac
             }
         }
 
@@ -194,7 +197,7 @@ namespace Testy_mapy
 
                 if (b_x && b_y)
                 {
-                    Object oToAdd = new Object(o.name, o.pos, o.size, o.rotate, o.collide);
+                    Object oToAdd = new Object(o.name, o.pos, o.size, o.rotate, o.collide, o.spriteEffects);
 
                     if (standart_size.ContainsKey(o.name))
                         oToAdd.original_origin = standart_size[o.name] / 2;
@@ -263,7 +266,7 @@ namespace Testy_mapy
 
         public void AddObjectToChunk(Object o, bool atTheBeginning)
         {
-            AddObjectToChunk(o.name, o.pos, o.size, o.rotate, o.collide, atTheBeginning);
+            AddObjectToChunk(o.name, o.pos, o.size, o.rotate, o.collide, atTheBeginning, o.spriteEffects);
         }
 
         public void AddObjectsToChunks(List<Object> objects, bool atTheBeginning)
@@ -301,7 +304,9 @@ namespace Testy_mapy
                 FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
                 StreamReader sr = new StreamReader(fs);
 
-                string mapSize = sr.ReadLine();
+                string mapSize;
+                while ((mapSize = sr.ReadLine()).StartsWith("//")) ;
+
                 int mapWidth = Int32.Parse(mapSize.Substring(0, mapSize.IndexOf(';')));
                 int mapHeight = Int32.Parse(mapSize.Substring(mapSize.IndexOf(';') + 1));
 
@@ -311,7 +316,8 @@ namespace Testy_mapy
 
                 while ((s_object = sr.ReadLine()) != null)
                 {
-                    AddObjectToChunk(s_object);
+                    if (!s_object.StartsWith("//"))
+                        AddObjectToChunk(s_object);
                 }
 
                 return true;
@@ -439,6 +445,7 @@ namespace Testy_mapy
         public string name;
         public float rotate;
         public bool collide; // czy dany obiekt ma wywoływać kolizję
+        public SpriteEffects spriteEffects; // efekty przy wyświetlaniu
         public Vector2 pos;
         public Vector2 origin { get; private set; }
         public Vector2 original_origin { get; set; } // uzywac przy wyswietlaniu
@@ -458,13 +465,14 @@ namespace Testy_mapy
             }
         }
 
-        public Object(string name, Vector2 pos, Vector2 size, float rotate, bool collide)
+        public Object(string name, Vector2 pos, Vector2 size, float rotate, bool collide, SpriteEffects spriteEffects = SpriteEffects.None)
         {
             this.name = name;
             this.pos = pos;
             this.size = size;
             this.rotate = rotate;
             this.collide = collide;
+            this.spriteEffects = spriteEffects;
         }
 
         public object Clone()
