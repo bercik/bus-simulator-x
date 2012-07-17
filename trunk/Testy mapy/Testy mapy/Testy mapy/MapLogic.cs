@@ -47,8 +47,8 @@ namespace Testy_mapy
             screenSize.Height = screenHeight;
             chunkSize.Width = screenWidth + maxObjectSize.Width;
             chunkSize.Height = screenHeight + maxObjectSize.Height;
-            numberOfChunks.X = (mapWidth / chunkSize.Width);
-            numberOfChunks.Y = (mapHeight / chunkSize.Height);
+            numberOfChunks.X = (mapWidth / chunkSize.Width) + 1;
+            numberOfChunks.Y = (mapHeight / chunkSize.Height) + 1;
 
             chunks = new Chunk[numberOfChunks.X, numberOfChunks.Y];
 
