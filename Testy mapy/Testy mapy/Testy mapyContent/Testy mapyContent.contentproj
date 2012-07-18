@@ -140,15 +140,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="drzewo.jpg">
-      <Name>drzewo</Name>
+    <Compile Include="junction3.png">
+      <Name>junction3</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="junction3.png">
-      <Name>junction3</Name>
+    <Compile Include="drzewo.png">
+      <Name>drzewo</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

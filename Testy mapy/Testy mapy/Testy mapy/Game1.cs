@@ -19,7 +19,7 @@ namespace Testy_mapy
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
-        DrawMap mapa;
+        DrawMap drawMap;
         DrawBus drawBus;
         BusLogic busLogic;
         TrafficLogic trafficLogic;
@@ -41,13 +41,11 @@ namespace Testy_mapy
             //graphics.PreferredBackBufferHeight = 768;
             //graphics.PreferredBackBufferWidth = 1024;
 
-            mapa = new DrawMap(this);
+            drawMap = new DrawMap();
             drawBus = new DrawBus();
             busLogic = new BusLogic(pos.X, pos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
-
-            Components.Add(mapa);
         }
 
         /// <summary>
@@ -78,11 +76,12 @@ namespace Testy_mapy
             // TODO: use this.Content to load your game content here
             drawBus.LoadContent(this.Content);
             drawTraffic.LoadContent(this.Content);
+            drawMap.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("font1");
 
-            mapa.LoadMap("test.mp");
-            mapa.LoadTrack("test.tc");
+            drawMap.LoadMap("test.mp");
+            drawMap.LoadTrack("test.tc");
         }
 
         /// <summary>
@@ -148,24 +147,24 @@ namespace Testy_mapy
             /*---</ZMIANY BIEGOW>---*/
             
             if (keybState.IsKeyDown(Keys.L))
-                mapa.LoadMap("test.mp");
+                drawMap.LoadMap("test.mp");
 
             /*---<LOGIKA AUTOBUSU>---*/
             busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
             Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
             /*---</LOGIKA AUTOBUSU>---*/
 
-            mapa.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+            drawMap.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
 
-            if (!mapa.IsCollision(collisionPoints))
+            if (!drawMap.IsCollision(collisionPoints))
                 busLogic.AcceptNewPositionAndDirection();
             else
             {
                 busLogic.Collision();
-                mapa.SetPosition(busLogic.GetBusPosition());
+                drawMap.SetPosition(busLogic.GetBusPosition());
             }
 
-            trafficLogic.Update(mapa, busLogic, gameTime.ElapsedGameTime);
+            trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
 
             base.Update(gameTime);
         }
@@ -184,12 +183,16 @@ namespace Testy_mapy
 
             // TODO: Add your drawing code here
 
+            drawMap.DrawTrack(spriteBatch, gameTime);
+
             List<Object> vehiclesList = trafficLogic.GetAllVehicles();
             foreach (Object vehicle in vehiclesList)
                drawTraffic.Draw(spriteBatch, vehicle);
             
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection(), false);
             drawBus.Draw(spriteBatch, bus);
+
+            drawMap.DrawObjects(spriteBatch, gameTime);
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
