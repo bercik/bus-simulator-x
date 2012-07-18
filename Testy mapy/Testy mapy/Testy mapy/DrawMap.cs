@@ -217,9 +217,9 @@ namespace Testy_mapy
             return trackLogic.CreateTrack(size);
         }
 
-        public void ChangeTrack(Vector2 endPoint, out Connection connection, out Vector2 origin)
+        public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)
         {
-            trackLogic.ChangeTrack(endPoint, out connection, out origin);
+            trackLogic.ChangeTrack(endPoint, lastEndPoint, out connection, out origin);
         }
 
 
