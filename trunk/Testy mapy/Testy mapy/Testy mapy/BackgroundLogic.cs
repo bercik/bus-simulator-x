@@ -231,8 +231,8 @@ namespace Testy_mapy
             this.amountOfGrass = amountOfGrass;
             this.grassSize = grassSize;
             this.screenSize = new Vector2(screenWidth, screenHeight);
-            numberOfGrass.X = screenWidth / (int)grassSize.X + ((screenWidth % (int)grassSize.X == 0) ? 2 : 3);
-            numberOfGrass.Y = screenHeight / (int)grassSize.Y + ((screenHeight % (int)grassSize.Y == 0) ? 2 : 3);
+            numberOfGrass.X = (int)screenWidth / (int)grassSize.X + ((screenWidth % (int)grassSize.X == 0) ? 2 : 3);
+            numberOfGrass.Y = (int)screenHeight / (int)grassSize.Y + ((screenHeight % (int)grassSize.Y == 0) ? 2 : 3);
 
             CreateGrass();
         }
