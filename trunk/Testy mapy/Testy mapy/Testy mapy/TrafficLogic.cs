@@ -89,7 +89,7 @@ namespace Testy_mapy
                 if (end.Y > start.Y)
                     this.lane.direction = 180;
 
-                if (end.X < start.X)
+                if (end.Y < start.Y)
                     this.lane.direction = 0;
 
                 if (lane.direction == 0)
@@ -218,21 +218,31 @@ namespace Testy_mapy
                 private float bezierT = 0;
                 private float bezierTInc = (float)0.005;
                 private Vector2 start;
-                private Vector2 destination;
+                private Vector2 end;
                 private Vector2 controlPoint;
 
-                public RoadsSwitching(Vector2 start, Vector2 destination, Vector2 controlPoint)
+                private Vector2 CalculateControlPoint(Vector2 start, Vector2 end)
                 {
-                    this.start = start;
-                    this.destination = destination;
-                    this.controlPoint = controlPoint;
+                    Vector2 controlPoint;
+
+                    controlPoint.X = start.X - Math.Abs(start.X - end.X);
+                    controlPoint.Y = start.Y;
+
+                    return controlPoint;
                 }
 
-                public float CalculateDirection(Vector2 start, Vector2 destination) //oblicz kierunek miedzy dwoma punktami 
+                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 controlPoint)
+                {
+                    this.start = start;
+                    this.end = end;
+                    this.controlPoint = CalculateControlPoint(start, end);
+                }
+
+                public float CalculateDirection(Vector2 start, Vector2 end) //oblicz kierunek miedzy dwoma punktami 
                 {
                     //float direction =  MathHelper.ToDegrees((float)Math.Atan(destination.X - start.X / start.Y - destination.Y));
                     //float direction = MathHelper.ToDegrees((float)Math.Atan2(start.Y - destination.Y, destination.X - start.X));
-                    float direction = MathHelper.ToDegrees((float)Math.Atan2(destination.X - start.X, start.Y - destination.Y));
+                    float direction = MathHelper.ToDegrees((float)Math.Atan2(end.X - start.X, start.Y - end.Y));
                     if (direction < 0)
                         direction += 360;
 
@@ -244,9 +254,9 @@ namespace Testy_mapy
                     Vector2 point;
                     bezierT += bezierTInc;
                     bezierT = (float)Math.Round(bezierT, 5);
- 
-                    point.X = (float)((1 - bezierT) * (1 - bezierT) * start.X + 2 * (1 - bezierT) * bezierT * controlPoint.X + bezierT * bezierT * destination.X);
-                    point.Y = (float)((1 - bezierT) * (1 - bezierT) * start.Y + 2 * (1 - bezierT) * bezierT * controlPoint.Y + bezierT * bezierT * destination.Y);
+
+                    point.X = (float)((1 - bezierT) * (1 - bezierT) * start.X + 2 * (1 - bezierT) * bezierT * controlPoint.X + bezierT * bezierT * end.X);
+                    point.Y = (float)((1 - bezierT) * (1 - bezierT) * start.Y + 2 * (1 - bezierT) * bezierT * controlPoint.Y + bezierT * bezierT * end.Y);
 
                     return point;
                 }
@@ -306,7 +316,7 @@ namespace Testy_mapy
         }
 
         private List<Vehicle> vehicles = new List<Vehicle>();
-        private int maxVehicles = 10; //maksymalna liczba pojazdow
+        private int maxVehicles = 1; //maksymalna liczba pojazdow
         private float spawnInterval = 5; //co ile spawnowac nowe pojazdy [s]
         private float lastSpawn = 0; //ostatni spawn [s]
         private Vector2 spawnDistance = new Vector2(500, 500);
