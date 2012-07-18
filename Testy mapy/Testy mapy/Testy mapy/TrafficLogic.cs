@@ -130,6 +130,8 @@ namespace Testy_mapy
             public Vector2 size = new Vector2(50, 100);
             public float direction;
 
+            public Vector2 lastEnd = new Vector2(0, 0);
+
             private float normalSpeed = 20; //predkosc standardowa przyjmowana podczas normalnego poruszania sie
             private float acceleration = 20; //standardowe przyspieszenie
             private float sideAcceleration = 2; //standardowy skręt
@@ -225,8 +227,18 @@ namespace Testy_mapy
                 {
                     Vector2 controlPoint;
 
-                    controlPoint.X = start.X - Math.Abs(start.X - end.X);
+                    if (start.X == end.X || start.Y == end.Y)
+                    {
+                        controlPoint.X = start.X - (start.X - end.X);
+                        controlPoint.Y = start.Y - (start.Y - end.Y); ;
+                    }
+                    else
+                    {
+controlPoint.X = start.X - Math.Abs(start.X - end.X);
                     controlPoint.Y = start.Y;
+                    }
+
+                    
 
                     return controlPoint;
                 }
@@ -285,7 +297,9 @@ namespace Testy_mapy
                         Vector2 junctionCenter;
                         Connection getNewRoad;
 
-                        drawMap.ChangeTrack(road.end, out getNewRoad, out junctionCenter);
+                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter);
+
+                        lastEnd = road.end;
 
                         Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2);
 
@@ -304,12 +318,16 @@ namespace Testy_mapy
                     float newDirection = roadsSwitching.CalculateDirection(position, newPoint);
 
                     direction = newDirection;
-                    position = newPoint;
+                    
+                    position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
+                    
+                    //position = newPoint;
 
                     if (newPoint == road.lane.start)
                     {
                         redirecting = false;
                         direction = road.lane.direction;
+                        position = road.lane.start;
                     }
                 }
             }
