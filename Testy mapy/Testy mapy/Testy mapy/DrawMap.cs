@@ -55,12 +55,32 @@ namespace Testy_mapy
             // TODO: Add your update code here
         }
 
-        // rysuje obiekty
-        public void DrawObjects(SpriteBatch spriteBatch, GameTime gameTime)
+        // rysuje obiekty pod autobusem
+        public void DrawObjectsUnderBus(SpriteBatch spriteBatch, GameTime gameTime)
         {
             if (load)
             {
-                List<Object> objectsToShow = mapLogic.GetObjectsToShow();
+                List<Object> objectsToShow = mapLogic.GetObjectsUnderBusToShow();
+
+                foreach (Object o in objectsToShow)
+                {
+                    Rectangle destinationRect = new Rectangle((int)o.pos.X, (int)o.pos.Y, (int)o.size.X, (int)o.size.Y);
+
+                    if (textures.ContainsKey(o.name))
+                    {
+                        spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
+                                o.original_origin, o.spriteEffects, 1);
+                    }
+                }
+            }
+        }
+
+        // rysuje obiekty nad autobusem
+        public void DrawObjectsOnBus(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            if (load)
+            {
+                List<Object> objectsToShow = mapLogic.GetObjectsOnBusToShow();
 
                 foreach (Object o in objectsToShow)
                 {
@@ -83,13 +103,13 @@ namespace Testy_mapy
                 backgroundLogic.UpdatePos(pos);
 
                 List<Grass> grassToShow = backgroundLogic.getGrassToShow();
-                List<Object> objectsToShow = mapLogic.GetObjectsToShow();
+                List<Object> junctionsToShow = mapLogic.GetJunctionsToShow();
 
                 foreach (Grass g in grassToShow)
                 {
                     spriteBatch.Draw(grass[g.name], g.pos, Color.White);
                 }
-                foreach (Object o in objectsToShow)
+                foreach (Object o in junctionsToShow)
                 {
                     Rectangle destinationRect = new Rectangle((int)o.pos.X, (int)o.pos.Y, (int)o.size.X, (int)o.size.Y);
 
@@ -170,7 +190,7 @@ namespace Testy_mapy
         {
             if (trackLogic.LoadTrack(path))
             {
-                mapLogic.AddObjectsToChunks(trackLogic.getObjects(), true);
+                mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions());
             }
         }
 
@@ -178,7 +198,7 @@ namespace Testy_mapy
         {
             this.pos = pos;
 
-            mapLogic.SetOBjectsInRange(pos);
+            mapLogic.SetObjectsInRange(pos);
         }
 
         public bool IsCollision(Vector2 point)
