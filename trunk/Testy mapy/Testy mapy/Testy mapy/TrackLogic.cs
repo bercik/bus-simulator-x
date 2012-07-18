@@ -263,15 +263,23 @@ namespace Testy_mapy
         }
 
         // sprawdza czy dany punkt nalezy do skrzyzowania
-        private bool ContainEndPoint(Junction junction, Vector2 endPoint)
+        private bool ContainEndPoint(Junction junction, Vector2 endPoint, Vector2 lastEndPoint)
         {
+            bool containsEndPoint = false;
+            bool containsLastEndPoint = false;
+
             foreach (Connection connection in junction.connections)
             {
-                if (connection.point1 == endPoint) // point1 to punkt wyjścia
-                    return true;
+                if (!containsEndPoint && connection.point1 == endPoint) // point1 to punkt wyjścia
+                    containsEndPoint = true;
+                if (!containsLastEndPoint && connection.point1 == lastEndPoint) // point1 to punkt wjscia
+                    containsLastEndPoint = true;
             }
 
-            return false;
+            if (containsEndPoint && !containsLastEndPoint)
+                return true;
+            else
+                return false;
         }
 
         // pobiera skrzyzowania z obszaru wiekszego od wielkosci ekranu, mniejszego od wielkosci ekranu + zadanego
@@ -409,11 +417,11 @@ namespace Testy_mapy
             return new Connection();
         }
 
-        private Junction SearchJunctionFromEndPoint(Vector2 endPoint)
+        private Junction SearchJunctionFromEndPoint(Vector2 endPoint, Vector2 lastEndPoint)
         {
             foreach (Junction junction in junctions)
             {
-                if (ContainEndPoint(junction, endPoint))
+                if (ContainEndPoint(junction, endPoint, lastEndPoint))
                     return junction;
             }
 
@@ -527,9 +535,9 @@ namespace Testy_mapy
             return new Connection();
         }
 
-        public void ChangeTrack(Vector2 endPoint, out Connection connection, out Vector2 origin)
+        public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)
         {
-            Junction junction = SearchJunctionFromEndPoint(endPoint);
+            Junction junction = SearchJunctionFromEndPoint(endPoint, lastEndPoint);
 
             if (junction != null)
             {
