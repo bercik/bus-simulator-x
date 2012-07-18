@@ -439,7 +439,7 @@ namespace Testy_mapy
         }
 
         // zwraca liste obiektow (skrzyzowan i ulic) do dodania do obiektow mapy (w celu pozniejszego wyswietlania)
-        public List<Object> getObjects()
+        public List<Object> GetJunctions()
         {
             List<Object> objects = new List<Object>();
 

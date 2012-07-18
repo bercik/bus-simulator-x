@@ -184,6 +184,7 @@ namespace Testy_mapy
             // TODO: Add your drawing code here
 
             drawMap.DrawTrack(spriteBatch, gameTime);
+            drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
 
             List<Object> vehiclesList = trafficLogic.GetAllVehicles();
             foreach (Object vehicle in vehiclesList)
@@ -192,7 +193,7 @@ namespace Testy_mapy
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection(), false);
             drawBus.Draw(spriteBatch, bus);
 
-            drawMap.DrawObjects(spriteBatch, gameTime);
+            drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
 
             // zmienne pomocnicze rysowane na ekranie:
             spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
