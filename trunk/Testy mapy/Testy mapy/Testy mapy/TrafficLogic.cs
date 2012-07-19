@@ -62,19 +62,23 @@ namespace Testy_mapy
                 return false;
             }
 
-            public Road(Vector2 start, Vector2 end) //constructor
+            public Road(Vector2 start, Vector2 end, Vector2 center) //constructor
             {
                 this.start = start;
                 this.end = end;
-                CalculateLane();
+                CalculateLane(center);
             }
 
-            private float CalculateDirection(Vector2 start, Vector2 destination) //oblicz kierunek miedzy dwoma punktami 
+            private float CalculateDirection(Vector2 start, Vector2 end) //oblicz kierunek miedzy dwoma punktami 
             {
-                return MathHelper.ToDegrees((float)Math.Atan(destination.X - start.X / start.Y - destination.Y));
+                float direction = MathHelper.ToDegrees((float)Math.Atan2(end.X - start.X, start.Y - end.Y));
+                if (direction < 0)
+                    direction += 360;
+
+                return direction;
             }
 
-            private void CalculateLane()
+            private void CalculateLane(Vector2 center)
             {
                 //this.lane.direction = (float)Math.Round(CalculateDirection(start, end));
                 //if (this.lane.direction < 0)
@@ -91,6 +95,24 @@ namespace Testy_mapy
 
                 if (end.Y < start.Y)
                     this.lane.direction = 0;
+
+                if (start.X == end.X && start.Y == end.Y)
+                {
+                    float preDirection = CalculateDirection(center, start);
+
+                    if (preDirection > 315 || preDirection < 45)
+                        this.lane.direction = 0;
+
+                    if (preDirection > 45 && preDirection < 135)
+                        this.lane.direction = 90;
+
+                    if (preDirection > 135 && preDirection < 225)
+                        this.lane.direction = 180;
+
+                    if (preDirection > 225 && preDirection < 315)
+                        this.lane.direction = 270;
+                }
+
 
                 if (lane.direction == 0)
                 {
@@ -141,7 +163,8 @@ namespace Testy_mapy
 
             public Vehicle(Vector2 start, Vector2 destination) //constructor
             {
-                this.road = new Road(start, destination);
+                Vector2 center = new Vector2(0, 0);
+                this.road = new Road(start, destination, center);
                 this.position = road.lane.start;
                 this.direction = road.lane.direction;
             }
@@ -223,19 +246,40 @@ namespace Testy_mapy
                 private Vector2 end;
                 private Vector2 controlPoint;
 
-                private Vector2 CalculateControlPoint(Vector2 start, Vector2 end)
+                private Vector2 CalculateControlPoint(Vector2 start, Vector2 end, Vector2 center)
                 {
-                    Vector2 controlPoint;
+                    Vector2 controlPoint = new Vector2(0, 0);
 
                     if (start.X == end.X || start.Y == end.Y)
                     {
                         controlPoint.X = start.X - (start.X - end.X);
-                        controlPoint.Y = start.Y - (start.Y - end.Y); ;
+                        controlPoint.Y = start.Y - (start.Y - end.Y);
                     }
                     else
                     {
-controlPoint.X = start.X - Math.Abs(start.X - end.X);
-                    controlPoint.Y = start.Y;
+                        if (((end.X < start.X && end.Y < start.Y) || (end.X < start.X && end.Y > start.Y)) && (center.X < start.X && center.Y >= start.Y)) //z prawego
+                        {
+                            controlPoint.X = start.X - (start.X - end.X);
+                            controlPoint.Y = start.Y;
+                        }
+
+                        if (((end.X < start.X && end.Y < start.Y) || (end.X > start.X && end.Y < start.Y))  && (center.X < start.X && center.Y < start.Y)) //z dolnego
+                        {
+                            controlPoint.X = start.X;
+                            controlPoint.Y = start.Y - (start.Y - end.Y);
+                        }
+
+                        if (((end.Y < start.Y && end.X > start.X) || (end.Y > start.Y && end.X < start.X))  && (center.X > start.X && center.Y <= start.Y)) //z lewego
+                        {
+                            controlPoint.X = start.X + (end.X - start.X);
+                            controlPoint.Y = start.Y;
+                        }
+
+                        if (((end.X < start.X && end.Y > start.Y) || (end.X > start.X && end.Y > start.Y))  && (center.X > start.X && center.Y > start.Y)) //z gornego
+                        {
+                            controlPoint.X = start.X;
+                            controlPoint.Y = start.Y + (end.Y - start.Y);
+                        }
                     }
 
                     
@@ -243,11 +287,11 @@ controlPoint.X = start.X - Math.Abs(start.X - end.X);
                     return controlPoint;
                 }
 
-                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 controlPoint)
+                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 center)
                 {
                     this.start = start;
                     this.end = end;
-                    this.controlPoint = CalculateControlPoint(start, end);
+                    this.controlPoint = CalculateControlPoint(start, end, center);
                 }
 
                 public float CalculateDirection(Vector2 start, Vector2 end) //oblicz kierunek miedzy dwoma punktami 
@@ -301,7 +345,7 @@ controlPoint.X = start.X - Math.Abs(start.X - end.X);
 
                         lastEnd = road.end;
 
-                        Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2);
+                        Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
 
                         roadsSwitching = new RoadsSwitching(road.lane.end, newRoad.lane.start, junctionCenter);
 
@@ -319,9 +363,9 @@ controlPoint.X = start.X - Math.Abs(start.X - end.X);
 
                     direction = newDirection;
                     
-                    position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
+                    //position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
                     
-                    //position = newPoint;
+                    position = newPoint;
 
                     if (newPoint == road.lane.start)
                     {
@@ -334,10 +378,10 @@ controlPoint.X = start.X - Math.Abs(start.X - end.X);
         }
 
         private List<Vehicle> vehicles = new List<Vehicle>();
-        private int maxVehicles = 1; //maksymalna liczba pojazdow
+        private int maxVehicles = 10; //maksymalna liczba pojazdow
         private float spawnInterval = 5; //co ile spawnowac nowe pojazdy [s]
         private float lastSpawn = 0; //ostatni spawn [s]
-        private Vector2 spawnDistance = new Vector2(500, 500);
+        private Vector2 spawnDistance = new Vector2(2000, 2000);
 
         public bool IsRoadClear(Vector2[] points, BusLogic busLogic) //sprawdzanie czy mozna jechac czy trzeba hamowac
         {
@@ -378,8 +422,8 @@ controlPoint.X = start.X - Math.Abs(start.X - end.X);
             {
                 Connection road = drawMap.CreateTrack(spawnDistance);
 
-                if (!(road.point1.X == 900 && road.point1.Y == 1050))
-                    return;
+                //if (!(road.point1.X == 150 && road.point1.Y == 1200))
+                  //  return;
 
                 if (!road.IsEmpty())
                 {
