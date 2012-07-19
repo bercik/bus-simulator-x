@@ -35,7 +35,7 @@ namespace Testy_mapy
         // !!! pomocnicze zmienne do EW. USUNIECIA !!!
         Vector2 startPos = new Vector2(200, 1300); //poczatkowa pozycja
         Texture2D point;
-        bool busMode = true; // czy jezdzimy autobusem czy przesuwamy mape
+        bool busMode = false; // czy jezdzimy autobusem czy przesuwamy mape
         float scrollingSpeed = 5.0f;
         bool b_release = true;
 
@@ -258,7 +258,13 @@ namespace Testy_mapy
 
             spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
             spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
- 
+
+            MyRectangle sth = new MyRectangle(new Vector2(134, 1223), new Vector2(177, 1197), new Vector2(99, 1068), new Vector2(57, 1094));
+            if (Helper.IsInside(new Vector2(150, 1200), sth))
+                spriteBatch.DrawString(font, "yeah", new Vector2(0, 330), Color.White);
+            else
+                spriteBatch.DrawString(font, "nope", new Vector2(0, 330), Color.White);
+
             // licznik FPS
             time += gameTime.ElapsedGameTime.TotalMilliseconds;
             ++a_fps;
