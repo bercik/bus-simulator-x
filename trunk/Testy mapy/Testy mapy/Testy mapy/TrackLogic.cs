@@ -508,6 +508,7 @@ namespace Testy_mapy
             {
                 connection = new Connection();
                 origin = new Vector2(0, 0);
+                return;
             }
                 
             Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
@@ -528,6 +529,7 @@ namespace Testy_mapy
                     {
                         connection = newTrack;
                         origin = junction.pos;
+                        return;
                     }
                 }
             }
@@ -535,6 +537,7 @@ namespace Testy_mapy
             {
                 connection = newTrack;
                 origin = junction.pos;
+                return;
             }
 
             connection = new Connection();
