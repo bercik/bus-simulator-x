@@ -15,7 +15,7 @@ namespace Testy_mapy
 {
     class DrawTraffic
     {
-        Texture2D vehicleTexture, vehicleTexture0, vehicleTexture1, vehicleTexture2;
+        Texture2D vehicleTexture, vehicleTexture0, vehicleTexture1, vehicleTexture2, point;
 
         public DrawTraffic()
         {
@@ -27,6 +27,7 @@ namespace Testy_mapy
             vehicleTexture0 = content.Load<Texture2D>("vehicle0");
             vehicleTexture1 = content.Load<Texture2D>("vehicle1");
             vehicleTexture2 = content.Load<Texture2D>("vehicle2");
+            point = content.Load<Texture2D>("point");
         }
 
         public void Draw(SpriteBatch spriteBatch, Object vehicle)
@@ -44,6 +45,8 @@ namespace Testy_mapy
                 vehicleTexture = vehicleTexture2;
 
             spriteBatch.Draw(vehicleTexture, rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicle.origin, SpriteEffects.None, 1);
+
+
         }
     }
 }

@@ -72,16 +72,6 @@ namespace Testy_mapy
 
         public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat 
         {
-            /*Line line1 = new Line(rectangle.point1, rectangle.point2);
-            Line line2 = new Line(rectangle.point2, rectangle.point3);
-            Line line3 = new Line(rectangle.point3, rectangle.point4);
-            Line line4 = new Line(rectangle.point4, rectangle.point1);
-
-            if (CheckOneLine(point, line1) && CheckOneLine(point, line2) && CheckOneLine(point, line3) && CheckOneLine(point, line4))
-                return true;
-            else
-                return false;*/
-
             Vector2 p1, p2;
 
             Vector2[] rectangle = new Vector2[4] { givenRrectangle.point1, givenRrectangle.point2, givenRrectangle.point3, givenRrectangle.point4 };
@@ -114,21 +104,6 @@ namespace Testy_mapy
                 oldPoint = newPoint;
             }
             return inside;
-        }
-
-        private static bool CheckOneLine(Vector2 point, Line line) //sprawdza jeden bok prostokata dla IsInside
-        {
-            //A * x + B * y + C = 0
-            float A = -(line.end.Y - line.start.Y);
-            float B = (line.end.X - line.start.X);
-            float C = -(A * line.start.X + B * line.start.Y);
-
-            float D = A * point.X + B * point.Y + C;
-
-            if (D > 0)
-                return true;
-            else
-                return false;
         }
     }
 }
