@@ -70,9 +70,9 @@ namespace Testy_mapy
             return pos - (mapPos - screenSize / 2);
         }
 
-        public static bool IsInside(Vector2 point, MyRectangle rectangle) //podaj punkt i kwadrat 
+        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat 
         {
-            Line line1 = new Line(rectangle.point1, rectangle.point2);
+            /*Line line1 = new Line(rectangle.point1, rectangle.point2);
             Line line2 = new Line(rectangle.point2, rectangle.point3);
             Line line3 = new Line(rectangle.point3, rectangle.point4);
             Line line4 = new Line(rectangle.point4, rectangle.point1);
@@ -80,9 +80,42 @@ namespace Testy_mapy
             if (CheckOneLine(point, line1) && CheckOneLine(point, line2) && CheckOneLine(point, line3) && CheckOneLine(point, line4))
                 return true;
             else
-                return false;
+                return false;*/
+
+            Vector2 p1, p2;
+
+            Vector2[] rectangle = new Vector2[4] { givenRrectangle.point1, givenRrectangle.point2, givenRrectangle.point3, givenRrectangle.point4 };
+
+            bool inside = false;
+
+            if (rectangle.Length < 3)
+                return inside;
+
+            Vector2 oldPoint = new Vector2(rectangle[rectangle.Length - 1].X, rectangle[rectangle.Length - 1].Y);
+
+            for (int i = 0; i < rectangle.Length; i++)
+            {
+                Vector2 newPoint = new Vector2(rectangle[i].X, rectangle[i].Y);
+
+                if (newPoint.X > oldPoint.X)
+                {
+                    p1 = oldPoint;
+                    p2 = newPoint;
+                }
+                else
+                {
+                    p1 = newPoint;
+                    p2 = oldPoint;
+                }
+
+                if ((newPoint.X < point.X) == (point.X <= oldPoint.X) && ((long)point.Y - (long)p1.Y) * (long)(p2.X - p1.X) < ((long)p2.Y - (long)p1.Y) * (long)(point.X - p1.X))
+                    inside = !inside;
+
+                oldPoint = newPoint;
+            }
+            return inside;
         }
-        
+
         private static bool CheckOneLine(Vector2 point, Line line) //sprawdza jeden bok prostokata dla IsInside
         {
             //A * x + B * y + C = 0

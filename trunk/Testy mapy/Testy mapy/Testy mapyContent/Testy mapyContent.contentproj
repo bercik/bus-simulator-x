@@ -62,6 +62,16 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
+    <Compile Include="vehicle1.png">
+      <Name>vehicle1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="vehicle2.png">
+      <Name>vehicle2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
     <Compile Include="znak_uwaga_zakret_w_lewo.png">
       <Name>znak_uwaga_zakret_w_lewo</Name>
       <Importer>TextureImporter</Importer>
@@ -171,6 +181,13 @@
     </Compile>
     <Compile Include="smietnik.png">
       <Name>smietnik</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="vehicle0.png">
+      <Name>vehicle0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
