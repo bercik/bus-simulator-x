@@ -46,6 +46,12 @@ namespace Testy_mapy
             spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
         }
 
+        public void DrawPoints(Vector2[] points)
+        {
+            foreach (Vector2 point in points)
+                DrawPoint(point);
+        }
+
         public void UpdatePos(KeyboardState keybState, GameTime gameTime)
         {
             if (keybState.IsKeyDown(Keys.Up))
@@ -250,6 +256,9 @@ namespace Testy_mapy
             // zmienne pomocnicze rysowane na ekranie:
             DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
 
+            DrawPoints(trafficLogic.GetPointsToDraw());
+
+
             spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
             spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
             spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
@@ -258,12 +267,6 @@ namespace Testy_mapy
 
             spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
             spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
-
-            MyRectangle sth = new MyRectangle(new Vector2(134, 1223), new Vector2(177, 1197), new Vector2(99, 1068), new Vector2(57, 1094));
-            if (Helper.IsInside(new Vector2(150, 1200), sth))
-                spriteBatch.DrawString(font, "yeah", new Vector2(0, 330), Color.White);
-            else
-                spriteBatch.DrawString(font, "nope", new Vector2(0, 330), Color.White);
 
             // licznik FPS
             time += gameTime.ElapsedGameTime.TotalMilliseconds;

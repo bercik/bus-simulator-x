@@ -171,7 +171,7 @@ namespace Testy_mapy
 
             private float normalSpeed = 20; //predkosc standardowa przyjmowana podczas normalnego poruszania sie
             private float acceleration = 70; //standardowe przyspieszenie
-//private float sideAcceleration = 2; //standardowy skręt
+            //private float sideAcceleration = 2; //standardowy skręt
             private float speedMultiplier = 4;
 
             private float stopCounter = 0; //licznik odpowiedzialny za dlugosc postoju w razie zatrzymania się
@@ -210,10 +210,10 @@ namespace Testy_mapy
 
             public Vector2[] GetDetectionPoints()
             {
-                Vector2 p2, p3, p4; //create 2 points
+                Vector2 p2, p3; //create 2 points
 
-               // p1.X = position.X + ((size.Y + 50) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-              // p1.Y = position.Y - ((size.Y + 50) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                // p1.X = position.X + ((size.Y + 50) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                // p1.Y = position.Y - ((size.Y + 50) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
                 p2.X = position.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
                 p2.Y = position.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
@@ -222,16 +222,16 @@ namespace Testy_mapy
                 p3.X = position.X + (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2);
                 p3.Y = position.Y + (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
 
-                p4.X = position.X - ((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
-                p4.Y = position.Y - ((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
+                // p4.X = position.X - ((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
+                // p4.Y = position.Y - ((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
 
-                p3.X = p4.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                p3.Y = p4.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                // p4.X = p4.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                // p4.Y = p4.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                p4.X = p3.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                p4.Y = p3.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                p3.X = p3.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p3.Y = p3.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                Vector2[] array = new Vector2[3] { p2, p3, p4 };
+                Vector2[] array = new Vector2[] { p2, p3 };
                 return array;
             }
 
@@ -545,16 +545,41 @@ namespace Testy_mapy
             return list;
         }
 
+        public Vector2[] GetPointsToDraw()
+        {
+            List<Vector2> list = new List<Vector2>();
+            Vector2[] pointsArray;
+
+            foreach (Vehicle vehicle in vehicles)
+            {
+                pointsArray = vehicle.GetCollisionPoints();
+                foreach (Vector2 point in pointsArray)
+                    list.Add(Helper.MapPosToScreenPos(point));
+
+                pointsArray = vehicle.GetDetectionPoints();
+
+                foreach (Vector2 point in pointsArray)
+                    list.Add(Helper.MapPosToScreenPos(point));
+            }
+
+            return list.ToArray();
+        }
+
         private void CreateNewVehicles(DrawMap drawMap) //tworzenie nowych pojazdów
         {
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
             {
-                Connection road = drawMap.CreateTrack(spawnDistance);
+                Vector2 junctionCenter;
+                Connection getNewRoad;
+
+                drawMap.CreateTrack(spawnDistance, out getNewRoad, out junctionCenter);
+                
+                Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
 
                 //if (!(road.point1.X == 150 && road.point1.Y == 300))
                 //    return;
 
-                if (!road.IsEmpty())
+                if (!getNewRoad.IsEmpty())
                 {
                     Random random = new Random();
                     int randomNumber = random.Next(1, maxRandom);
@@ -574,7 +599,7 @@ namespace Testy_mapy
                         current += vehicleType.likelihoodOfApperance;
                     }
 
-                    Vehicle vehicle = new Vehicle(road.point1, road.point2, size, skin);
+                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, size, skin);
                     vehicles.Add(vehicle);
                     lastSpawn = 0;
                 }
