@@ -38,7 +38,7 @@ namespace Testy_mapy
             rand = new Random();
         }
 
-        private void CreateGrass()
+        public void CreateGrass()
         {
             grass = new Grass[numberOfGrass.X, numberOfGrass.Y];
 

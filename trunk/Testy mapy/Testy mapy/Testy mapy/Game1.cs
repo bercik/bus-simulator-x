@@ -27,10 +27,45 @@ namespace Testy_mapy
 
         bool left, right, brake, accelerate, up, down, prevup, prevdown; //tymczasowe zmienne sluzace do sterowana autobusem
 
+        // licznik FPS:
         int a_fps = 0;
         int fps = 60;
         double time = 0.0f;
-        Vector2 pos = new Vector2(200, 500); //poczatkowa pozycja
+
+        // !!! pomocnicze zmienne do EW. USUNIECIA !!!
+        Vector2 startPos = new Vector2(200, 1300); //poczatkowa pozycja
+        Texture2D point;
+        bool busMode = true; // czy jezdzimy autobusem czy przesuwamy mape
+        float scrollingSpeed = 5.0f;
+        bool b_release = true;
+
+        // !!! metody pomocnicze do EW. USUNIECIA !!!
+        public void DrawPoint(Vector2 pos)
+        {
+            Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, 4, 4);
+            spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
+        }
+
+        public void UpdatePos(KeyboardState keybState, GameTime gameTime)
+        {
+            if (keybState.IsKeyDown(Keys.Up))
+                Helper.mapPos += new Vector2(0, -scrollingSpeed);
+            if (keybState.IsKeyDown(Keys.Down))
+                Helper.mapPos += new Vector2(0, scrollingSpeed);
+            if (keybState.IsKeyDown(Keys.Left))
+                Helper.mapPos += new Vector2(-scrollingSpeed, 0);
+            if (keybState.IsKeyDown(Keys.Right))
+                Helper.mapPos += new Vector2(scrollingSpeed, 0);
+            if (keybState.IsKeyDown(Keys.B) && b_release)
+            {
+                busMode = true;
+                b_release = false;
+            }
+            if (keybState.IsKeyUp(Keys.B))
+                b_release = true;
+            if (keybState.IsKeyDown(Keys.Escape))
+                Exit();
+        }
 
         public Game1()
         {
@@ -43,7 +78,7 @@ namespace Testy_mapy
 
             drawMap = new DrawMap();
             drawBus = new DrawBus();
-            busLogic = new BusLogic(pos.X, pos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
+            busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
         }
@@ -79,6 +114,7 @@ namespace Testy_mapy
             drawMap.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("font1");
+            point = Content.Load<Texture2D>("point");
 
             drawMap.LoadMap("test.mp");
             drawMap.LoadTrack("test.tc");
@@ -108,60 +144,76 @@ namespace Testy_mapy
             // obsluga klawiatury
             KeyboardState keybState = Keyboard.GetState();
 
-            if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false; //powinien hamowac?
-
-            if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; //powinien przyspieszac?
-
-            if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false; //skrecamy w prawo?
-
-            if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false; //skrecamy w lewo?
-
-            if (keybState.IsKeyDown(Keys.Space)) busLogic.position = pos; //przywroc
-
-            if (keybState.IsKeyDown(Keys.Escape)) Exit(); //wyjdz
-
-            /*---<ZMIANY BIEGOW>--- 
-              byc moze zostanie przeniesione do bus logic zeby nie smiecic, to wszystko zapobiega zmienieniu biegu z kazdym tickiem
-              ma sie zmieniac tylko przy nacisnieciu. NOPE. Po zastanowieniu odgórne funkcje steruj¹ce musz¹ zostaæ tutaj*/
-            if (keybState.IsKeyDown(Keys.A) && prevup)
+            if (busMode)
             {
-                up = true;
-                prevup = false;
+                if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false; //powinien hamowac?
+
+                if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; //powinien przyspieszac?
+
+                if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false; //skrecamy w prawo?
+
+                if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false; //skrecamy w lewo?
+
+                if (keybState.IsKeyDown(Keys.Space)) busLogic.position = startPos; //przywroc
+
+                if (keybState.IsKeyDown(Keys.Escape)) Exit(); //wyjdz
+
+                if (keybState.IsKeyDown(Keys.B) && b_release)
+                {
+                    busMode = false; // wylacza jezdzenie autobusem
+                    drawMap.CreateGrass();
+                    b_release = false;
+                }
+                if (keybState.IsKeyUp(Keys.B))
+                    b_release = true;
+
+                /*---<ZMIANY BIEGOW>--- 
+                  byc moze zostanie przeniesione do bus logic zeby nie smiecic, to wszystko zapobiega zmienieniu biegu z kazdym tickiem
+                  ma sie zmieniac tylko przy nacisnieciu. NOPE. Po zastanowieniu odgórne funkcje steruj¹ce musz¹ zostaæ tutaj*/
+                if (keybState.IsKeyDown(Keys.A) && prevup)
+                {
+                    up = true;
+                    prevup = false;
+                }
+                else
+                    up = false;
+
+                if (keybState.IsKeyUp(Keys.A))
+                    prevup = true;
+
+                if (keybState.IsKeyDown(Keys.Z) && prevdown)
+                {
+                    down = true;
+                    prevdown = false;
+                }
+                else
+                    down = false;
+
+                if (keybState.IsKeyUp(Keys.Z))
+                    prevdown = true;
+                /*---</ZMIANY BIEGOW>---*/
+
+                /*---<LOGIKA AUTOBUSU>---*/
+                busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
+                Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
+                /*---</LOGIKA AUTOBUSU>---*/
+
+                drawMap.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+                Helper.mapPos = busLogic.GetBusPosition();
+
+                if (!drawMap.IsCollision(collisionPoints))
+                    busLogic.AcceptNewPositionAndDirection();
+                else
+                {
+                    busLogic.Collision();
+                    drawMap.SetPosition(busLogic.GetBusPosition());
+                }
             }
             else
-                up = false;
-
-            if (keybState.IsKeyUp(Keys.A))
-                prevup = true;
-
-            if (keybState.IsKeyDown(Keys.Z) && prevdown)
             {
-                down = true;
-                prevdown = false;
-            }
-            else
-                down = false;
+                UpdatePos(keybState, gameTime);
 
-            if (keybState.IsKeyUp(Keys.Z))
-                prevdown = true;
-            /*---</ZMIANY BIEGOW>---*/
-            
-            if (keybState.IsKeyDown(Keys.L))
-                drawMap.LoadMap("test.mp");
-
-            /*---<LOGIKA AUTOBUSU>---*/
-            busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
-            Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
-            /*---</LOGIKA AUTOBUSU>---*/
-
-            drawMap.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
-
-            if (!drawMap.IsCollision(collisionPoints))
-                busLogic.AcceptNewPositionAndDirection();
-            else
-            {
-                busLogic.Collision();
-                drawMap.SetPosition(busLogic.GetBusPosition());
+                drawMap.SetPosition(Helper.mapPos);
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
@@ -196,8 +248,10 @@ namespace Testy_mapy
             drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
 
             // zmienne pomocnicze rysowane na ekranie:
-            spriteBatch.DrawString(font, "X: " + busLogic.position.X, new Vector2(0, 0), Color.White);
-            spriteBatch.DrawString(font, "Y: " + busLogic.position.Y, new Vector2(0, 30), Color.White);
+            DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
+
+            spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
+            spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
             spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
             spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);
             spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);

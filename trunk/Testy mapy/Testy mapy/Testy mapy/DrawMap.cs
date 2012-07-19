@@ -132,6 +132,9 @@ namespace Testy_mapy
             textures.Add("budynek0", content.Load<Texture2D>("budynek0"));
             textures.Add("znak_uwaga_zakret_w_lewo", content.Load<Texture2D>("znak_uwaga_zakret_w_lewo"));
             textures.Add("drzewo", content.Load<Texture2D>("drzewo"));
+            textures.Add("pasy", content.Load<Texture2D>("pasy"));
+            textures.Add("oczko_wodne", content.Load<Texture2D>("oczko_wodne"));
+            textures.Add("smietnik", content.Load<Texture2D>("smietnik"));
 
             mapLogic.AddStandartObjectsSize(textures);
 
@@ -222,6 +225,9 @@ namespace Testy_mapy
             trackLogic.ChangeTrack(endPoint, lastEndPoint, out connection, out origin);
         }
 
-
+        public void CreateGrass()
+        {
+            backgroundLogic.CreateGrass();
+        }
     }
 }
