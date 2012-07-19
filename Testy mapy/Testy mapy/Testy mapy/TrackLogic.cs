@@ -500,12 +500,15 @@ namespace Testy_mapy
         }
 
         // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
-        public Connection CreateTrack(Vector2 size)
+        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin)
         {
             List<Junction> junctionsFromArea = GetJunctionsFromArea(size);
 
             if (junctionsFromArea.Count == 0)
-                return new Connection();
+            {
+                connection = new Connection();
+                origin = new Vector2(0, 0);
+            }
                 
             Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
 
@@ -523,16 +526,19 @@ namespace Testy_mapy
 
                     if (newTrack.point2 != Vector2.Zero)
                     {
-                        return newTrack;
+                        connection = newTrack;
+                        origin = junction.pos;
                     }
                 }
             }
             else if (newTrack.point2 != Vector2.Zero)
             {
-                return newTrack;
+                connection = newTrack;
+                origin = junction.pos;
             }
 
-            return new Connection();
+            connection = new Connection();
+            origin = new Vector2(0, 0);
         }
 
         public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)
