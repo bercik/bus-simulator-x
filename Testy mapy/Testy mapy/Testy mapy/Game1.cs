@@ -33,7 +33,7 @@ namespace Testy_mapy
         double time = 0.0f;
 
         // !!! pomocnicze zmienne do EW. USUNIECIA !!!
-        Vector2 startPos = new Vector2(200, 1300); //poczatkowa pozycja
+        Vector2 startPos = new Vector2(200, 1200); //poczatkowa pozycja
         Texture2D point;
         bool busMode = false; // czy jezdzimy autobusem czy przesuwamy mape
         float scrollingSpeed = 5.0f;
@@ -87,6 +87,8 @@ namespace Testy_mapy
             busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
+
+            Helper.mapPos = startPos;
         }
 
         /// <summary>
