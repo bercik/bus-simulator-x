@@ -22,10 +22,10 @@ namespace Testy_mapy
             public Lane lane = new Lane(); //pas ruchu
             private float width = 50; //o ile zmenic wspolzedna
 
-            public bool EndReached(Vector2 position)
+            public bool EndReached(Vector2 position) //funkcja sprawdza czy bedac na podanej pozycji osiagnieto koniec drogi
             {
 
-                if (lane.direction == 0)
+                if (lane.direction == 0) //droga w gore
                 {
                     if (position.Y < end.Y)
 
@@ -35,7 +35,7 @@ namespace Testy_mapy
                 }
 
 
-                if (lane.direction == 180)
+                if (lane.direction == 180) //droga w dol
                 {
                     if (position.Y > end.Y)
                         return true;
@@ -43,7 +43,7 @@ namespace Testy_mapy
                         return false;
                 }
 
-                if (lane.direction == 90)
+                if (lane.direction == 90) //droga w prawo
                 {
                     if (position.X > end.X)
                         return true;
@@ -51,7 +51,7 @@ namespace Testy_mapy
                         return false;
                 }
 
-                if (lane.direction == 270)
+                if (lane.direction == 270) //droga w lewo
                 {
                     if (position.X < end.X)
                         return true;
@@ -66,37 +66,26 @@ namespace Testy_mapy
             {
                 this.start = start;
                 this.end = end;
-                CalculateLane(center);
+                CalculateLane(center); //oblicz lane dla tej drogi
             }
 
             private float CalculateDirection(Vector2 start, Vector2 end) //oblicz kierunek miedzy dwoma punktami 
             {
-                float direction = MathHelper.ToDegrees((float)Math.Atan2(end.X - start.X, start.Y - end.Y));
-                if (direction < 0)
+                float direction = MathHelper.ToDegrees((float)Math.Atan2(end.X - start.X, start.Y - end.Y)); //oblicz kierunek
+
+                if (direction < 0) //jesli wyjdzie ujemny skoryguj to
                     direction += 360;
 
                 return direction;
             }
 
-            private void CalculateLane(Vector2 center)
+            private void CalculateLane(Vector2 center) //oblicza lane dla drogi, wywolywana przez konstruktor
             {
                 //this.lane.direction = (float)Math.Round(CalculateDirection(start, end));
                 //if (this.lane.direction < 0)
                 //this.lane.direction += 360;
 
-                if (end.X > start.X)
-                    this.lane.direction = 90;
-
-                if (end.X < start.X)
-                    this.lane.direction = 270;
-
-                if (end.Y > start.Y)
-                    this.lane.direction = 180;
-
-                if (end.Y < start.Y)
-                    this.lane.direction = 0;
-
-                if (start.X == end.X && start.Y == end.Y)
+                if (start.X == end.X && start.Y == end.Y) //jesli droga jest jednym punktem oblicz jej kierunek w oparciu o centrum skrzyzowania z ktorego wychodzi
                 {
                     float preDirection = CalculateDirection(center, start);
 
@@ -112,8 +101,23 @@ namespace Testy_mapy
                     if (preDirection > 225 && preDirection < 315)
                         this.lane.direction = 270;
                 }
+                else //jesli nie jest jednym punktem licz w oparciu o jej punkty
+                {
+                    if (end.X > start.X)
+                        this.lane.direction = 90;
+
+                    if (end.X < start.X)
+                        this.lane.direction = 270;
+
+                    if (end.Y > start.Y)
+                        this.lane.direction = 180;
+
+                    if (end.Y < start.Y)
+                        this.lane.direction = 0;
+                }
 
 
+                //ponizej nastepuje przeliczanie przesuniec lane w zaleznosci od kata drogi
                 if (lane.direction == 0)
                 {
                     lane.start = new Vector2(start.X + width, start.Y);
@@ -140,13 +144,13 @@ namespace Testy_mapy
             }
         }
 
-        public class VehicleType
+        public class VehicleType //klasa przechowujaca typy pojazdow (jak wyglada, rozmiar itp. - wykorzystywane przy tworzeniu)
         {
             public Vector2 size;
             public int skin;
             public int likelihoodOfApperance;
 
-            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance)
+            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance) //constructor
             {
                 this.size = size;
                 this.skin = skin;
@@ -156,18 +160,22 @@ namespace Testy_mapy
 
         public class Vehicle //klasa pojazd
         {
-            public Road road;
-            public RoadsSwitching roadsSwitching;
+            public Road road; //droga ktora jedzie
+            public RoadsSwitching roadsSwitching; //klasa odpowiadajaca za przekierowania od drogi do drogi, zakrety
 
             private bool driving = true; //jedzie czy został zmuszony do zatrzymania się?
             public bool redirecting = false; //true kieruje sie do nowej drogi
             private float speed; //aktualna predkosc
             private Vector2 position; //aktualna pozycja
-            public Vector2 size = new Vector2(50, 100);
-            public float direction;
-            public int skin;
+            public Vector2 size = new Vector2(50, 100); //rozmiar
+            public float direction; //kierunek
+            public int skin; //jaki wyglad, skin
 
-            public Vector2 lastEnd = new Vector2(0, 0);
+            public bool accident = false;
+            public float indicatorCounter = 0;
+            public bool indicatorBlink = true;
+
+            public Vector2 lastEnd = new Vector2(0, 0); //koniec ostatniej drogi podawane do ChangeTrack
 
             private float normalSpeed = 20; //predkosc standardowa przyjmowana podczas normalnego poruszania sie
             private float acceleration = 70; //standardowe przyspieszenie
@@ -208,7 +216,7 @@ namespace Testy_mapy
                 return pointsArray;
             }
 
-            public Vector2[] GetDetectionPoints()
+            public Vector2[] GetDetectionPoints() //punkty uzywane do wykrywania czy nalezy zatrzymac samochod
             {
                 Vector2 p2, p3; //create 2 points
 
@@ -240,7 +248,7 @@ namespace Testy_mapy
                 return CalculateCenter(position, direction);
             }
 
-            private Vector2 CalculateCenter(Vector2 vehiclePosition, float vehicleDirection)
+            private Vector2 CalculateCenter(Vector2 vehiclePosition, float vehicleDirection) //oblicza srodek pojazdu
             {
                 Vector2 center;
 
@@ -263,12 +271,17 @@ namespace Testy_mapy
                 stopCounter += timeCoherenceMultiplier;
                 if (stopCounter > startAfter)
                     driving = true;
-            }
+            } //wznawia jazde
 
             public void Stop()
             {
                 driving = false;
                 stopCounter = 0;
+            } //zatrzymuje pojazd
+
+            public void Collision()
+            {
+                accident = true;
             }
 
             public class RoadsSwitching
@@ -491,9 +504,13 @@ namespace Testy_mapy
 
         private List<Vehicle> vehicles = new List<Vehicle>();
         private int maxVehicles = 10; //maksymalna liczba pojazdow
-        private float spawnInterval = 2; //co ile spawnowac nowe pojazdy [s]
+        private float spawnInterval = 5; //co ile spawnowac nowe pojazdy [s]
         private float lastSpawn = 0; //ostatni spawn [s]
-        private Vector2 spawnDistance = new Vector2(2000, 2000);
+        private Vector2 spawnDistance = new Vector2(1000, 1000); //maksymalna odleglosc spawnowania
+        private float distanceToDelete = 1000; //samochody bedace dalej niz podany dystans zostana usuniete
+
+        float indicatorBlinkInterval = 1; //jak czesto maja migac migacze
+
 
         private int maxRandom = 0;
 
@@ -517,23 +534,64 @@ namespace Testy_mapy
         {
             foreach (Vector2 point in points)
             {
-                Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
-                MyRectangle rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
-                if (Helper.IsInside(point, rectangle))
-                    return false;
+                Vector2[] collisionPoints;
+                MyRectangle rectangle;
+
+                if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) //jesli autobus jest blisko sprawdz go
+                {
+                    collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
+                    rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
+                    if (Helper.IsInside(point, rectangle))
+                        return false;
+                }
 
                 foreach (Vehicle vehicle in vehicles)
                 {
-                    collisionPoints = vehicle.GetCollisionPoints();
-                    rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
-                    if (Helper.IsInside(point, rectangle))
-                        return false;
+                    if (Helper.CalculateDistance(vehicle.GetVehiclePosition(), point) < 200) //jesli dany autobus jest dostatecznie blisko sprawdz
+                    {
+                        collisionPoints = vehicle.GetCollisionPoints();
+                        rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
+                        if (Helper.IsInside(point, rectangle))
+                            return false;
+                    }
                 }
             }
             return true;
         }
 
-        public List<Object> GetAllVehicles()
+        public bool IsCollision(Vector2[] points, BusLogic busLogic) //sprawdzanie czy wystepuje kolizja
+        {
+            foreach (Vector2 point in points)
+            {
+                Vector2[] collisionPoints;
+                MyRectangle rectangle;
+
+                if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) //jesli autobus jest blisko sprawdz go
+                {
+                    collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
+                    rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
+                    if (Helper.IsInside(point, rectangle))
+                        return true;
+                }
+
+                foreach (Vehicle vehicle in vehicles)
+                {
+                    if (Helper.CalculateDistance(vehicle.GetVehiclePosition(), point) < 200) //jesli dany pojazd jest dostatecznie blisko sprawdz
+                    {
+                        collisionPoints = vehicle.GetCollisionPoints();
+                        if (collisionPoints[0] != points[0] && collisionPoints[1] != points[1] && collisionPoints[2] != points[2] && collisionPoints[3] != points[3])
+                        {
+                            rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
+                            if (Helper.IsInside(point, rectangle))
+                                return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public List<Object> GetAllVehicles() //uzywane do rysowania
         {
             List<Object> list = new List<Object>();
 
@@ -543,6 +601,38 @@ namespace Testy_mapy
             }
 
             return list;
+        }
+
+        private List<MyRectangle> GetCollisionRectangles(Vector2 busPosition) //kolizja autobusu
+        {
+            List<MyRectangle> list = new List<MyRectangle>();
+            Vector2[] pointsArray;
+
+            foreach (Vehicle vehicle in vehicles)
+            {
+                if (Helper.CalculateDistance(busPosition, vehicle.GetVehiclePosition()) < 200)
+                {
+                    pointsArray = vehicle.GetCollisionPoints();
+                    list.Add(new MyRectangle(pointsArray[0], pointsArray[1], pointsArray[2], pointsArray[3]));
+                }
+            }
+
+            return list;
+        }
+
+        public bool IsCollision(Vector2[] collisionPoints, Vector2 busPosition)
+        {
+            List<MyRectangle> boxesList = GetCollisionRectangles(busPosition);
+
+            foreach (MyRectangle box in boxesList)
+            {
+                foreach (Vector2 point in collisionPoints)
+                {
+                    if (Helper.IsInside(point, box))
+                        return true;
+                }
+            }
+            return false;
         }
 
         public Vector2[] GetPointsToDraw()
@@ -565,6 +655,24 @@ namespace Testy_mapy
             return list.ToArray();
         }
 
+        public List<Object> GetIndicatorPoints()
+        {
+            List<Object> list = new List<Object>();
+            Vector2[] pointsArray;
+
+            foreach (Vehicle vehicle in vehicles)
+            {
+                if (vehicle.accident && vehicle.indicatorBlink)
+                {
+                    pointsArray = vehicle.GetCollisionPoints();
+                    foreach (Vector2 point in pointsArray)
+                        list.Add(new Object("", point, new Vector2(25, 25), 0, false));
+                }
+            }
+
+            return list;
+        }
+
         private void CreateNewVehicles(DrawMap drawMap) //tworzenie nowych pojazdów
         {
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
@@ -573,7 +681,7 @@ namespace Testy_mapy
                 Connection getNewRoad;
 
                 drawMap.CreateTrack(spawnDistance, out getNewRoad, out junctionCenter);
-                
+
                 Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
 
                 //if (!(road.point1.X == 150 && road.point1.Y == 300))
@@ -606,20 +714,43 @@ namespace Testy_mapy
             }
         }
 
-        public void Update(DrawMap drawMap, BusLogic busLogic, TimeSpan framesInterval)
+        public void Update(DrawMap drawMap, BusLogic busLogic, TimeSpan framesInterval) //glowna funkcja aktualizujaca
         {
             float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000; //czas pomiedzy dwoma tickami sluzacy do utrzymania spojnosci obliczen [s]
 
             lastSpawn += timeCoherenceMultiplier; //zwiekszmy czas od ostatniego spawnu
             CreateNewVehicles(drawMap); //stworzmy nowe pojazdy
 
-            foreach (Vehicle vehicle in vehicles)
+            vehicles.RemoveAll(delegate(Vehicle vehicle)
             {
-                if (IsRoadClear(vehicle.GetDetectionPoints(), busLogic))
-                    vehicle.Start(timeCoherenceMultiplier);
+                return Helper.CalculateDistance(busLogic.GetBusPosition(), vehicle.GetVehiclePosition()) > distanceToDelete;
+            });
+
+
+            foreach (Vehicle vehicle in vehicles) //dla kazdego pojazdu...
+            {
+                if (!vehicle.accident)
+                {
+                    if (IsRoadClear(vehicle.GetDetectionPoints(), busLogic)) //...sprawdz czy ma sie zatrzymac
+                        vehicle.Start(timeCoherenceMultiplier);
+                    else
+                        vehicle.Stop();
+
+                    if (IsCollision(vehicle.GetCollisionPoints(), busLogic)) //...czy pojawia sie kolizja
+                        vehicle.Collision();
+
+                    if (!vehicle.accident) //jesli nie mial wypadku
+                        vehicle.Update(busLogic, drawMap, timeCoherenceMultiplier); //...zaktualizuj jego pozycje
+                }
                 else
-                    vehicle.Stop();
-                vehicle.Update(busLogic, drawMap, timeCoherenceMultiplier);
+                {
+                    vehicle.indicatorCounter += timeCoherenceMultiplier;
+                    if (vehicle.indicatorCounter > indicatorBlinkInterval)
+                    {
+                        vehicle.indicatorBlink = !vehicle.indicatorBlink;
+                        vehicle.indicatorCounter = 0;
+                    }
+                }
             }
         }
     }

@@ -15,7 +15,7 @@ namespace Testy_mapy
 {
     class DrawTraffic
     {
-        Texture2D vehicleTexture, vehicleTexture0, vehicleTexture1, vehicleTexture2, point;
+        Texture2D vehicleTexture, vehicleTexture0, vehicleTexture1, vehicleTexture2, point, indicatorTexture;
 
         public DrawTraffic()
         {
@@ -27,6 +27,7 @@ namespace Testy_mapy
             vehicleTexture0 = content.Load<Texture2D>("vehicle0");
             vehicleTexture1 = content.Load<Texture2D>("vehicle1");
             vehicleTexture2 = content.Load<Texture2D>("vehicle2");
+            indicatorTexture = content.Load<Texture2D>("vehicle_indicator");
             point = content.Load<Texture2D>("point");
         }
 
@@ -45,8 +46,14 @@ namespace Testy_mapy
                 vehicleTexture = vehicleTexture2;
 
             spriteBatch.Draw(vehicleTexture, rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicle.origin, SpriteEffects.None, 1);
+        }
 
+        public void DrawIndicator(SpriteBatch spriteBatch, Object indicator)
+        {
+            Vector2 position = Helper.MapPosToScreenPos(indicator.pos);
+            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)indicator.size.X, (int)indicator.size.Y);
 
+            spriteBatch.Draw(indicatorTexture, rect, null, Color.White, MathHelper.ToRadians(indicator.rotate), indicator.origin, SpriteEffects.None, 1);
         }
     }
 }

@@ -209,7 +209,7 @@ namespace Testy_mapy
                 drawMap.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
                 Helper.mapPos = busLogic.GetBusPosition();
 
-                if (!drawMap.IsCollision(collisionPoints))
+                if (!drawMap.IsCollision(collisionPoints) && !trafficLogic.IsCollision(collisionPoints, busLogic.GetBusPosition()))
                     busLogic.AcceptNewPositionAndDirection();
                 else
                 {
@@ -246,9 +246,15 @@ namespace Testy_mapy
             drawMap.DrawTrack(spriteBatch, gameTime);
             drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
 
+            //<traffic>
+            List<Object> indicatorsList = trafficLogic.GetIndicatorPoints();
+            foreach (Object indicator in indicatorsList)
+                drawTraffic.DrawIndicator(spriteBatch, indicator);
+            
             List<Object> vehiclesList = trafficLogic.GetAllVehicles();
             foreach (Object vehicle in vehiclesList)
                drawTraffic.Draw(spriteBatch, vehicle);
+            //</traffic>
             
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection(), false);
             drawBus.Draw(spriteBatch, bus);
@@ -259,6 +265,8 @@ namespace Testy_mapy
             DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
 
             DrawPoints(trafficLogic.GetPointsToDraw());
+            
+            DrawPoints(busLogic.GetPointsToDraw());
 
 
             spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);

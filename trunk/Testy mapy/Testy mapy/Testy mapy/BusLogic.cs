@@ -15,13 +15,13 @@ namespace Testy_mapy
 
         private Vector2 newPosition;
         private float newDirection;
-        
+
         private float speedMultiplier = 4;
         private float brakeAcc = 20;
         private float speedDecay = (float)0.5;
 
         private GearBox gearBox = new GearBox();
-        private Wheel wheel = new Wheel();     
+        private Wheel wheel = new Wheel();
 
         public int GetCurrentGear()
         {
@@ -37,12 +37,12 @@ namespace Testy_mapy
         {
             return direction;
         }
-        
+
         public float GetCurrentAcceleration()
         {
             return gearBox.GetAcceleration(speed);
         }
-        
+
         public Vector2 GetBusPosition() //Get the center of the bus to draw the center of the map
         {
             return CalculateCenter(position, direction);
@@ -62,7 +62,7 @@ namespace Testy_mapy
         {
             return size / 2;
         }
-        
+
         public float GetSideAcceleration()
         {
             return wheel.GetSideAcceleration();
@@ -87,7 +87,7 @@ namespace Testy_mapy
                     public float addToSpeed;
                     public float logBase;
                     public float addToAll;
-                    
+
                     public AccelerationCurve(float addToSpeed, float logBase, float addToAll) //constructor
                     {
                         this.addToSpeed = addToSpeed;
@@ -217,7 +217,7 @@ namespace Testy_mapy
             {
                 if (busSpeed == 0)
                     return 0;
-                
+
                 AccelerationCurve curve;
 
                 if (busSpeed >= optimalSpeed)
@@ -226,7 +226,7 @@ namespace Testy_mapy
                     curve = curves[0];
 
                 float speed = busSpeed;
-                
+
                 if (busSpeed < 0)
                     busSpeed = -busSpeed;
 
@@ -241,7 +241,7 @@ namespace Testy_mapy
             {
                 if (busSpeed == 0)
                     return 0;
-                
+
                 AccelerationCurve curve;
 
                 if (busSpeed >= optimalSpeed)
@@ -271,10 +271,10 @@ namespace Testy_mapy
 
                 float maximalSideAcc;
 
-               /* if (busSpeed < 10)
-                    maximalSideAcc = (float)maxSideAcc / 2;
-                else
-                    maximalSideAcc = maxSideAcc;*/
+                /* if (busSpeed < 10)
+                     maximalSideAcc = (float)maxSideAcc / 2;
+                 else
+                     maximalSideAcc = maxSideAcc;*/
 
                 maximalSideAcc = GetMaxSideAcceleration(busSpeed);
 
@@ -317,7 +317,7 @@ namespace Testy_mapy
         {
             return MathHelper.ToRadians(degrees);
         }
-        
+
         public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points
         {
             Vector2 p1, p2, p3, p4; //create 4 points
@@ -334,7 +334,7 @@ namespace Testy_mapy
             p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
             p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
-            Vector2[] pointsArray = new Vector2[4] {p1, p2, p3 , p4}; //create list and add points
+            Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; //create list and add points
 
             return pointsArray;
         }
@@ -412,8 +412,20 @@ namespace Testy_mapy
                     speed = 0;
             }
 
-            newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier); 
+            newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
             newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection);
+        }
+
+        public Vector2[] GetPointsToDraw()
+        {
+            List<Vector2> list = new List<Vector2>();
+            Vector2[] pointsArray;
+
+            pointsArray = GetCollisionPoints(position, direction);
+            foreach (Vector2 point in pointsArray)
+                list.Add(Helper.MapPosToScreenPos(point));
+
+            return list.ToArray();
         }
     }
 }
