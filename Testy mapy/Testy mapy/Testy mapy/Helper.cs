@@ -68,9 +68,9 @@ namespace Testy_mapy
         public static Vector2 MapPosToScreenPos(Vector2 pos)
         {
             return pos - (mapPos - screenSize / 2);
-        }
+        } //konwertuje pozycje na mapie na pozycje na ekranie
 
-        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat 
+        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat, sprawdza czy punkt jest w kwadracie
         {
             Vector2 p1, p2;
 
@@ -104,6 +104,11 @@ namespace Testy_mapy
                 oldPoint = newPoint;
             }
             return inside;
+        }
+
+        public static float CalculateDistance(Vector2 point1, Vector2 point2) //oblicza systans pomiedzy dwoma punktami
+        {
+            return (float)Math.Round(Math.Sqrt(Math.Pow(point1.X - point2.X, 2) + Math.Pow(point1.Y - point2.Y, 2)), 2);
         }
     }
 }
