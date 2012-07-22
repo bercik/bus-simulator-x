@@ -597,7 +597,7 @@ namespace Testy_mapy
 
             foreach (Vehicle vehicle in vehicles)
             {
-                list.Add(new Object(vehicle.skin.ToString(), vehicle.GetVehiclePosition(), vehicle.size, vehicle.direction, false));
+                list.Add(new Object(vehicle.skin.ToString(), vehicle.GetVehiclePosition(), vehicle.size, vehicle.direction));
             }
 
             return list;
@@ -666,7 +666,7 @@ namespace Testy_mapy
                 {
                     pointsArray = vehicle.GetCollisionPoints();
                     foreach (Vector2 point in pointsArray)
-                        list.Add(new Object("", point, new Vector2(25, 25), 0, false));
+                        list.Add(new Object("", point, new Vector2(25, 25), 0));
                 }
             }
 

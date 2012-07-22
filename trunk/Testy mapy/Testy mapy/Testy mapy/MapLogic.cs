@@ -30,6 +30,7 @@ namespace Testy_mapy
         }
 
         Dictionary<string, Vector2> standart_size;
+        Dictionary<string, ObjectInformation> objectsInformation;
         List<Object> junctionsInRange;
         List<Object> objectsUnderBusInRange;
         List<Object> objectsOnBusInRange;
@@ -41,6 +42,7 @@ namespace Testy_mapy
         public MapLogic()
         {
             standart_size = new Dictionary<string, Vector2>();
+            objectsInformation = new Dictionary<string, ObjectInformation>();
             junctionsInRange = new List<Object>();
             objectsUnderBusInRange = new List<Object>();
             objectsOnBusInRange = new List<Object>();
@@ -74,28 +76,33 @@ namespace Testy_mapy
             Vector2 pos = new Vector2(float.Parse(split[1]), float.Parse(split[2]));
             Vector2 size = new Vector2(Int32.Parse(split[3]), Int32.Parse(split[4]));
             float rotate = float.Parse(split[5]);
-            bool collide = Convert.ToBoolean(Int32.Parse(split[6]));
-            bool underBus = Convert.ToBoolean(Int32.Parse(split[7]));
-            SpriteEffects spriteEffects = (SpriteEffects)Int32.Parse(split[8]);
-
-            AddObjectToChunk(name, pos, size, rotate, collide, underBus, spriteEffects);
+            SpriteEffects spriteEffects = (SpriteEffects)Int32.Parse(split[6]);
+            bool underBus = objectsInformation[name].underBus;
+            
+            AddObjectToChunk(name, pos, size, rotate, underBus, spriteEffects);
         }
 
-        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, bool collide,
-                bool underBus, SpriteEffects spriteEffects = SpriteEffects.None, bool junction = false)
+        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, bool underBus,
+                SpriteEffects spriteEffects = SpriteEffects.None, bool junction = false)
         {
             if (size.X == 0)
                 size.X = standart_size[name].X;
             if (size.Y == 0)
                 size.Y = standart_size[name].Y;
 
-            Object o = new Object(name, pos, size, rotate, collide, underBus, spriteEffects);
+            Object o;
+
+            if (standart_size.ContainsKey(name))
+                o = new Object(name, pos, size, rotate, standart_size[name], spriteEffects,
+                    (objectsInformation.ContainsKey(name) ? objectsInformation[name].collisionRectangles : null));
+            else
+                o = new Object(name, pos, size, rotate, spriteEffects,
+                    (objectsInformation.ContainsKey(name) ? objectsInformation[name].collisionRectangles : null));
 
             int x = (int)pos.X / chunkSize.Width;
             int y = (int)pos.Y / chunkSize.Height;
-
             
-            chunks[x, y].AddObject(o, junction);
+            chunks[x, y].AddObject(o, junction, underBus);
 
             // dla obiektow wiekszych niz zakladane
             bool b_x = false, b_y = false; // czy obiekt jest wiekszy od zakladanej wielkosci (na szerokosc i dlugosc)
@@ -133,52 +140,27 @@ namespace Testy_mapy
             Vector2 new_pos = o.pos - o.origin; // lewy gorny punkt obiektu we wspolrzednych mapy
             Vector2 center = o.pos; // srodek
 
-            if (f_rotate > 180)
-                f_rotate -= 180;
-
             Vector2 pos1 = new Vector2(new_pos.X, new_pos.Y);
             Vector2 pos2 = new Vector2(new_pos.X + o.size.X, new_pos.Y);
             Vector2 pos3 = new Vector2(new_pos.X + o.size.X, new_pos.Y + o.size.Y);
             Vector2 pos4 = new Vector2(new_pos.X, new_pos.Y + o.size.Y);
 
-            if (f_rotate <= 90)
+            if (f_rotate <= 90 || f_rotate >= 270)
             {
-                x1 = ComputeRotationX(pos2, center, f_rotate); // 2
-                x2 = ComputeRotationX(pos4, center, f_rotate); // 4
-                    
-                y1 = ComputeRotationY(pos1, center, f_rotate); // 1
-                y2 = ComputeRotationY(pos3, center, f_rotate); // 3
+                x1 = Helper.ComputeRotationX(pos2, center, f_rotate); // 2
+                x2 = Helper.ComputeRotationX(pos4, center, f_rotate); // 4
+
+                y1 = Helper.ComputeRotationY(pos1, center, f_rotate); // 1
+                y2 = Helper.ComputeRotationY(pos3, center, f_rotate); // 3
             }
             else
             {
-                y1 = ComputeRotationY(pos2, center, f_rotate); // 2
-                y2 = ComputeRotationY(pos4, center, f_rotate); // 4
+                y1 = Helper.ComputeRotationY(pos2, center, f_rotate); // 2
+                y2 = Helper.ComputeRotationY(pos4, center, f_rotate); // 4
 
-                x1 = ComputeRotationX(pos1, center, f_rotate); // 1
-                x2 = ComputeRotationX(pos3, center, f_rotate); // 3
+                x1 = Helper.ComputeRotationX(pos1, center, f_rotate); // 1
+                x2 = Helper.ComputeRotationX(pos3, center, f_rotate); // 3
             }
-        }
-
-        private void ComputePointsOnRotation(Object o, out MyRectangle myRect)
-        {
-            myRect = new MyRectangle();
-
-            float f_rotate = o.rotate;
-            Vector2 new_pos = o.pos - o.origin; // lewy gorny punkt obiektu we wspolrzednych mapy
-            Vector2 center = o.pos; // srodek
-
-            if (f_rotate > 180)
-                f_rotate -= 180;
-
-            Vector2 pos1 = new Vector2(new_pos.X, new_pos.Y);
-            Vector2 pos2 = new Vector2(new_pos.X + o.size.X, new_pos.Y);
-            Vector2 pos3 = new Vector2(new_pos.X + o.size.X, new_pos.Y + o.size.Y);
-            Vector2 pos4 = new Vector2(new_pos.X, new_pos.Y + o.size.Y);
-
-            myRect.point1 = ComputeRotation(pos4, center, f_rotate);
-            myRect.point2 = ComputeRotation(pos3, center, f_rotate);
-            myRect.point3 = ComputeRotation(pos2, center, f_rotate);
-            myRect.point4 = ComputeRotation(pos1, center, f_rotate);
         }
 
         private void GetObjectsInRangeFromChunk(ref List<Object> objects, List<Object> objectsToCheck, int x, int y, Vector2 mapPos)
@@ -219,7 +201,8 @@ namespace Testy_mapy
 
                 if (b_x && b_y)
                 {
-                    Object oToAdd = new Object(o.name, o.pos, o.size, o.rotate, o.collide, o.underBus, o.spriteEffects);
+                    Object oToAdd = new Object(o.name, o.pos, o.size, o.rotate, o.spriteEffects);
+                    oToAdd.collisionRectangles = o.collisionRectangles;
 
                     if (standart_size.ContainsKey(o.name))
                         oToAdd.original_origin = standart_size[o.name] / 2;
@@ -246,21 +229,6 @@ namespace Testy_mapy
             return (p1 < mapPos - screenSize / 2 && p2 > mapPos + screenSize / 2);
         }
 
-        private float ComputeRotationX(Vector2 point, Vector2 center, float angel)
-        {
-            return (float)(((point.X - center.X) * Math.Cos(MathHelper.ToRadians(angel))) - ((point.Y - center.Y) * Math.Sin(MathHelper.ToRadians(angel))) + center.X);
-        }
-
-        private float ComputeRotationY(Vector2 point, Vector2 center, float angel)
-        {
-            return (float)(((point.X - center.X) * Math.Sin(MathHelper.ToRadians(angel))) + ((point.Y - center.Y) * Math.Cos(MathHelper.ToRadians(angel))) + center.Y);
-        }
-
-        private Vector2 ComputeRotation(Vector2 point, Vector2 center, float angel)
-        {
-            return new Vector2(ComputeRotationX(point, center, angel), ComputeRotationY(point, center, angel));
-        }
-
         private bool SmallWidth(float a)
         {
             return (Math.Abs(a) <= screenSize.Width / 2);
@@ -280,15 +248,54 @@ namespace Testy_mapy
 
         private bool CheckCollision(Object o, Vector2 point)
         {
-            MyRectangle myRect;
-            ComputePointsOnRotation(o, out myRect);
+            for (int i = 0; i < o.collisionRectangles.Length; ++i)
+            {
+                MyRectangle myRect = o.collisionRectangles[i];
 
-            return myRect.IsInside(point);
+                if (myRect.IsInside(point))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void AddObjectInformation(string s_objectInformation)
+        {
+            string[] split = s_objectInformation.Split(new char[] { ';' });
+
+            string name = split[0];
+            bool collide = Convert.ToBoolean(Int32.Parse(split[1]));
+            bool underBus = Convert.ToBoolean(Int32.Parse(split[2]));
+
+            // tutaj ladowanie prostokatow kolizji:
+            List<Rectangle> collisionRectangles = new List<Rectangle>();
+            int i = 3; // licznik pozycji
+            
+            while (i < split.Length)
+            {
+                Rectangle collisionRectangle = new Rectangle();
+                collisionRectangle.X = Int32.Parse(split[i]);
+                collisionRectangle.Y = Int32.Parse(split[i + 1]);
+                collisionRectangle.Width = Int32.Parse(split[i + 2]);
+                collisionRectangle.Height = Int32.Parse(split[i + 3]);
+
+                collisionRectangles.Add(collisionRectangle);
+
+                i += 4;
+            }
+
+            AddObjectInformation(name, collide, underBus, collisionRectangles);
+        }
+
+        private void AddObjectInformation(string name, bool collide, bool underBus, List<Rectangle> collisionRectangles)
+        {
+            ObjectInformation objectInformation = new ObjectInformation(underBus, collide, collisionRectangles);
+            objectsInformation.Add(name, objectInformation);
         }
 
         public void AddObjectToChunk(Object o, bool junction)
         {
-            AddObjectToChunk(o.name, o.pos, o.size, o.rotate, o.collide, o.underBus, o.spriteEffects, junction);
+            AddObjectToChunk(o.name, o.pos, o.size, o.rotate, true, o.spriteEffects, junction);
         }
 
         public void AddJunctionsToChunks(List<Object> junctions)
@@ -315,37 +322,45 @@ namespace Testy_mapy
         }
 
         // laduje mape z pliku
-        public bool LoadMap(string path, int screenWidth, int screenHeight)
+        public void LoadMap(ref StreamReader sr)
         {
-            path = "maps\\" + path;
+            ClearChunks();
 
-            if (File.Exists(path))
+            string mapSize = sr.ReadLine();
+
+            int mapWidth = Int32.Parse(mapSize.Substring(0, mapSize.IndexOf(';')));
+            int mapHeight = Int32.Parse(mapSize.Substring(mapSize.IndexOf(';') + 1));
+
+            CreateChunks((int)Helper.screenSize.X, (int)Helper.screenSize.Y, mapWidth, mapHeight);
+
+            string s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
+
+            while ((s_object = sr.ReadLine()) != "*junctions*")
             {
-                ClearChunks();
-
-                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
-
-                string mapSize;
-                while ((mapSize = sr.ReadLine()).StartsWith("//")) ;
-
-                int mapWidth = Int32.Parse(mapSize.Substring(0, mapSize.IndexOf(';')));
-                int mapHeight = Int32.Parse(mapSize.Substring(mapSize.IndexOf(';') + 1));
-
-                CreateChunks(screenWidth, screenHeight, mapWidth, mapHeight);
-
-                string s_object = "";
-
-                while ((s_object = sr.ReadLine()) != null)
-                {
-                    if (!s_object.StartsWith("//"))
-                        AddObjectToChunk(s_object);
-                }
-
-                return true;
+                AddObjectToChunk(s_object);
             }
+        }
 
-            return false;
+        // laduje informacje o obiektach
+        public void LoadObjects(string path)
+        {
+            path = "db/" + path;
+
+            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+            StreamReader sr = new StreamReader(fs);
+
+            string s_objectInformation = sr.ReadLine(); // !!! pierwsza linijka to komentarz !!! (DO EW. USUNIECIA)
+
+            while ((s_objectInformation = sr.ReadLine()) != null)
+            {
+                AddObjectInformation(s_objectInformation);
+            }
+        }
+
+        //zwraca nazwy obiektow
+        public string[] GetObjectsNames()
+        {
+            return objectsInformation.Keys.ToArray();
         }
 
         // ustawia obiekty do wyswietlenia (pos - pozycja srodka mapy)
@@ -435,12 +450,21 @@ namespace Testy_mapy
         // pobiera liste obiektow w zasiegu w wspolrzednych ekranowych
         public List<Object> GetCollisionObjectsInRange()
         {
-            List<Object> objectsInRange = new List<Object>();
+            List<Object> collisionObjectsInRange = new List<Object>();
 
-            objectsInRange.AddRange(objectsOnBusInRange);
-            objectsInRange.AddRange(objectsUnderBusInRange);
+            foreach (Object o in objectsOnBusInRange)
+            {
+                if (objectsInformation[o.name].collide)
+                    collisionObjectsInRange.Add(o);
+            }
 
-            return objectsInRange;
+            foreach (Object o in objectsUnderBusInRange)
+            {
+                if (objectsInformation[o.name].collide)
+                    collisionObjectsInRange.Add(o);
+            }
+
+            return collisionObjectsInRange;
         }
 
         // zwraca true jezeli kolizja wystepuje
@@ -448,9 +472,8 @@ namespace Testy_mapy
         {
             foreach (Object o in GetCollisionObjectsInRange())
             {
-                if (o.collide)
-                    if (CheckCollision(o, point))
-                        return true;
+                if (CheckCollision(o, point))
+                    return true;
             }
 
             return false;
@@ -467,6 +490,25 @@ namespace Testy_mapy
 
             return false;
         }
+
+        // funkcja pomocnicza sluzaca do zwrocenia punktow kolizji do ich pozniejszego wyswietlenia na ekranie
+        public Vector2[] GetCollisionPointsToDraw()
+        {
+            List<Vector2> collisionPoints = new List<Vector2>();
+
+            foreach (Object o in GetCollisionObjectsInRange())
+            {
+                foreach (MyRectangle myRect in o.collisionRectangles)
+                {
+                    collisionPoints.Add(Helper.MapPosToScreenPos(myRect.point1));
+                    collisionPoints.Add(Helper.MapPosToScreenPos(myRect.point2));
+                    collisionPoints.Add(Helper.MapPosToScreenPos(myRect.point3));
+                    collisionPoints.Add(Helper.MapPosToScreenPos(myRect.point4));
+                }
+            }
+
+            return collisionPoints.ToArray();
+        }
     }
 
     class Chunk
@@ -482,11 +524,11 @@ namespace Testy_mapy
             objectsOnBus = new List<Object>();
         }
 
-        public void AddObject(Object o, bool junction = false)
+        public void AddObject(Object o, bool junction = false, bool underBus = false)
         {
             if (junction)
                 junctions.Add(o);
-            else if (o.underBus)
+            else if (underBus)
                 objectsUnderBus.Add(o);
             else
                 objectsOnBus.Add(o);
@@ -519,8 +561,7 @@ namespace Testy_mapy
     {
         public string name;
         public float rotate;
-        public bool collide; // czy dany obiekt ma wywoływać kolizję
-        public bool underBus; // czy dany obiekt ma byc wyswietlany pod autobusem
+        public MyRectangle[] collisionRectangles; // prostokaty kolziji
         public SpriteEffects spriteEffects; // efekty przy wyświetlaniu
         public Vector2 pos;
         public Vector2 origin { get; private set; }
@@ -541,16 +582,64 @@ namespace Testy_mapy
             }
         }
 
-        public Object(string name, Vector2 pos, Vector2 size, float rotate, bool collide,
-                bool underBus = false, SpriteEffects spriteEffects = SpriteEffects.None)
+        private Vector2 scale; // skala obiektu (wzgledem standartowego rozmiaru)
+
+        protected Object(string name, Vector2 pos, Vector2 size, float rotate, SpriteEffects spriteEffects)
         {
             this.name = name;
             this.pos = pos;
             this.size = size;
             this.rotate = rotate;
-            this.collide = collide;
             this.spriteEffects = spriteEffects;
-            this.underBus = underBus;
+        }
+
+        public Object(string name, Vector2 pos, Vector2 size, float rotate, Vector2 originalSize,
+                SpriteEffects spriteEffects = SpriteEffects.None, List<Rectangle> collisionRectangles = null)
+            : this(name, pos, size, rotate, spriteEffects)
+        {
+            if (originalSize == Vector2.Zero)
+                this.scale = new Vector2(1, 1);
+            else
+                this.scale = size / originalSize;
+
+            ComputeCollisionRectangles(collisionRectangles);
+        }
+
+        public Object(string name, Vector2 pos, Vector2 size, float rotate, SpriteEffects spriteEffects = SpriteEffects.None,
+                List<Rectangle> collisionRectangles = null)
+            : this(name, pos, size, rotate, spriteEffects)
+        {
+            this.scale = new Vector2(1, 1);
+
+            ComputeCollisionRectangles(collisionRectangles);
+        }
+
+        public void ComputeCollisionRectangles(List<Rectangle> collisionRectangles)
+        {
+            // obliczanie prostokatow kolizji
+            if (collisionRectangles == null || collisionRectangles.Count == 0) // jezeli nie zdefiniowano tworzymy standartowy prostokat kolzji
+            {
+                this.collisionRectangles = new MyRectangle[1];
+
+                Rectangle rect = new Rectangle((int)(pos.X - origin.X), (int)(pos.Y - origin.Y), (int)size.X, (int)size.Y);
+
+                this.collisionRectangles[0] = Helper.ComputeRectangleOnRotation(rect, pos, rotate);
+            }
+            else
+            {
+                this.collisionRectangles = new MyRectangle[collisionRectangles.Count];
+
+                for (int i = 0; i < collisionRectangles.Count; ++i)
+                {
+                    Rectangle collisionRectangle = new Rectangle();
+                    collisionRectangle.X = (int)((collisionRectangles[i].X * scale.X) + (pos.X - origin.X));
+                    collisionRectangle.Y = (int)((collisionRectangles[i].Y * scale.Y) + (pos.Y - origin.Y));
+                    collisionRectangle.Width = (int)(collisionRectangles[i].Width * scale.X);
+                    collisionRectangle.Height = (int)(collisionRectangles[i].Height * scale.Y);
+
+                    this.collisionRectangles[i] = Helper.ComputeRectangleOnRotation(collisionRectangle, pos, rotate);
+                }
+            }
         }
 
         public object Clone()
@@ -558,6 +647,20 @@ namespace Testy_mapy
             Object other = (Object)this.MemberwiseClone();
 
             return other;
+        }
+    }
+
+    class ObjectInformation
+    {
+        public readonly bool underBus; // czy dany typ obiektu jest pod autobusem
+        public readonly bool collide; // czy dany typ obiektu wywoluje kolizje
+        public readonly List<Rectangle> collisionRectangles; // lista prostokatow kolizjii
+
+        public ObjectInformation(bool underBus, bool collide, List<Rectangle> collisionRectangles)
+        {
+            this.underBus = underBus;
+            this.collide = collide;
+            this.collisionRectangles = collisionRectangles;
         }
     }
 }

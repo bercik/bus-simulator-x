@@ -95,7 +95,7 @@ namespace Testy_mapy
             }
         }
 
-        // rysuje trasê i trawe
+        // rysuje trasê, trawe i chodniki
         public void DrawTrack(SpriteBatch spriteBatch, GameTime gameTime)
         {
             if (load)
@@ -122,19 +122,24 @@ namespace Testy_mapy
             }
         }
 
+        // funkcja pomocnicza sluzaca do pobrania punktow kolizji do ich pozniejszego wyswietlenia na ekranie
+        public Vector2[] GetCollisionPointsToDraw()
+        {
+            return mapLogic.GetCollisionPointsToDraw();
+        }
+
         public void LoadContent(ContentManager content)
         {
+            // ladujemy informacje o obiektach
+            mapLogic.LoadObjects("objects.if");
+
             // ladowanie tekstur (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();
-            textures.Add("beczka", content.Load<Texture2D>("beczka"));
-            textures.Add("pole", content.Load<Texture2D>("pole"));
-            textures.Add("przystanek", content.Load<Texture2D>("przystanek"));
-            textures.Add("budynek0", content.Load<Texture2D>("budynek0"));
-            textures.Add("znak_uwaga_zakret_w_lewo", content.Load<Texture2D>("znak_uwaga_zakret_w_lewo"));
-            textures.Add("drzewo", content.Load<Texture2D>("drzewo"));
-            textures.Add("pasy", content.Load<Texture2D>("pasy"));
-            textures.Add("oczko_wodne", content.Load<Texture2D>("oczko_wodne"));
-            textures.Add("smietnik", content.Load<Texture2D>("smietnik"));
+
+            string[] names = mapLogic.GetObjectsNames();
+
+            foreach (string name in names)
+                textures.Add(name, content.Load<Texture2D>(name));
 
             mapLogic.AddStandartObjectsSize(textures);
 
@@ -182,18 +187,40 @@ namespace Testy_mapy
 
             size = new Vector2(junctions["street0"].Width, junctions["street0"].Height);
             trackLogic.SetStreetSize(size, 3); // !!! zmieniæ przy dodaniu lub usunieciu tekstury ulicy
+
+            // ladowanie tekstur chodnikow
+            junctions.Add("chodnik0", content.Load<Texture2D>("chodnik0"));
+            junctions.Add("chodnik1", content.Load<Texture2D>("chodnik1"));
+
+            size = new Vector2(junctions["chodnik0"].Width, junctions["chodnik0"].Height);
+            trackLogic.SetChodnikSize(size);
         }
 
-        public void LoadMap(string path)
+        // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu
+        public bool LoadMap(string path, ref Vector2 startPosition)
         {
-            load = mapLogic.LoadMap(path, (int)Helper.screenSize.X, (int)Helper.screenSize.Y);
-        }
+            path = "maps/" + path;
 
-        public void LoadTrack(string path)
-        {
-            if (trackLogic.LoadTrack(path))
+            if (File.Exists(path))
             {
-                mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions());
+                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                StreamReader sr = new StreamReader(fs);
+
+                // pobieramy startowa pozycje autobusu
+                string s_startPosition = sr.ReadLine();
+                string[] split = s_startPosition.Split(new char[] { ';' });
+                startPosition = new Vector2(float.Parse(split[0]), float.Parse(split[1]));
+
+                mapLogic.LoadMap(ref sr);
+                trackLogic.LoadTrack(ref sr);
+                mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania i drogi jaki obiekty do wyswietlenia
+
+                load = true;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

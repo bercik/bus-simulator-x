@@ -68,9 +68,9 @@ namespace Testy_mapy
         public static Vector2 MapPosToScreenPos(Vector2 pos)
         {
             return pos - (mapPos - screenSize / 2);
-        } //konwertuje pozycje na mapie na pozycje na ekranie
+        }
 
-        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat, sprawdza czy punkt jest w kwadracie
+        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat 
         {
             Vector2 p1, p2;
 
@@ -103,7 +103,36 @@ namespace Testy_mapy
 
                 oldPoint = newPoint;
             }
+
             return inside;
+        }
+
+        public static float ComputeRotationX(Vector2 point, Vector2 center, float angel)
+        {
+            return (float)(((point.X - center.X) * Math.Cos(MathHelper.ToRadians(angel))) - ((point.Y - center.Y) * Math.Sin(MathHelper.ToRadians(angel))) + center.X);
+        }
+
+        public static float ComputeRotationY(Vector2 point, Vector2 center, float angel)
+        {
+            return (float)(((point.X - center.X) * Math.Sin(MathHelper.ToRadians(angel))) + ((point.Y - center.Y) * Math.Cos(MathHelper.ToRadians(angel))) + center.Y);
+        }
+
+        public static Vector2 ComputeRotation(Vector2 point, Vector2 center, float angel)
+        {
+            return new Vector2(ComputeRotationX(point, center, angel), ComputeRotationY(point, center, angel));
+        }
+
+        // prostokat przed rotacja, srodek bezwzgledny (wzgledem lewego gornego rogu mapy), kat obrotu
+        public static MyRectangle ComputeRectangleOnRotation(Rectangle myRectangle, Vector2 origin, float angel)
+        {
+            MyRectangle rotateRectangle = new MyRectangle();
+
+            rotateRectangle.point1 = ComputeRotation(new Vector2(myRectangle.X, myRectangle.Y), origin, angel);
+            rotateRectangle.point2 = ComputeRotation(new Vector2(myRectangle.X + myRectangle.Width, myRectangle.Y), origin, angel);
+            rotateRectangle.point3 = ComputeRotation(new Vector2(myRectangle.X + myRectangle.Width, myRectangle.Y + myRectangle.Height), origin, angel);
+            rotateRectangle.point4 = ComputeRotation(new Vector2(myRectangle.X, myRectangle.Y + myRectangle.Height), origin, angel);
+
+            return rotateRectangle;
         }
 
         public static float CalculateDistance(Vector2 point1, Vector2 point2) //oblicza systans pomiedzy dwoma punktami
