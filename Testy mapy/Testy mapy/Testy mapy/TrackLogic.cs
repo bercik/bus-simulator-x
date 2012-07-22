@@ -27,6 +27,11 @@ namespace Testy_mapy
 
         public bool IsPoint1HigherThanPoint2()
         {
+            return IsPoint1HigherThanPoint2(point1, point2);
+        }
+
+        public static bool IsPoint1HigherThanPoint2(Vector2 point1, Vector2 point2)
+        {
             if (point1.X > point2.X)
                 return true;
             else if (point1.Y > point2.Y)
@@ -128,6 +133,15 @@ namespace Testy_mapy
         public readonly Connection[] connections; // polaczenia
         public readonly string name; // nazwa
         public readonly int id; // typ skrzyzowania
+
+        public void AddConnection(Vector2 point1, Vector2 point2)
+        {
+            for (int i = 0; i < connections.Length; ++i)
+            {
+                if (connections[i].point1 == point1)
+                    connections[i].point2 = point2;
+            }
+        }
     }
 
     class Street
@@ -150,14 +164,77 @@ namespace Testy_mapy
         }
     }
 
+    class Chodnik
+    {
+        public readonly Vector2 pos; // pozycja
+        public readonly Vector2 size; // wielkosc calego chodnika
+        public readonly Vector2 oneChodnikSize; // wielkosc jednego chodnika
+        public readonly Vector2 origin; // srodek wzgl lewego gornego rogu
+        public readonly int id; // id
+        public readonly string name; // nazwa
+        public readonly Location location; // polozenie (poziome, pionowe)
+        public readonly float rotation; // rotacja
+
+        public Chodnik(Vector2 pos, Vector2 size, Vector2 oneChodnikSize, int id, Location location)
+        {
+            this.pos = pos;
+            this.size = size;
+            this.oneChodnikSize = oneChodnikSize;
+            this.origin = size / 2;
+            this.id = id;
+            this.name = "chodnik" + id.ToString();
+            this.location = location;
+            this.rotation = (int)location * 90;
+        }
+
+        public List<Object> GetChodnikiToShow()
+        {
+            if (id != -1)
+            {
+                List<Object> chodniki = new List<Object>();
+
+                float startPos; // startowa pozycja chodnikow
+                int numberOfChodniki; // ilosc chodnikow
+
+                startPos = (location == Location.horizontal) ? this.pos.X - origin.X : this.pos.Y - origin.Y;
+                numberOfChodniki = (int)(((location == Location.horizontal) ? size.X : size.Y) / oneChodnikSize.Y);
+
+                Vector2 oneChodnikOrigin = oneChodnikSize / 2; // srodek jednego chodnika
+                Vector2 pos = new Vector2(this.pos.X, this.pos.Y); // pozycja dodawanego chodnika
+
+                for (int i = 0; i < numberOfChodniki; ++i)
+                {
+                    float f_pos = startPos + oneChodnikOrigin.Y + oneChodnikSize.Y * i; // pozycja aktualnego chodnika
+
+                    if (location == Location.horizontal)
+                        pos.X = f_pos;
+                    else
+                        pos.Y = f_pos;
+
+                    chodniki.Add(new Object(name, pos, oneChodnikSize, rotation));
+                }
+
+                return chodniki;
+            }
+            else
+            {
+                return new List<Object>();
+            }
+        }
+    }
+
     class TrackLogic
     {
         List<JunctionType> junctionTypes;
         List<Junction> junctions;
         List<Street> streets;
+        List<Chodnik> chodniki;
         List<Connection> connections;
         Vector2 streetSize;
         Vector2 streetOrigin;
+        readonly float streetWidth = 100.0f; // szerokosc ulicy
+        Vector2 chodnikSize;
+        Vector2 chodnikOrigin;
         int amountOfStreets;
         Random rand;
 
@@ -166,6 +243,7 @@ namespace Testy_mapy
             junctions = new List<Junction>();
             junctionTypes = new List<JunctionType>();
             streets = new List<Street>();
+            chodniki = new List<Chodnik>();
             connections = new List<Connection>();
 
             rand = new Random();
@@ -178,12 +256,8 @@ namespace Testy_mapy
             int id = Int32.Parse(split[0]);
             Vector2 pos = new Vector2(float.Parse(split[1]), float.Parse(split[2]));
             Rotation rotation = (Rotation)Int32.Parse(split[3]);
-            List<Vector2> points = new List<Vector2>();
 
-            for (int i = 4; i < split.Length; i += 2)
-                points.Add(new Vector2(float.Parse(split[i]), float.Parse(split[i + 1])));
-
-            AddJunction(id, pos, rotation, points.ToArray());
+            AddJunction(id, pos, rotation);
         }
 
         private void GenerateStreet(Connection connection)
@@ -230,36 +304,30 @@ namespace Testy_mapy
             }
         }
 
-        private void AddConnections(Junction junction)
+        private void GenerateChodnik(Connection connection, int id)
         {
-            foreach (Connection connection in junction.connections)
+            Vector2 differenceDistance = connection.DifferenceDistance(); // roznica odleglosci
+
+            Location location = (differenceDistance.X != 0) ? Location.horizontal : Location.vertical; // polozenie (poziome lub pionowe)
+
+            Vector2 size = new Vector2(chodnikSize.X, (location == Location.horizontal) ? differenceDistance.X : differenceDistance.Y);
+            
+            Vector2 pos1, pos2; // pozycje chodnikow
+            float differentPos = streetWidth + chodnikOrigin.X;
+
+            if (location == Location.horizontal)
             {
-                if (!ContainConnection(connection) && connection.point1 != Vector2.Zero && connection.point2 != Vector2.Zero)
-                {
-                    Connection c = connection;
-
-                    if (connection.IsPoint1HigherThanPoint2())
-                    {
-                        c = new Connection(connection.point2);
-                        c.point2 = connection.point1;
-                    }
-
-                    connections.Add(c);
-                    GenerateStreet(c);
-                }
+                pos1 = new Vector2(connection.point1.X + size.Y / 2, connection.point1.Y + differentPos);
+                pos2 = new Vector2(connection.point1.X + size.Y / 2, connection.point1.Y - differentPos);
             }
-        }
-
-        private bool ContainConnection(Connection connection)
-        {
-            for (int i = 0; i < connections.Count; ++i)
+            else
             {
-                if ((connections[i].point1 == connection.point2 || connections[i].point1 == connection.point1)
-                    && (connections[i].point2 == connection.point1 || connections[i].point2 == connection.point2))
-                    return true;
+                pos1 = new Vector2(connection.point1.X + differentPos, connection.point1.Y + size.Y / 2);
+                pos2 = new Vector2(connection.point1.X - differentPos, connection.point1.Y + size.Y / 2);
             }
 
-            return false;
+            chodniki.Add(new Chodnik(pos1, size, chodnikSize, id, location));
+            chodniki.Add(new Chodnik(pos2, size, chodnikSize, id, location));
         }
 
         // sprawdza czy dany punkt nalezy do skrzyzowania
@@ -280,6 +348,17 @@ namespace Testy_mapy
                 return true;
             else
                 return false;
+        }
+
+        private bool ContainEndPoint(Junction junction, Vector2 endPoint)
+        {
+            foreach (Connection connection in junction.connections)
+            {
+                if (connection.point1 == endPoint) // point1 to punkt wyjscia
+                    return true;
+            }
+
+            return false;
         }
 
         // pobiera skrzyzowania z obszaru wiekszego od wielkosci ekranu, mniejszego od wielkosci ekranu + zadanego
@@ -428,16 +507,96 @@ namespace Testy_mapy
             return null;
         }
 
-        public void AddJunction(int id, Vector2 pos, Rotation rotation, Vector2[] points)
+        private int SearchJunctionFromEndPoint(Vector2 endPoint)
+        {
+            for (int i = 0; i < junctions.Count; ++i)
+            {
+                if (ContainEndPoint(junctions[i], endPoint))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void SearchTwoJunctionsFromEndPoint(Vector2 endPoint, out int id1, out int id2)
+        {
+            id1 = -1;
+            id2 = -1;
+
+            for (int i = 0; i < junctions.Count; ++i)
+            {
+                if (ContainEndPoint(junctions[i], endPoint))
+                {
+                    if (id1 == -1)
+                    {
+                        id1 = i;
+                    }
+                    else
+                    {
+                        id2 = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void AddConnection(string s_object)
+        {
+            string[] split = s_object.Split(new char[] { ';' });
+
+            Vector2 pos1 = new Vector2(float.Parse(split[0]), float.Parse(split[1]));
+            Vector2 pos2 = new Vector2(float.Parse(split[2]), float.Parse(split[3]));
+            int id = Int32.Parse(split[4]);
+
+            AddConnection(pos1, pos2, id);
+        }
+
+        public void AddConnection(Vector2 pos1, Vector2 pos2, int chodnikId)
+        {
+            if (pos1 == pos2) // jezeli skrzyzowania bezposrednio sie lacza
+            {
+                int id1, id2;
+
+                SearchTwoJunctionsFromEndPoint(pos1, out id1, out id2);
+
+                junctions[id1].AddConnection(pos1, pos2);
+                junctions[id2].AddConnection(pos1, pos2);
+
+                chodnikId = -1;
+            }
+            else
+            {
+                int id = SearchJunctionFromEndPoint(pos1); // szukamy pierwszego skrzyzowania
+                junctions[id].AddConnection(pos1, pos2);
+
+                id = SearchJunctionFromEndPoint(pos2); // szukamy drugiego skrzyzowania
+                junctions[id].AddConnection(pos2, pos1);
+            }
+
+            Connection c; // ustawiamy tak, zeby punkt o nizszych wspolrzednych byl na poczatku
+
+            if (Connection.IsPoint1HigherThanPoint2(pos1, pos2))
+            {
+                c = new Connection(pos2);
+                c.point2 = pos1;
+            }
+            else
+            {
+                c = new Connection(pos1);
+                c.point2 = pos2;
+            }
+
+            connections.Add(c);
+            GenerateStreet(c);
+
+            if (chodnikId != -1)
+                GenerateChodnik(c, chodnikId);
+        }
+
+        public void AddJunction(int id, Vector2 pos, Rotation rotation)
         {
             Junction junction = junctionTypes[id].Create(pos, rotation, id);
 
-            for (int i = 0; i < points.Length; ++i)
-            {
-                junction.connections[i].point2 = points[i];
-            }
-
-            AddConnections(junction);
             junctions.Add(junction);
         }
 
@@ -453,11 +612,15 @@ namespace Testy_mapy
 
             foreach (Street street in streets)
             {
-                objects.Add(new Object(street.name, street.pos, street.size, street.rotation, false));
+                objects.Add(new Object(street.name, street.pos, street.size, street.rotation));
             }
             foreach (Junction junction in junctions)
             {
-                objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation, false));
+                objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation));
+            }
+            foreach (Chodnik chodnik in chodniki)
+            {
+                objects.AddRange(chodnik.GetChodnikiToShow());
             }
 
             return objects;
@@ -471,32 +634,34 @@ namespace Testy_mapy
             this.amountOfStreets = amountOfStreets;
         }
 
-        // laduje trase z pliku
-        public bool LoadTrack(string path)
+        // nalezy wywolac ZAWSZE po wczytaniu tekstur chodnikow
+        public void SetChodnikSize(Vector2 chodnikSize)
         {
-            path = "tracks\\" + path;
+            this.chodnikSize = chodnikSize;
+            this.chodnikOrigin = chodnikSize / 2;
+        }
 
-            if (File.Exists(path))
+        // laduje trase z pliku
+        public void LoadTrack(ref StreamReader sr)
+        {
+            junctions.Clear();
+            streets.Clear();
+            chodniki.Clear();
+            connections.Clear();
+
+            string s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
+
+            while ((s_object = sr.ReadLine()) != null && s_object != "*connections*")
             {
-                junctions.Clear();
-                streets.Clear();
-                connections.Clear();
-
-                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
-
-                string s_object = "";
-
-                while ((s_object = sr.ReadLine()) != null)
-                {
-                    if (!s_object.StartsWith("//"))
-                        AddJunction(s_object);
-                }
-
-                return true;
+                 AddJunction(s_object);
             }
 
-            return false;
+            s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
+
+            while ((s_object = sr.ReadLine()) != null)
+            {
+                AddConnection(s_object);
+            }
         }
 
         // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
@@ -510,7 +675,7 @@ namespace Testy_mapy
                 origin = new Vector2(0, 0);
                 return;
             }
-                
+
             Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
 
             Position position = GetJunctionPosition(junction.pos, junction.origin);

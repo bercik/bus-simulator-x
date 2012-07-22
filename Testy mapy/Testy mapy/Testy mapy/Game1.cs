@@ -124,8 +124,9 @@ namespace Testy_mapy
             font = Content.Load<SpriteFont>("font1");
             point = Content.Load<Texture2D>("point");
 
-            drawMap.LoadMap("test.mp");
-            drawMap.LoadTrack("test.tc");
+            drawMap.LoadMap("test.mp", ref busLogic.position);
+            startPos = busLogic.position; // !!! do EW. USUNIECIA !!!
+            Helper.mapPos = startPos; // !!! TO TEZ
         }
 
         /// <summary>
@@ -255,8 +256,8 @@ namespace Testy_mapy
             foreach (Object vehicle in vehiclesList)
                drawTraffic.Draw(spriteBatch, vehicle);
             //</traffic>
-            
-            Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection(), false);
+
+            Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection());
             drawBus.Draw(spriteBatch, bus);
 
             drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
@@ -267,6 +268,8 @@ namespace Testy_mapy
             DrawPoints(trafficLogic.GetPointsToDraw());
             
             DrawPoints(busLogic.GetPointsToDraw());
+
+            DrawPoints(drawMap.GetCollisionPointsToDraw());
 
 
             spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
