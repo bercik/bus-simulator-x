@@ -131,7 +131,7 @@ namespace Testy_mapy
         public void LoadContent(ContentManager content)
         {
             // ladujemy informacje o obiektach
-            mapLogic.LoadObjects("objects.if");
+            mapLogic.LoadObjectsInformation("objects.if");
 
             // ladowanie tekstur (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();
@@ -193,7 +193,7 @@ namespace Testy_mapy
             junctions.Add("chodnik1", content.Load<Texture2D>("chodnik1"));
 
             size = new Vector2(junctions["chodnik0"].Width, junctions["chodnik0"].Height);
-            trackLogic.SetChodnikSize(size);
+            trackLogic.SetSidewalkSize(size);
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu

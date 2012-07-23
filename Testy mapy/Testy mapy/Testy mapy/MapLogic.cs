@@ -112,18 +112,18 @@ namespace Testy_mapy
                 b_x = true;
 
                 if (x + 1 < numberOfChunks.X)
-                    chunks[x + 1, y].AddObject(o, junction);
+                    chunks[x + 1, y].AddObject(o, junction, underBus);
                 if (x - 1 > 0)
-                    chunks[x - 1, y].AddObject(o, junction);
+                    chunks[x - 1, y].AddObject(o, junction, underBus);
             }
             if (o.size.Y > maxObjectSize.Height)
             {
                 b_y = true;
 
                 if (y + 1 < numberOfChunks.Y)
-                    chunks[x, y + 1].AddObject(o, junction);
+                    chunks[x, y + 1].AddObject(o, junction, underBus);
                 if (y - 1 > 0)
-                    chunks[x, y - 1].AddObject(o, junction);
+                    chunks[x, y - 1].AddObject(o, junction, underBus);
             }
 
             if (b_x || b_y)
@@ -342,7 +342,7 @@ namespace Testy_mapy
         }
 
         // laduje informacje o obiektach
-        public void LoadObjects(string path)
+        public void LoadObjectsInformation(string path)
         {
             path = "db/" + path;
 
