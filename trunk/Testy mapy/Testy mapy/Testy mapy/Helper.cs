@@ -135,7 +135,7 @@ namespace Testy_mapy
             return rotateRectangle;
         }
 
-        public static float CalculateDistance(Vector2 point1, Vector2 point2) //oblicza systans pomiedzy dwoma punktami
+        public static float CalculateDistance(Vector2 point1, Vector2 point2) //oblicza dystans pomiedzy dwoma punktami
         {
             return (float)Math.Round(Math.Sqrt(Math.Pow(point1.X - point2.X, 2) + Math.Pow(point1.Y - point2.Y, 2)), 2);
         }

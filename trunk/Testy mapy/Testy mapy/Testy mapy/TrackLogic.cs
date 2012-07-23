@@ -164,22 +164,22 @@ namespace Testy_mapy
         }
     }
 
-    class Chodnik
+    class Sidewalk
     {
         public readonly Vector2 pos; // pozycja
         public readonly Vector2 size; // wielkosc calego chodnika
-        public readonly Vector2 oneChodnikSize; // wielkosc jednego chodnika
+        public readonly Vector2 oneSidewalkSize; // wielkosc tekstury jednego chodnika
         public readonly Vector2 origin; // srodek wzgl lewego gornego rogu
         public readonly int id; // id
         public readonly string name; // nazwa
         public readonly Location location; // polozenie (poziome, pionowe)
         public readonly float rotation; // rotacja
 
-        public Chodnik(Vector2 pos, Vector2 size, Vector2 oneChodnikSize, int id, Location location)
+        public Sidewalk(Vector2 pos, Vector2 size, Vector2 oneSidewalkSize, int id, Location location)
         {
             this.pos = pos;
             this.size = size;
-            this.oneChodnikSize = oneChodnikSize;
+            this.oneSidewalkSize = oneSidewalkSize;
             this.origin = size / 2;
             this.id = id;
             this.name = "chodnik" + id.ToString();
@@ -187,34 +187,34 @@ namespace Testy_mapy
             this.rotation = (int)location * 90;
         }
 
-        public List<Object> GetChodnikiToShow()
+        public List<Object> GetSidewalksToShow()
         {
             if (id != -1)
             {
-                List<Object> chodniki = new List<Object>();
+                List<Object> sidewalks = new List<Object>();
 
                 float startPos; // startowa pozycja chodnikow
-                int numberOfChodniki; // ilosc chodnikow
+                int numberOfSidewalks; // ilosc chodnikow
 
-                startPos = (location == Location.horizontal) ? this.pos.X - origin.X : this.pos.Y - origin.Y;
-                numberOfChodniki = (int)(((location == Location.horizontal) ? size.X : size.Y) / oneChodnikSize.Y);
+                startPos = (location == Location.horizontal) ? this.pos.X - origin.Y : this.pos.Y - origin.Y;
+                numberOfSidewalks = (int)(size.Y / oneSidewalkSize.Y);
 
-                Vector2 oneChodnikOrigin = oneChodnikSize / 2; // srodek jednego chodnika
+                Vector2 oneSidewalkOrigin = oneSidewalkSize / 2; // srodek jednego chodnika
                 Vector2 pos = new Vector2(this.pos.X, this.pos.Y); // pozycja dodawanego chodnika
 
-                for (int i = 0; i < numberOfChodniki; ++i)
+                for (int i = 0; i < numberOfSidewalks; ++i)
                 {
-                    float f_pos = startPos + oneChodnikOrigin.Y + oneChodnikSize.Y * i; // pozycja aktualnego chodnika
+                    float f_pos = startPos + oneSidewalkOrigin.Y + oneSidewalkSize.Y * i; // pozycja aktualnego chodnika
 
                     if (location == Location.horizontal)
                         pos.X = f_pos;
                     else
                         pos.Y = f_pos;
 
-                    chodniki.Add(new Object(name, pos, oneChodnikSize, rotation));
+                    sidewalks.Add(new Object(name, pos, oneSidewalkSize, rotation));
                 }
 
-                return chodniki;
+                return sidewalks;
             }
             else
             {
@@ -228,13 +228,13 @@ namespace Testy_mapy
         List<JunctionType> junctionTypes;
         List<Junction> junctions;
         List<Street> streets;
-        List<Chodnik> chodniki;
+        List<Sidewalk> sidewalks;
         List<Connection> connections;
         Vector2 streetSize;
         Vector2 streetOrigin;
         readonly float streetWidth = 100.0f; // szerokosc ulicy
-        Vector2 chodnikSize;
-        Vector2 chodnikOrigin;
+        Vector2 sidewalkSize;
+        Vector2 sidewalkOrigin;
         int amountOfStreets;
         Random rand;
 
@@ -243,7 +243,7 @@ namespace Testy_mapy
             junctions = new List<Junction>();
             junctionTypes = new List<JunctionType>();
             streets = new List<Street>();
-            chodniki = new List<Chodnik>();
+            sidewalks = new List<Sidewalk>();
             connections = new List<Connection>();
 
             rand = new Random();
@@ -304,16 +304,16 @@ namespace Testy_mapy
             }
         }
 
-        private void GenerateChodnik(Connection connection, int id)
+        private void GenerateSidewalk(Connection connection, int id)
         {
             Vector2 differenceDistance = connection.DifferenceDistance(); // roznica odleglosci
 
             Location location = (differenceDistance.X != 0) ? Location.horizontal : Location.vertical; // polozenie (poziome lub pionowe)
 
-            Vector2 size = new Vector2(chodnikSize.X, (location == Location.horizontal) ? differenceDistance.X : differenceDistance.Y);
+            Vector2 size = new Vector2(sidewalkSize.X, (location == Location.horizontal) ? differenceDistance.X : differenceDistance.Y);
             
             Vector2 pos1, pos2; // pozycje chodnikow
-            float differentPos = streetWidth + chodnikOrigin.X;
+            float differentPos = streetWidth + sidewalkOrigin.X;
 
             if (location == Location.horizontal)
             {
@@ -326,8 +326,8 @@ namespace Testy_mapy
                 pos2 = new Vector2(connection.point1.X - differentPos, connection.point1.Y + size.Y / 2);
             }
 
-            chodniki.Add(new Chodnik(pos1, size, chodnikSize, id, location));
-            chodniki.Add(new Chodnik(pos2, size, chodnikSize, id, location));
+            sidewalks.Add(new Sidewalk(pos1, size, sidewalkSize, id, location));
+            sidewalks.Add(new Sidewalk(pos2, size, sidewalkSize, id, location));
         }
 
         // sprawdza czy dany punkt nalezy do skrzyzowania
@@ -551,7 +551,7 @@ namespace Testy_mapy
             AddConnection(pos1, pos2, id);
         }
 
-        public void AddConnection(Vector2 pos1, Vector2 pos2, int chodnikId)
+        public void AddConnection(Vector2 pos1, Vector2 pos2, int sidewalkId)
         {
             if (pos1 == pos2) // jezeli skrzyzowania bezposrednio sie lacza
             {
@@ -562,7 +562,7 @@ namespace Testy_mapy
                 junctions[id1].AddConnection(pos1, pos2);
                 junctions[id2].AddConnection(pos1, pos2);
 
-                chodnikId = -1;
+                sidewalkId = -1;
             }
             else
             {
@@ -589,8 +589,8 @@ namespace Testy_mapy
             connections.Add(c);
             GenerateStreet(c);
 
-            if (chodnikId != -1)
-                GenerateChodnik(c, chodnikId);
+            if (sidewalkId != -1)
+                GenerateSidewalk(c, sidewalkId);
         }
 
         public void AddJunction(int id, Vector2 pos, Rotation rotation)
@@ -618,9 +618,9 @@ namespace Testy_mapy
             {
                 objects.Add(new Object(junction.name, junction.pos, junction.size, junction.rotation));
             }
-            foreach (Chodnik chodnik in chodniki)
+            foreach (Sidewalk sidewalk in sidewalks)
             {
-                objects.AddRange(chodnik.GetChodnikiToShow());
+                objects.AddRange(sidewalk.GetSidewalksToShow());
             }
 
             return objects;
@@ -635,10 +635,10 @@ namespace Testy_mapy
         }
 
         // nalezy wywolac ZAWSZE po wczytaniu tekstur chodnikow
-        public void SetChodnikSize(Vector2 chodnikSize)
+        public void SetSidewalkSize(Vector2 sidewalkSize)
         {
-            this.chodnikSize = chodnikSize;
-            this.chodnikOrigin = chodnikSize / 2;
+            this.sidewalkSize = sidewalkSize;
+            this.sidewalkOrigin = sidewalkSize / 2;
         }
 
         // laduje trase z pliku
@@ -646,7 +646,7 @@ namespace Testy_mapy
         {
             junctions.Clear();
             streets.Clear();
-            chodniki.Clear();
+            sidewalks.Clear();
             connections.Clear();
 
             string s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
