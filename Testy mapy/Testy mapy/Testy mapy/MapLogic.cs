@@ -137,6 +137,10 @@ namespace Testy_mapy
         {
             // metoda obliczajaca wspolrzedne punktow obiektu przy rotacji
             float f_rotate = o.rotate;
+
+            if (f_rotate >= 180)
+                f_rotate -= 180;
+
             Vector2 new_pos = o.pos - o.origin; // lewy gorny punkt obiektu we wspolrzednych mapy
             Vector2 center = o.pos; // srodek
 
@@ -145,7 +149,7 @@ namespace Testy_mapy
             Vector2 pos3 = new Vector2(new_pos.X + o.size.X, new_pos.Y + o.size.Y);
             Vector2 pos4 = new Vector2(new_pos.X, new_pos.Y + o.size.Y);
 
-            if (f_rotate <= 90 || f_rotate >= 270)
+            if (f_rotate <= 90)
             {
                 x1 = Helper.ComputeRotationX(pos2, center, f_rotate); // 2
                 x2 = Helper.ComputeRotationX(pos4, center, f_rotate); // 4
@@ -182,9 +186,9 @@ namespace Testy_mapy
                     b_x = true;
                 else if (SmallWidth(Math.Abs(mapPos.X - x2)))
                     b_x = true;
-                if (SmallHeight(Math.Abs(mapPos.Y - y1)))
+                if (SmallHeight(mapPos.Y - y1))
                     b_y = true;
-                else if (SmallHeight(Math.Abs(mapPos.Y - y2)))
+                else if (SmallHeight(mapPos.Y - y2))
                     b_y = true;
 
 

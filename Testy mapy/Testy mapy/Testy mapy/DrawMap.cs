@@ -180,6 +180,11 @@ namespace Testy_mapy
             size = new Vector2(junctions["junction3"].Width, junctions["junction3"].Height);
             trackLogic.AddJunctionType(size, directions);
 
+            junctions.Add("junction4", content.Load<Texture2D>("junction4"));
+            directions = new Direction[] { Direction.Right, Direction.Down, Direction.Left };
+            size = new Vector2(junctions["junction4"].Width, junctions["junction4"].Height);
+            trackLogic.AddJunctionType(size, directions);
+
             // ladowanie tekstur ulic
             junctions.Add("street0", content.Load<Texture2D>("street0"));
             junctions.Add("street1", content.Load<Texture2D>("street1"));
