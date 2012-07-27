@@ -36,7 +36,7 @@ namespace Testy_mapy
         Vector2 startPos = new Vector2(200, 1200); //poczatkowa pozycja
         Texture2D point;
         bool busMode = false; // czy jezdzimy autobusem czy przesuwamy mape
-        float scrollingSpeed = 5.0f;
+        float scrollingSpeed = 15.0f;
         bool b_release = true;
 
         // !!! metody pomocnicze do EW. USUNIECIA !!!
