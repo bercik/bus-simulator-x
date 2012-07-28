@@ -641,6 +641,12 @@ namespace Testy_mapy
             this.sidewalkOrigin = sidewalkSize / 2;
         }
 
+        // zwraca liste chodnikow
+        public List<Sidewalk> GetSidewalks()
+        {
+            return sidewalks;
+        }
+
         // laduje trase z pliku
         public void LoadTrack(ref StreamReader sr)
         {

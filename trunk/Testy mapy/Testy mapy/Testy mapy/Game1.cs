@@ -36,7 +36,7 @@ namespace Testy_mapy
         Vector2 startPos = new Vector2(200, 1200); //poczatkowa pozycja
         Texture2D point;
         bool busMode = false; // czy jezdzimy autobusem czy przesuwamy mape
-        float scrollingSpeed = 15.0f;
+        float scrollingSpeed = 10.0f;
         bool b_release = true;
 
         // !!! metody pomocnicze do EW. USUNIECIA !!!
@@ -112,6 +112,7 @@ namespace Testy_mapy
         {
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            Helper.SetScale(1.0f);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -226,6 +227,7 @@ namespace Testy_mapy
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
+            drawMap.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -246,6 +248,7 @@ namespace Testy_mapy
 
             drawMap.DrawTrack(spriteBatch, gameTime);
             drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
+            drawMap.DrawPedestrians(spriteBatch, gameTime);
 
             //<traffic>
             List<Object> indicatorsList = trafficLogic.GetIndicatorPoints();

@@ -57,12 +57,31 @@ namespace Testy_mapy
 
     static class Helper
     {
-        public static Vector2 screenSize;
-        public static Vector2 mapPos;
+        public static Vector2 screenSize; // wielkosc ekranu
+        public static Vector2 workAreaSize; // wielkosc robocza (wielkosc ekranu / skalowanie)
+        public static Vector2 workAreaOrigin { get; private set; } // srodek roboczego ekranu
+        public static float scale; // skalowanie
+        public static Vector2 mapPos; // pozycja mapy
+
+        // wywolac ZAWSZE po zmianie screenSize lub scale
+        private static void CalculateWorkArea()
+        {
+            workAreaSize = screenSize / scale;
+            workAreaOrigin = workAreaSize / 2;
+        }
+
+        public static void SetScale(float f_scale)
+        {
+            scale = f_scale;
+
+            CalculateWorkArea();
+        }
 
         public static void SetScreenSize(float width, float height)
         {
             screenSize = new Vector2(width, height);
+
+            CalculateWorkArea();
         }
 
         public static Vector2 MapPosToScreenPos(Vector2 pos)

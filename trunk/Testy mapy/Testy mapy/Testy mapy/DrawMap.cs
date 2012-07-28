@@ -21,10 +21,12 @@ namespace Testy_mapy
         Dictionary<string, Texture2D> textures;
         Dictionary<string, Texture2D> grass;
         Dictionary<string, Texture2D> junctions;
+        Dictionary<string, Texture2D> pedestrians;
 
         MapLogic mapLogic;
         BackgroundLogic backgroundLogic;
         TrackLogic trackLogic;
+        PedestriansLogic pedestriansLogic;
         Vector2 pos =  new Vector2(0, 0);
 
         bool load = false;
@@ -35,6 +37,7 @@ namespace Testy_mapy
             mapLogic = new MapLogic();
             backgroundLogic = new BackgroundLogic();
             trackLogic = new TrackLogic();
+            pedestriansLogic = new PedestriansLogic();
         }
 
         /// <summary>
@@ -53,6 +56,7 @@ namespace Testy_mapy
         public void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
+            pedestriansLogic.Update(gameTime.ElapsedGameTime);
         }
 
         // rysuje obiekty pod autobusem
@@ -122,6 +126,22 @@ namespace Testy_mapy
             }
         }
 
+        public void DrawPedestrians(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            if (load)
+            {
+                List<Object> pedestriansToShow = pedestriansLogic.GetPedestriansToShow();
+
+                foreach (Object p in pedestriansToShow)
+                {
+                    Rectangle destinationRect = new Rectangle((int)p.pos.X, (int)p.pos.Y, (int)p.size.X, (int)p.size.Y);
+
+                    spriteBatch.Draw(pedestrians[p.name], destinationRect, null, Color.White, MathHelper.ToRadians(p.rotate),
+                            p.origin, p.spriteEffects, 1);
+                }
+            }
+        }
+
         // funkcja pomocnicza sluzaca do pobrania punktow kolizji do ich pozniejszego wyswietlenia na ekranie
         public Vector2[] GetCollisionPointsToDraw()
         {
@@ -133,7 +153,7 @@ namespace Testy_mapy
             // ladujemy informacje o obiektach
             mapLogic.LoadObjectsInformation("objects.if");
 
-            // ladowanie tekstur (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
+            // ladowanie tekstur obiektow (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();
 
             string[] names = mapLogic.GetObjectsNames();
@@ -198,7 +218,17 @@ namespace Testy_mapy
             junctions.Add("chodnik1", content.Load<Texture2D>("chodnik1"));
 
             size = new Vector2(junctions["chodnik0"].Width, junctions["chodnik0"].Height);
+            float sidewalkWidth = size.X;
             trackLogic.SetSidewalkSize(size);
+
+            // ladowanie tekstur pieszych
+            pedestrians = new Dictionary<string, Texture2D>();
+            pedestrians.Add("pedestrian0", content.Load<Texture2D>("pedestrian0"));
+            pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrian1"));
+            pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrian2"));
+
+            size = new Vector2(pedestrians["pedestrian0"].Width, pedestrians["pedestrian0"].Height);
+            pedestriansLogic.SetProperties(size, 3);
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu
@@ -218,7 +248,8 @@ namespace Testy_mapy
 
                 mapLogic.LoadMap(ref sr);
                 trackLogic.LoadTrack(ref sr);
-                mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania i drogi jaki obiekty do wyswietlenia
+                mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania, drogi i chodniki jako obiekty do wyswietlenia
+                pedestriansLogic.SetSidewalks(trackLogic.GetSidewalks()); // ustawiamy skrzyzowania w klasie pedestriansLogic
 
                 load = true;
                 return true;
