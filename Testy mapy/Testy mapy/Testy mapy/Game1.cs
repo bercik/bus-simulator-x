@@ -35,7 +35,7 @@ namespace Testy_mapy
         // !!! pomocnicze zmienne do EW. USUNIECIA !!!
         Vector2 startPos = new Vector2(200, 1200); //poczatkowa pozycja
         Texture2D point;
-        bool busMode = false; // czy jezdzimy autobusem czy przesuwamy mape
+        bool busMode = true; // czy jezdzimy autobusem czy przesuwamy mape
         float scrollingSpeed = 10.0f;
         bool b_release = true;
 
@@ -280,6 +280,8 @@ namespace Testy_mapy
             spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
             spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);
             spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);
+
+            spriteBatch.DrawString(font, "Pedestrians: " + drawMap.GetNumberOfPedestrians(), new Vector2(0, 180), Color.White);
 
             spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
             spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);

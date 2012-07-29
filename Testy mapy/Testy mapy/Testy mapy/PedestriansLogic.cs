@@ -6,13 +6,52 @@ using Microsoft.Xna.Framework;
 
 namespace Testy_mapy
 {
+    class SidewalkPedestrian
+    {
+        public Sidewalk sidewalk { get; private set; } // chodnik
+        List<Pedestrian> pedestrians; // piesi przypisani do chodnika
+
+        public SidewalkPedestrian(Sidewalk sidewalk)
+        {
+            this.sidewalk = sidewalk;
+            this.pedestrians = new List<Pedestrian>();
+        }
+
+        public void AddPedestrian(Pedestrian p)
+        {
+            pedestrians.Add(p);
+        }
+
+        public List<Pedestrian> GetPedestrians()
+        {
+            return pedestrians;
+        }
+    }
+
     class Pedestrian
     {
-        static readonly float speed = 1.0f; // predkosc poruszania sie pieszych
+        float speed; // predkosc poruszania sie pieszych
+        bool invertSpeed; // czy odwrocic predkosc
+        float time; // jaki czas odczekano
+        static readonly float waitingTime = 4.0f; // jaki czas nalezy odczekac po dojsciu do punktu przeznaczenia (w sekundach)
+
         static Random rand = new Random(); // klasa losujaca
 
         public string name; // nazwa
-        public Vector2 pos; // pozycja
+
+        float pos_x, pos_y; // pozycja_y: wzdluz chodnika, pozycja_x: wszerz chodnika
+        public Vector2 pos // pozycja
+        {
+            get
+            {
+                if (location == Location.horizontal)
+                    return new Vector2(pos_y, pos_x);
+                else
+                    return new Vector2(pos_x, pos_y);
+            }
+        }
+
+        float destination; // pozycja przeznaczenia
 
         Direction d_direction;
         Direction direction // kierunek
@@ -34,14 +73,69 @@ namespace Testy_mapy
 
         public Pedestrian(Vector2 pos, int id, Location location, float min, float max)
         {
-            this.pos = pos;
+            this.time = waitingTime; // dzieki temu od razu po utworzeniu pieszy porusza sie
+
             this.name = "pedestrian" + id.ToString();
 
             this.location = location;
+
+            pos_x = (location == Location.horizontal) ? pos.Y : pos.X;
+            pos_y = (location == Location.horizontal) ? pos.X : pos.Y;
+
             this.min = min;
             this.max = max;
 
-            RandomDirection();
+            RandomDestination();
+        }
+
+        public void Update(TimeSpan framesInterval)
+        {
+            if (time > waitingTime)
+            {
+                pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
+
+                if (CheckIsComeToDestination(framesInterval))
+                {
+                    RandomDestination();
+
+                    time = 0.0f;
+                }
+            }
+            else
+            {
+                time += (float)framesInterval.TotalSeconds;
+            }
+        }
+
+        private bool CheckIsComeToDestination(TimeSpan framesInterval)
+        {
+            if (pos_y < destination + speed * framesInterval.TotalMilliseconds && pos_y > destination - speed * framesInterval.TotalMilliseconds)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void RandomDestination()
+        {
+            speed = (float)rand.Next(8, 14) / 400.0f;
+            destination = rand.Next((int)min, (int)max);
+
+            if (destination > pos_y)
+            {
+                invertSpeed = false;
+
+                direction = (location == Location.horizontal) ? Direction.Right : Direction.Down;
+            }
+            else
+            {
+                invertSpeed = true;
+
+                direction = (location == Location.horizontal) ? Direction.Left : Direction.Up;
+            }
         }
 
         private void RandomDirection()
@@ -78,18 +172,21 @@ namespace Testy_mapy
 
         int amountOfPedestrians; // ilosc pieszych
 
-        List<Pedestrian> pedestrians; // lista pieszych
+        List<SidewalkPedestrian> spawnSidewalks; // list chodnikow z utworzonymi pieszymi
 
-        private int maxPedestrians = 2; //maksymalna liczba pieszych na jednym kawalku chodnika
-        private float spawnDistance = 1000; //maksymalna odleglosc spawnowania
-        private float distanceToDelete = 1000; //piesi bedacy dalej niz podany dystans zostana usunieci
+        float oneSidewalkHeight; // wysokosc jednego chodnika
+        float distanceToDelete = 400; //chodniki wraz z pieszymi bedace dalej niz podany dystans od krawedzi mapy zostana usuniete
+        int[] frequences; // tablica z czestoscia wystepowania pieszych na danym (id) chodniku
+
+        float lastUpdateTime = 0.0f; // ostatni czas update
+        int updateTime = 200; // co ile nalezy wykonac update (w milisekundach)
 
         Random rand; // klasa losujaca
 
         public PedestriansLogic()
         {
             rand = new Random();
-            pedestrians = new List<Pedestrian>();
+            spawnSidewalks = new List<SidewalkPedestrian>();
         }
 
         public void SetSidewalks(List<Sidewalk> sidewalks)
@@ -97,15 +194,40 @@ namespace Testy_mapy
             this.sidewalks = sidewalks;
         }
 
-        public void SetProperties(Vector2 pedestrianSize, int amountOfPedestrians)
+        public void SetProperties(Vector2 pedestrianSize, int amountOfPedestrians, float oneSidewalkHeight)
         {
             this.pedestrianSize = pedestrianSize;
             this.amountOfPedestrians = amountOfPedestrians;
+            this.oneSidewalkHeight = oneSidewalkHeight;
+        }
+
+        // ustawia jak duzo ludzi ma sie pojawiac na danym typie (id) chodnika
+        public void SetFrequencyOfOccurrencePedestrians(int[] frequences)
+        {
+            this.frequences = frequences;
         }
 
         public void Update(TimeSpan framesInterval)
         {
-            SpawnPedestrian();
+            if (lastUpdateTime > updateTime)
+            {
+                SpawnPedestrian();
+                RemoveSpawnSidewalksOutOfArea();
+
+                lastUpdateTime = 0.0f;
+            }
+            else
+            {
+                lastUpdateTime += (float)framesInterval.TotalMilliseconds;
+            }
+
+            foreach (SidewalkPedestrian sidewalkPedestrian in spawnSidewalks)
+            {
+                foreach (Pedestrian pedestrian in sidewalkPedestrian.GetPedestrians())
+                {
+                    pedestrian.Update(framesInterval);
+                }
+            }
         }
 
         // pobiera liste pieszych do wyswietlenia
@@ -113,12 +235,26 @@ namespace Testy_mapy
         {
             List<Object> pedestriansToShow = new List<Object>();
 
-            foreach (Pedestrian pedestrian in pedestrians)
+            foreach (SidewalkPedestrian sp in spawnSidewalks)
             {
-                pedestriansToShow.Add(new Object(pedestrian.name, Helper.MapPosToScreenPos(pedestrian.pos), pedestrianSize, pedestrian.rotate));
+                foreach (Pedestrian p in sp.GetPedestrians())
+                    pedestriansToShow.Add(new Object(p.name, Helper.MapPosToScreenPos(p.pos), pedestrianSize, p.rotate));
             }
 
             return pedestriansToShow;
+        }
+
+        // !!! FUNKCJA TYMCZASOWA DO USUNIECIA !!!
+        public int GetNumberOfPedestrians()
+        {
+            int numberOfPedestrians = 0;
+
+            foreach (SidewalkPedestrian sp in spawnSidewalks)
+            {
+                numberOfPedestrians += sp.GetPedestrians().Count;
+            }
+
+            return numberOfPedestrians;
         }
 
         // czy dany punkt znajduje sie w obszarze roboczym gry
@@ -149,12 +285,27 @@ namespace Testy_mapy
             return false;
         }
 
-        // true: 1 lub 2 punkty znajduja sie w obszarze; false: 0, 3 lub 4 punkty znajduja sie w obszarze
-        private bool IsSidewalkInWorkArea(Sidewalk sidewalk)
+        private bool IsSidewalkOutOfSpawnArea(Sidewalk sidewalk)
         {
-            int numberOfPointsInWorkArea = 0; // liczba punktow w obszarze
+            Vector2[] points = GetSidewalkPoints(sidewalk);
 
+            Vector2 leftUp = Helper.mapPos - (Helper.workAreaOrigin + new Vector2(distanceToDelete, distanceToDelete));
+            Vector2 size = Helper.workAreaSize + new Vector2(distanceToDelete * 2, distanceToDelete * 2);
+
+            Rectangle spawnArea = new Rectangle((int)leftUp.X, (int)leftUp.Y, (int)size.X, (int)size.Y);
+
+            if (points[0].X > spawnArea.X + spawnArea.Width || points[1].X < spawnArea.X
+                    || points[0].Y > spawnArea.Y + spawnArea.Height || points[3].Y < spawnArea.Y)
+                return true;
+            else
+                return false;
+        }
+
+        // cztery skrajne punkty chodnika
+        private Vector2[] GetSidewalkPoints(Sidewalk sidewalk)
+        {
             Vector2[] points = new Vector2[4]; // punkty prostokata chodnika
+
             Vector2 sidewalkOrigin = (sidewalk.location == Location.horizontal) ? // srodek chodnika wg. konwencjii
                     new Vector2(sidewalk.origin.Y, sidewalk.origin.X) : sidewalk.origin;
 
@@ -162,6 +313,16 @@ namespace Testy_mapy
             points[1] = new Vector2(sidewalk.pos.X + sidewalkOrigin.X, sidewalk.pos.Y - sidewalkOrigin.Y);
             points[2] = new Vector2(sidewalk.pos.X + sidewalkOrigin.X, sidewalk.pos.Y + sidewalkOrigin.Y);
             points[3] = new Vector2(sidewalk.pos.X - sidewalkOrigin.X, sidewalk.pos.Y + sidewalkOrigin.Y);
+
+            return points;
+        }
+
+        // true: 1 lub 2 punkty znajduja sie w obszarze; false: 0, 3 lub 4 punkty znajduja sie w obszarze
+        private bool IsSidewalkInWorkArea(Sidewalk sidewalk)
+        {
+            int numberOfPointsInWorkArea = 0; // liczba punktow w obszarze
+
+            Vector2[] points = GetSidewalkPoints(sidewalk);
 
             for (int i = 0; i < 4; ++i)
             {
@@ -193,24 +354,11 @@ namespace Testy_mapy
             return false;
         }
 
-        private void GeneratePedestrian(Sidewalk sidewalk)
+        private void GeneratePedestrian(ref SidewalkPedestrian sidewalkPedestrian)
         {
             Vector2 pos = new Vector2();
 
-            if (sidewalk.location == Location.horizontal)
-            {
-                pos.Y = rand.Next((int)pedestrianOrigin.X, (int)(sidewalk.size.X - pedestrianOrigin.X))
-                        + sidewalk.pos.Y - sidewalk.origin.X;
-                pos.X = rand.Next((int)pedestrianOrigin.Y, (int)(sidewalk.size.Y - pedestrianOrigin.Y)) 
-                        + sidewalk.pos.X - sidewalk.origin.Y;
-            }
-            else
-            {
-                pos.X = rand.Next((int)pedestrianOrigin.X, (int)(sidewalk.size.X - pedestrianOrigin.X)) 
-                        + sidewalk.pos.X - sidewalk.origin.X;
-                pos.Y = rand.Next((int)pedestrianOrigin.Y, (int)(sidewalk.size.Y - pedestrianOrigin.Y))
-                        + sidewalk.pos.Y - sidewalk.origin.Y;
-            }
+            Sidewalk sidewalk = sidewalkPedestrian.sidewalk;
 
             int id = rand.Next(0, amountOfPedestrians);
 
@@ -219,18 +367,71 @@ namespace Testy_mapy
             float max = (sidewalk.location == Location.horizontal) ? sidewalk.pos.X + sidewalk.origin.Y
                     : sidewalk.pos.Y + sidewalk.origin.Y;
 
-            pedestrians.Add(new Pedestrian(pos, id, sidewalk.location, min, max));
+            int numberOfSidewalks = (int)(sidewalk.size.Y / oneSidewalkHeight); // ilosc "kawalkow" chodnika
+            int numberOfDraws = numberOfSidewalks * frequences[sidewalk.id];
+
+            for (int i = 0; i < numberOfDraws; ++i)
+            {
+                if (rand.Next(4) == 1) // 25 % szans na utworzenie pieszego
+                {
+                    if (sidewalk.location == Location.horizontal)
+                    {
+                        pos.Y = rand.Next((int)pedestrianOrigin.X, (int)(sidewalk.size.X - pedestrianOrigin.X))
+                                + sidewalk.pos.Y - sidewalk.origin.X;
+                        pos.X = rand.Next((int)pedestrianOrigin.Y, (int)(sidewalk.size.Y - pedestrianOrigin.Y))
+                                + sidewalk.pos.X - sidewalk.origin.Y;
+                    }
+                    else
+                    {
+                        pos.X = rand.Next((int)pedestrianOrigin.X, (int)(sidewalk.size.X - pedestrianOrigin.X))
+                                + sidewalk.pos.X - sidewalk.origin.X;
+                        pos.Y = rand.Next((int)pedestrianOrigin.Y, (int)(sidewalk.size.Y - pedestrianOrigin.Y))
+                                + sidewalk.pos.Y - sidewalk.origin.Y;
+                    }
+
+                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, id, sidewalk.location, min, max));
+                }
+            }
+        }
+
+        // sprawdza czy spawnSidewalks zawiera juz taki chodnik
+        private bool ContainSidewalk(Sidewalk sidewalk)
+        {
+            foreach (SidewalkPedestrian spawnSidewalk in spawnSidewalks)
+            {
+                if (sidewalk.pos == spawnSidewalk.sidewalk.pos)
+                    return true;
+            }
+
+            return false;
         }
 
         private void SpawnPedestrian()
         {
-            List<Sidewalk> spawnSidewalks = new List<Sidewalk>();
-
             foreach (Sidewalk sidewalk in sidewalks)
             {
-                if (IsSidewalkInWorkArea(sidewalk))
+                if (!ContainSidewalk(sidewalk))
                 {
-                    GeneratePedestrian(sidewalk);
+                    if (IsSidewalkInWorkArea(sidewalk))
+                    {
+                        SidewalkPedestrian sidewalkPedestrian = new SidewalkPedestrian(sidewalk);
+                        spawnSidewalks.Add(sidewalkPedestrian);
+                        GeneratePedestrian(ref sidewalkPedestrian);
+                    }
+                }
+            }
+        }
+
+        private void RemoveSpawnSidewalksOutOfArea()
+        {
+            for (int i = 0; i < spawnSidewalks.Count; ++i)
+            {
+                SidewalkPedestrian spawnPedestrian = spawnSidewalks[i];
+
+                if (IsSidewalkOutOfSpawnArea(spawnPedestrian.sidewalk))
+                {
+                    spawnSidewalks.RemoveAt(i);
+                    --i;
                 }
             }
         }
