@@ -30,10 +30,16 @@ namespace Testy_mapy
 
     class Pedestrian
     {
+        bool invertRotate; // czy odwrocic rotacje
+        float rotateSpeed = 0.05f; // predkosc rotacji
         float speed; // predkosc poruszania sie pieszych
         bool invertSpeed; // czy odwrocic predkosc
+
+        bool makeTurn; // czy wykonac kolejny obrot
+        static readonly float diffrenceRotateOnTurn = 80.0f; // roznica rotacji przy obracaniu sie
+
         float time; // jaki czas odczekano
-        static readonly float waitingTime = 4.0f; // jaki czas nalezy odczekac po dojsciu do punktu przeznaczenia (w sekundach)
+        static readonly float waitingTime = 2.6f; // jaki czas nalezy odczekac po ogladnieciu sie (w sekundach)
 
         static Random rand = new Random(); // klasa losujaca
 
@@ -51,7 +57,8 @@ namespace Testy_mapy
             }
         }
 
-        float destination; // pozycja przeznaczenia
+        float destinationPos; // pozycja przeznaczenia
+        float destinationRotate; // rotacja przeznaczenia
 
         Direction d_direction;
         Direction direction // kierunek
@@ -59,14 +66,16 @@ namespace Testy_mapy
             set
             {
                 d_direction = value;
-                rotate = (int)d_direction * 90.0f;
+                destinationRotate = (int)d_direction * 90.0f;
+
+                invertRotate = Convert.ToBoolean(rand.Next(2));
             }
             get
             {
                 return d_direction;
             }
         }
-        public float rotate; // rotacja
+        public float rotate { get; private set; } // rotacja
 
         Location location; // polozenie (poziome lub pionowe)
         float min, max; // min i maks wspolrzedna (X lub Y zalezy od polozenia)
@@ -86,17 +95,41 @@ namespace Testy_mapy
             this.max = max;
 
             RandomDestination();
+            rotate = destinationRotate;
         }
 
         public void Update(TimeSpan framesInterval)
         {
             if (time > waitingTime)
             {
-                pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
-
-                if (CheckIsComeToDestination(framesInterval))
+                if (!CheckIsRotate(framesInterval))
                 {
-                    RandomDestination();
+                    rotate += (float)(((invertRotate) ? -rotateSpeed : rotateSpeed) * framesInterval.TotalMilliseconds);
+
+                    if (rotate > 360.0f)
+                        rotate -= 360.0f;
+                    else if (rotate < 0.0f)
+                        rotate += 360.0f;
+                }
+                else if (!makeTurn)
+                {
+                    pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
+
+                    if (CheckIsComeToDestination(framesInterval))
+                    {
+                        makeTurn = true;
+
+                        RandomDestinationRotate();
+                    }
+                }
+                else
+                {
+                    makeTurn = Convert.ToBoolean(rand.Next(2));
+
+                    if (!makeTurn)
+                        RandomDestination();
+                    else
+                        RandomDestinationRotate();
 
                     time = 0.0f;
                 }
@@ -107,9 +140,10 @@ namespace Testy_mapy
             }
         }
 
-        private bool CheckIsComeToDestination(TimeSpan framesInterval)
+        private bool CheckIsRotate(TimeSpan framesInterval)
         {
-            if (pos_y < destination + speed * framesInterval.TotalMilliseconds && pos_y > destination - speed * framesInterval.TotalMilliseconds)
+            if (rotate < destinationRotate + rotateSpeed * framesInterval.TotalMilliseconds
+                    && rotate > destinationRotate - rotateSpeed * framesInterval.TotalMilliseconds)
             {
                 return true;
             }
@@ -119,12 +153,40 @@ namespace Testy_mapy
             }
         }
 
+        private bool CheckIsComeToDestination(TimeSpan framesInterval)
+        {
+            if (pos_y < destinationPos + speed * framesInterval.TotalMilliseconds 
+                    && pos_y > destinationPos - speed * framesInterval.TotalMilliseconds)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void RandomDestinationRotate()
+        {
+            destinationRotate = rand.Next((int)(rotate - diffrenceRotateOnTurn),(int)(rotate + diffrenceRotateOnTurn));
+
+            if (destinationRotate < rotate)
+                invertRotate = true;
+            else
+                invertRotate = false;
+
+            if (destinationRotate > 360.0f)
+                destinationRotate -= 360.0f;
+            else if (destinationRotate < 0.0f)
+                destinationRotate += 360.0f;
+        }
+
         private void RandomDestination()
         {
             speed = (float)rand.Next(8, 14) / 400.0f;
-            destination = rand.Next((int)min, (int)max);
+            destinationPos = rand.Next((int)min, (int)max);
 
-            if (destination > pos_y)
+            if (destinationPos > pos_y)
             {
                 invertSpeed = false;
 
@@ -257,19 +319,26 @@ namespace Testy_mapy
             return numberOfPedestrians;
         }
 
+        // pobiera skrajne punkty
+        private void GetExtremePoints(out Vector2 leftUp, out Vector2 rightDown)
+        {
+            leftUp = Helper.mapPos - Helper.workAreaOrigin - pedestrianOrigin;
+            rightDown = Helper.mapPos + Helper.workAreaOrigin + pedestrianOrigin;
+        }
+
         // czy dany punkt znajduje sie w obszarze roboczym gry
         private bool IsPointInWorkArea(Vector2 point)
         {
-            Vector2 leftUp = Helper.mapPos - Helper.workAreaOrigin;
-            Vector2 rightDown = Helper.mapPos + Helper.workAreaOrigin;
+            Vector2 leftUp, rightDown;
+            GetExtremePoints(out leftUp, out rightDown);
 
             return (point.X < rightDown.X && point.X > leftUp.X && point.Y < rightDown.Y && point.Y > leftUp.Y);
         }
 
         private bool IsLineBeetweenWorkArea(Line line)
         {
-            Vector2 leftUp = Helper.mapPos - Helper.workAreaOrigin;
-            Vector2 rightDown = Helper.mapPos + Helper.workAreaOrigin;
+            Vector2 leftUp, rightDown;
+            GetExtremePoints(out leftUp, out rightDown);
 
             if (line.start.X < leftUp.X && line.end.X > rightDown.X) // linia pozioma
             {
