@@ -142,6 +142,12 @@ namespace Testy_mapy
             }
         }
 
+        // !!! FUNKCJA TYMCZASOWA DO USUNIECIA !!!
+        public int GetNumberOfPedestrians()
+        {
+            return pedestriansLogic.GetNumberOfPedestrians();
+        }
+
         // funkcja pomocnicza sluzaca do pobrania punktow kolizji do ich pozniejszego wyswietlenia na ekranie
         public Vector2[] GetCollisionPointsToDraw()
         {
@@ -216,9 +222,14 @@ namespace Testy_mapy
             // ladowanie tekstur chodnikow
             junctions.Add("chodnik0", content.Load<Texture2D>("chodnik0"));
             junctions.Add("chodnik1", content.Load<Texture2D>("chodnik1"));
+            junctions.Add("chodnik2", content.Load<Texture2D>("chodnik2"));
+            junctions.Add("chodnik3", content.Load<Texture2D>("chodnik3"));
+
+            int[] frequences = new int[] { 1, 3, 5, 12 }; // dodac lub usunac przy dodaniu lub usunieciu jednego typu chodnika
+            pedestriansLogic.SetFrequencyOfOccurrencePedestrians(frequences);
 
             size = new Vector2(junctions["chodnik0"].Width, junctions["chodnik0"].Height);
-            float sidewalkWidth = size.X;
+            float sidewalkHeight = size.Y;
             trackLogic.SetSidewalkSize(size);
 
             // ladowanie tekstur pieszych
@@ -228,7 +239,7 @@ namespace Testy_mapy
             pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrian2"));
 
             size = new Vector2(pedestrians["pedestrian0"].Width, pedestrians["pedestrian0"].Height);
-            pedestriansLogic.SetProperties(size, 3);
+            pedestriansLogic.SetProperties(size, 3, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu
