@@ -29,6 +29,24 @@ namespace Testy_mapy
         {
             return Helper.IsInside(point, this);
         }
+
+        public bool IsInside(Vector2[] points) // czy punkty sa w srodku kwadratu
+        {
+            foreach (Vector2 point in points)
+            {
+                if (Helper.IsInside(point, this))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool IsInside(MyRectangle otherRectangle)
+        {
+            Vector2[] points = new Vector2[] { otherRectangle.point1, otherRectangle.point2, otherRectangle.point3, otherRectangle.point4 };
+            
+            return IsInside(points);
+        }
     }
 
     struct Size

@@ -53,10 +53,10 @@ namespace Testy_mapy
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, Vector2[] busCollisionPoints)
         {
             // TODO: Add your update code here
-            pedestriansLogic.Update(gameTime.ElapsedGameTime);
+            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
         }
 
         // rysuje obiekty pod autobusem
@@ -234,6 +234,7 @@ namespace Testy_mapy
 
             // ladowanie tekstur pieszych
             pedestrians = new Dictionary<string, Texture2D>();
+            pedestrians.Add("died_pedestrian", content.Load<Texture2D>("died_pedestrian"));
             pedestrians.Add("pedestrian0", content.Load<Texture2D>("pedestrian0"));
             pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrian1"));
             pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrian2"));

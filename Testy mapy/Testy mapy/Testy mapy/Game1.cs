@@ -227,7 +227,7 @@ namespace Testy_mapy
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-            drawMap.Update(gameTime);
+            drawMap.Update(gameTime, busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection()));
 
             base.Update(gameTime);
         }
