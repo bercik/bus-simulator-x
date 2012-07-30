@@ -10,33 +10,52 @@ namespace Testy_mapy
     {
         public Sidewalk sidewalk { get; private set; } // chodnik
         List<Pedestrian> pedestrians; // piesi przypisani do chodnika
+        List<Pedestrian> diedPedestrians; // zabici piesi
 
         public SidewalkPedestrian(Sidewalk sidewalk)
         {
             this.sidewalk = sidewalk;
             this.pedestrians = new List<Pedestrian>();
+            this.diedPedestrians = new List<Pedestrian>();
         }
 
-        public void AddPedestrian(Pedestrian p)
+        public void AddPedestrian(Pedestrian pedestrian)
         {
-            pedestrians.Add(p);
+            pedestrians.Add(pedestrian);
         }
 
-        public List<Pedestrian> GetPedestrians()
+        public List<Pedestrian> GetAlivePedestrians()
         {
             return pedestrians;
+        }
+
+        public List<Pedestrian> GetAllPedestrians()
+        {
+            List<Pedestrian> pedestriansToGive = new List<Pedestrian>();
+
+            pedestriansToGive.AddRange(diedPedestrians);
+            pedestriansToGive.AddRange(pedestrians);
+
+            return pedestriansToGive;
+        }
+
+        public void DiePedestrian(Pedestrian pedestrian)
+        {
+            pedestrians.Remove(pedestrian);
+            diedPedestrians.Add(pedestrian);
         }
     }
 
     class Pedestrian
     {
         bool invertRotate; // czy odwrocic rotacje
-        float rotateSpeed = 0.05f; // predkosc rotacji
+        static readonly float rotateSpeed = 0.05f; // predkosc rotacji
         float speed; // predkosc poruszania sie pieszych
         bool invertSpeed; // czy odwrocic predkosc
 
+        bool collision; // czy wystapila kolizja
         bool makeTurn; // czy wykonac kolejny obrot
-        static readonly float diffrenceRotateOnTurn = 80.0f; // roznica rotacji przy obracaniu sie
+        static readonly float diffrenceRotateOnTurn = 80.0f; // maksymalna roznica rotacji stopni przy obracaniu sie
 
         float time; // jaki czas odczekano
         static readonly float waitingTime = 2.6f; // jaki czas nalezy odczekac po ogladnieciu sie (w sekundach)
@@ -76,15 +95,18 @@ namespace Testy_mapy
             }
         }
         public float rotate { get; private set; } // rotacja
+        Vector2 origin; // srodek (polowa rozmiaru)
 
         Location location; // polozenie (poziome lub pionowe)
         float min, max; // min i maks wspolrzedna (X lub Y zalezy od polozenia)
 
-        public Pedestrian(Vector2 pos, int id, Location location, float min, float max)
+        public Pedestrian(Vector2 pos, Vector2 size, int id, Location location, float min, float max)
         {
+            this.collision = false; // na poczatek pieszy jest zywy :)
             this.time = waitingTime; // dzieki temu od razu po utworzeniu pieszy porusza sie
 
             this.name = "pedestrian" + id.ToString();
+            this.origin = size / 2;
 
             this.location = location;
 
@@ -100,44 +122,74 @@ namespace Testy_mapy
 
         public void Update(TimeSpan framesInterval)
         {
-            if (time > waitingTime)
+            if (!collision)
             {
-                if (!CheckIsRotate(framesInterval))
+                if (time > waitingTime)
                 {
-                    rotate += (float)(((invertRotate) ? -rotateSpeed : rotateSpeed) * framesInterval.TotalMilliseconds);
-
-                    if (rotate > 360.0f)
-                        rotate -= 360.0f;
-                    else if (rotate < 0.0f)
-                        rotate += 360.0f;
-                }
-                else if (!makeTurn)
-                {
-                    pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
-
-                    if (CheckIsComeToDestination(framesInterval))
+                    if (!CheckIsRotate(framesInterval))
                     {
-                        makeTurn = true;
+                        rotate += (float)(((invertRotate) ? -rotateSpeed : rotateSpeed) * framesInterval.TotalMilliseconds);
 
-                        RandomDestinationRotate();
+                        if (rotate > 360.0f)
+                            rotate -= 360.0f;
+                        else if (rotate < 0.0f)
+                            rotate += 360.0f;
+                    }
+                    else if (!makeTurn)
+                    {
+                        pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
+
+                        if (CheckIsComeToDestination(framesInterval))
+                        {
+                            makeTurn = true;
+
+                            RandomDestinationRotate();
+                        }
+                    }
+                    else
+                    {
+                        makeTurn = Convert.ToBoolean(rand.Next(2));
+
+                        if (!makeTurn)
+                            RandomDestination();
+                        else
+                            RandomDestinationRotate();
+
+                        time = 0.0f;
                     }
                 }
                 else
                 {
-                    makeTurn = Convert.ToBoolean(rand.Next(2));
-
-                    if (!makeTurn)
-                        RandomDestination();
-                    else
-                        RandomDestinationRotate();
-
-                    time = 0.0f;
+                    time += (float)framesInterval.TotalSeconds;
                 }
             }
-            else
+        }
+
+        public bool CheckCollision(Vector2[] busCollisionPoints)
+        {
+            if (!collision)
             {
-                time += (float)framesInterval.TotalSeconds;
+                MyRectangle busCollisionRectangle = new MyRectangle(busCollisionPoints[0], busCollisionPoints[1], busCollisionPoints[2], busCollisionPoints[3]);
+                MyRectangle pedestrianCollisionRectangle = new MyRectangle();
+
+                Vector2 v_pos = pos;
+
+                pedestrianCollisionRectangle.point1 = new Vector2(v_pos.X - origin.X, v_pos.Y - origin.Y); // 1
+                pedestrianCollisionRectangle.point2 = new Vector2(v_pos.X + origin.X, v_pos.Y - origin.Y); // 2
+                pedestrianCollisionRectangle.point3 = new Vector2(v_pos.X + origin.X, v_pos.Y + origin.Y); // 3
+                pedestrianCollisionRectangle.point4 = new Vector2(v_pos.X - origin.X, v_pos.Y + origin.Y); // 4
+
+                if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
+                {
+                    name = "died_pedestrian";
+                    collision = true;
+                    return true;
+                }
+
+                return false;
             }
+
+            return true;
         }
 
         private bool CheckIsRotate(TimeSpan framesInterval)
@@ -269,7 +321,7 @@ namespace Testy_mapy
             this.frequences = frequences;
         }
 
-        public void Update(TimeSpan framesInterval)
+        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints)
         {
             if (lastUpdateTime > updateTime)
             {
@@ -285,9 +337,16 @@ namespace Testy_mapy
 
             foreach (SidewalkPedestrian sidewalkPedestrian in spawnSidewalks)
             {
-                foreach (Pedestrian pedestrian in sidewalkPedestrian.GetPedestrians())
+                List<Pedestrian> alivePedestrians = sidewalkPedestrian.GetAlivePedestrians();
+
+                for (int i = 0; i < alivePedestrians.Count; ++i)
                 {
-                    pedestrian.Update(framesInterval);
+                    alivePedestrians[i].Update(framesInterval);
+                    if (alivePedestrians[i].CheckCollision(busCollisionPoints))
+                    {
+                        sidewalkPedestrian.DiePedestrian(alivePedestrians[i]);
+                        --i;
+                    }
                 }
             }
         }
@@ -299,7 +358,7 @@ namespace Testy_mapy
 
             foreach (SidewalkPedestrian sp in spawnSidewalks)
             {
-                foreach (Pedestrian p in sp.GetPedestrians())
+                foreach (Pedestrian p in sp.GetAllPedestrians())
                     pedestriansToShow.Add(new Object(p.name, Helper.MapPosToScreenPos(p.pos), pedestrianSize, p.rotate));
             }
 
@@ -313,7 +372,7 @@ namespace Testy_mapy
 
             foreach (SidewalkPedestrian sp in spawnSidewalks)
             {
-                numberOfPedestrians += sp.GetPedestrians().Count;
+                numberOfPedestrians += sp.GetAllPedestrians().Count;
             }
 
             return numberOfPedestrians;
@@ -458,7 +517,7 @@ namespace Testy_mapy
                                 + sidewalk.pos.Y - sidewalk.origin.Y;
                     }
 
-                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, id, sidewalk.location, min, max));
+                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, pedestrianSize, id, sidewalk.location, min, max));
                 }
             }
         }
