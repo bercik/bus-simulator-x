@@ -1,0 +1,19 @@
+//nazwa;kolizja;pod autobusem;x;y;szerokosc;wysokosc (collision boxa 1, potem ew. 2 itd)
+barierka_mala;1;0;1;15;14;28;11;2;28;15
+barierka_duza;1;0;2;226;34;108;25;132;43;80;61;61;79;64;125;14;92;47;216;0;120;23
+beczka;1;0
+budynek0;1;0
+budynek1;1;0
+drzewo;1;0;47;46;12;10
+kwiatek_bordowy;0;1
+kwiatek_czerwony;0;1
+kwiatek_pomaranczowy;0;1
+kwiatek_rozowy;0;1
+murek;1;0;0;0;27;100;27;0;73;28
+oczko_wodne;1;1
+pasy;0;1
+pole;0;1
+przystanek;1;0
+smietnik;1;0
+zatoka;1;1;0;100;122;30;0;452;122;30;7;200;88;180;58;157;39;40
+znak_uwaga_zakret_w_lewo;1;0
