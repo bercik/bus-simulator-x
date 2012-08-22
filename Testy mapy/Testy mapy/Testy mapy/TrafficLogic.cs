@@ -150,11 +150,20 @@ namespace Testy_mapy
             public int skin;
             public int likelihoodOfApperance;
 
-            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance) //constructor
+            public Vector2 moveSize; //pozwala przesuwać collision points
+            public Vector2 sizeOffset; //pozwala modyfikowac wielkosc pojazdu z ktorej sa brane collision points
+
+            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance, Vector2 moveSize, Vector2 sizeOffset) //constructor
             {
                 this.size = size;
                 this.skin = skin;
                 this.likelihoodOfApperance = likelihoodOfApperance;
+                this.moveSize = moveSize;
+                this.sizeOffset = sizeOffset;
+            }
+
+            public VehicleType()
+            {
             }
         }
 
@@ -170,6 +179,8 @@ namespace Testy_mapy
             public Vector2 size = new Vector2(50, 100); //rozmiar
             public float direction; //kierunek
             public int skin; //jaki wyglad, skin
+            public Vector2 moveSize;
+            public Vector2 sizeOffset;
 
             public bool accident = false;
             public float indicatorCounter = 0;
@@ -185,7 +196,7 @@ namespace Testy_mapy
             private float stopCounter = 0; //licznik odpowiedzialny za dlugosc postoju w razie zatrzymania się
             private float startAfter = 3; //po ilu sekundach ma wystartować
 
-            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin) //constructor
+            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset) //constructor
             {
                 Vector2 center = new Vector2(0, 0);
                 this.road = new Road(start, destination, center);
@@ -193,6 +204,8 @@ namespace Testy_mapy
                 this.direction = road.lane.direction;
                 this.size = size;
                 this.skin = skin;
+                this.moveSize = moveSize;
+                this.sizeOffset = sizeOffset;
             }
 
             public Vector2[] GetCollisionPoints() //returns 4 collision points
@@ -258,42 +271,42 @@ namespace Testy_mapy
                 return center;
             }
 
-            private Vector2 CalculateNewPosition(float vehicleSpeed, float vehicleDirection, float timeCoherenceMultiplier)
+            private Vector2 CalculateNewPosition(float vehicleSpeed, float vehicleDirection, float timeCoherenceMultiplier)//oblicza nowa pozycje biorac pod uwage predkosc i kierunek
             {
                 Vector2 newPosition;
                 newPosition.X = position.X + (speedMultiplier * timeCoherenceMultiplier * vehicleSpeed * (float)Math.Sin(MathHelper.ToRadians(vehicleDirection)));
                 newPosition.Y = position.Y - (speedMultiplier * timeCoherenceMultiplier * vehicleSpeed * (float)Math.Cos(MathHelper.ToRadians(vehicleDirection)));
                 return newPosition;
-            }
+            } 
 
-            public void Start(float timeCoherenceMultiplier)
+            public void Start(float timeCoherenceMultiplier)//wznawia jazde
             {
                 stopCounter += timeCoherenceMultiplier;
                 if (stopCounter > startAfter)
                     driving = true;
-            } //wznawia jazde
+            } 
 
-            public void Stop()
+            public void Stop()//zatrzymuje pojazd
             {
                 driving = false;
                 stopCounter = 0;
-            } //zatrzymuje pojazd
+            } 
 
-            public void Collision()
+            public void Collision() //wywolywana w razie kolizji
             {
                 accident = true;
             }
 
-            public class RoadsSwitching
+            public class RoadsSwitching //odpowiada za zmiane drog
             {
-                private float bezierT = 0;
-                private float bezierTInc = (float)0.01;
-                private Vector2 start;
-                private Vector2 end;
-                private Vector2 controlPoint;
-                public Vector2 target;
+                private float bezierT = 0; //podstawiane do funckji generujacej krzywe beziera
+                private float bezierTInc = (float)0.01; //co ile ma sie zmieniac za kazdym wywolaniem
+                private Vector2 start; //poczatek (koniec lana poprzedniej drogi)
+                private Vector2 end; //koniec (poczatek lane nowej drogi)
+                private Vector2 controlPoint; //punkt dodatkowy dla krzywych beziera
+                public Vector2 target; //dokad aktualnie jedzie pojazd
 
-                private Vector2 CalculateControlPoint(Vector2 start, Vector2 end, Vector2 center)
+                private Vector2 CalculateControlPoint(Vector2 start, Vector2 end, Vector2 center)//oblicz punkt kontrolny dla krzywej beziera
                 {
                     Vector2 controlPoint = new Vector2(0, 0);
 
@@ -334,7 +347,7 @@ namespace Testy_mapy
                     return controlPoint;
                 }
 
-                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 center)
+                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 center) //constructor
                 {
                     this.start = start;
                     this.end = end;
@@ -342,7 +355,7 @@ namespace Testy_mapy
                     this.target = GetNewPoint();
                 }
 
-                public bool IsStraight()
+                public bool IsStraight() //czy droga przekierowania jest na przeciwko (nie ma zakrętu)
                 {
                     bool straight = true;
                     if (start.X == end.X || start.Y == end.Y)
@@ -363,7 +376,7 @@ namespace Testy_mapy
                     return direction;
                 }
 
-                public Vector2 GetNewPoint()
+                public Vector2 GetNewPoint()//funkcja generujaca punkty na podstawie krzywej beziera
                 {
                     Vector2 point;
                     bezierT += bezierTInc;
@@ -379,7 +392,7 @@ namespace Testy_mapy
                     return point;
                 }
 
-                public bool Reached(Vector2 position, Vector2 point)
+                public bool Reached(Vector2 position, Vector2 point)//czy osiagnieto dany punkt bedac w punkcie position
                 {
                     if (start.X < end.X && start.Y > end.Y)
                     {
@@ -417,18 +430,17 @@ namespace Testy_mapy
                 }
             }
 
-            public void Update(BusLogic busLogic, DrawMap drawMap, float timeCoherenceMultiplier)
+            public void Update(DrawMap drawMap, float timeCoherenceMultiplier)
             {
                 if (driving)
                 {
-                    speed += acceleration * timeCoherenceMultiplier;
+                    speed += acceleration * timeCoherenceMultiplier; //przyspieszamy
                     if (speed > normalSpeed)
                         speed = normalSpeed;
                 }
                 else
                 {
-
-                    speed -= acceleration * timeCoherenceMultiplier;
+                    speed -= acceleration * timeCoherenceMultiplier; //zwalniamy
                     if (speed < 0)
                         speed = 0;
                 }
@@ -440,18 +452,18 @@ namespace Testy_mapy
                         Vector2 junctionCenter;
                         Connection getNewRoad;
 
-                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter);
+                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter); //bierzemy nową drogę
 
-                        lastEnd = road.end;
+                        lastEnd = road.end; //koniec poprzedniej drogi do teraz konbiec rogi aktualnej
 
-                        Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
+                        Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter); //generujemy nową drogę w oparciu o punkty z changetrack
 
-                        roadsSwitching = new RoadsSwitching(road.lane.end, newRoad.lane.start, junctionCenter);
+                        roadsSwitching = new RoadsSwitching(road.lane.end, newRoad.lane.start, junctionCenter); //generujemy klasę przekierowującą
 
-                        if (!roadsSwitching.IsStraight())
+                        if (!roadsSwitching.IsStraight()) //jesli droga nie jest na przeciwko rozpoczynamy przekierowanie
                             redirecting = true;
 
-                        road = newRoad;
+                        road = newRoad; //droga to nowa droga
                     }
                     else
                     {
@@ -462,42 +474,23 @@ namespace Testy_mapy
                 {
                     if (roadsSwitching.Reached(position, road.lane.start))
                     {
-                        redirecting = false;
+                        redirecting = false; //jesli juz dojechalismy do nowej drogi ustawmy odpowiednio auto i dajmy mu normalnie jechac
                         direction = road.lane.direction;
                         position = road.lane.start;
                     }
                     else
                     {
-
-
                         Vector2 newPoint = new Vector2(0, 0);
 
-                        while (roadsSwitching.Reached(position, roadsSwitching.target))
-                        {
-                            newPoint = roadsSwitching.GetNewPoint();
+                        while (roadsSwitching.Reached(position, roadsSwitching.target)) 
+                        {                                              //jesli dojechalismy do punktu wygenerowaneg poprzednio
+                            newPoint = roadsSwitching.GetNewPoint();   //szukaj takiego nowego do ktorego jeszcze nie dojechalismy
                             roadsSwitching.target = newPoint;
                         }
 
-                        float newDirection = roadsSwitching.CalculateDirection(position, roadsSwitching.target);
-                        direction = newDirection;
-
+                        direction = roadsSwitching.CalculateDirection(position, roadsSwitching.target);
                         position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
-
-                        //position = newPoint;
                     }
-                    /* Vector2 newPoint = roadsSwitching.GetNewPoint();
-                     float newDirection = roadsSwitching.CalculateDirection(position, newPoint);
-
-                     direction = newDirection;
-
-                     position = newPoint;
-
-                     if (newPoint == road.lane.start)
-                     {
-                         redirecting = false;
-                         direction = road.lane.direction;
-                         position = road.lane.start;
-                     }*/
                 }
             }
         }
@@ -511,16 +504,15 @@ namespace Testy_mapy
 
         float indicatorBlinkInterval = 1; //jak czesto maja migac migacze
 
-
         private int maxRandom = 0;
 
         private VehicleType[] vehiclesTypes;
 
-        public TrafficLogic()
+        public TrafficLogic()//constructor
         {
-            VehicleType vehicleType1 = new VehicleType(new Vector2(50, 100), 0, 1);
-            VehicleType vehicleType2 = new VehicleType(new Vector2(50, 100), 1, 1);
-            VehicleType vehicleType3 = new VehicleType(new Vector2(50, 100), 2, 1);
+            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 1, new Vector2(5, -18), new Vector2(14, 10));
+            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 1, new Vector2(-1, -7), new Vector2(5, 5));
+            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 1, new Vector2(0, -15), new Vector2(10, 5));
 
             vehiclesTypes = new VehicleType[3] { vehicleType1, vehicleType2, vehicleType3 };
 
@@ -597,7 +589,18 @@ namespace Testy_mapy
 
             foreach (Vehicle vehicle in vehicles)
             {
-                list.Add(new Object(vehicle.skin.ToString(), vehicle.GetVehiclePosition(), vehicle.size, vehicle.direction));
+                Vector2 size = vehicle.size;
+                size.X += vehicle.sizeOffset.X;
+                size.Y += vehicle.sizeOffset.Y;
+
+                Vector2 position = vehicle.GetVehiclePosition();
+                position.X = position.X + (vehicle.moveSize.Y * (float)Math.Sin(MathHelper.ToRadians(vehicle.direction))); //przesuwamy do gory
+                position.Y = position.Y - (vehicle.moveSize.Y * (float)Math.Cos(MathHelper.ToRadians(vehicle.direction)));
+
+                position.X = position.X + (vehicle.moveSize.X * (float)Math.Sin(MathHelper.ToRadians(vehicle.direction + 90))); //przesuwamy w prawo
+                position.Y = position.Y - (vehicle.moveSize.X * (float)Math.Cos(MathHelper.ToRadians(vehicle.direction + 90)));
+
+                list.Add(new Object(vehicle.skin.ToString(), position, size, vehicle.direction));
             }
 
             return list;
@@ -693,21 +696,20 @@ namespace Testy_mapy
                     int randomNumber = random.Next(1, maxRandom);
                     int current = 0;
 
-                    Vector2 size = new Vector2(100, 100);
-                    int skin = 0;
+                    VehicleType type = new VehicleType();
 
                     foreach (VehicleType vehicleType in vehiclesTypes)
                     {
                         if (randomNumber > current && randomNumber <= current + vehicleType.likelihoodOfApperance)
                         {
-                            size = vehicleType.size;
-                            skin = vehicleType.skin;
+                            type = vehicleType;
+                            break;
                         }
 
                         current += vehicleType.likelihoodOfApperance;
                     }
 
-                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, size, skin);
+                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset);
                     vehicles.Add(vehicle);
                     lastSpawn = 0;
                 }
@@ -740,7 +742,7 @@ namespace Testy_mapy
                         vehicle.Collision();
 
                     if (!vehicle.accident) //jesli nie mial wypadku
-                        vehicle.Update(busLogic, drawMap, timeCoherenceMultiplier); //...zaktualizuj jego pozycje
+                        vehicle.Update(drawMap, timeCoherenceMultiplier); //...zaktualizuj jego pozycje
                 }
                 else
                 {
@@ -755,3 +757,18 @@ namespace Testy_mapy
         }
     }
 }
+
+
+/* Vector2 newPoint = roadsSwitching.GetNewPoint();
+ float newDirection = roadsSwitching.CalculateDirection(position, newPoint);
+
+ direction = newDirection;
+
+ position = newPoint;
+
+ if (newPoint == road.lane.start)
+ {
+     redirecting = false;
+     direction = road.lane.direction;
+     position = road.lane.start;
+ }*/
