@@ -251,13 +251,13 @@ namespace Testy_mapy
             drawMap.DrawPedestrians(spriteBatch, gameTime);
 
             //<traffic>
+            List<Object> vehiclesList = trafficLogic.GetAllVehicles();
+            foreach (Object vehicle in vehiclesList)
+                drawTraffic.Draw(spriteBatch, vehicle);
+            
             List<Object> indicatorsList = trafficLogic.GetIndicatorPoints();
             foreach (Object indicator in indicatorsList)
                 drawTraffic.DrawIndicator(spriteBatch, indicator);
-            
-            List<Object> vehiclesList = trafficLogic.GetAllVehicles();
-            foreach (Object vehicle in vehiclesList)
-               drawTraffic.Draw(spriteBatch, vehicle);
             //</traffic>
 
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection());
