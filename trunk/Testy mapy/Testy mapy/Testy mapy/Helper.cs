@@ -75,11 +75,25 @@ namespace Testy_mapy
 
     static class Helper
     {
-        public static Vector2 screenSize; // wielkosc ekranu
-        public static Vector2 workAreaSize; // wielkosc robocza (wielkosc ekranu / skalowanie)
+        public static Vector2 screenSize { get; private set; } // wielkosc ekranu
+        public static Vector2 screenOrigin { get; private set; } // srodek ekranu
+
+        public static Vector2 workAreaSize { get; private set; } // wielkosc robocza (wielkosc ekranu / skalowanie)
         public static Vector2 workAreaOrigin { get; private set; } // srodek roboczego ekranu
-        public static float scale; // skalowanie
+        private static float scale; // skalowanie
+
+        private readonly static float maxScale = 1.5f; // maksymalna skala mapy
+        private readonly static float minScale = 0.5f; // minimalna skala mapy
+        public readonly static Vector2 maxWorkAreaSize; // maksymalny rozmiar ekranu roboczego
+        public readonly static Vector2 minWorkAreaSize; // maksymalny rozmiar ekranu roboczego
+
         public static Vector2 mapPos; // pozycja mapy
+
+        static Helper()
+        {
+            maxWorkAreaSize = screenSize / scale;
+            minWorkAreaSize = screenSize / scale;
+        }
 
         // wywolac ZAWSZE po zmianie screenSize lub scale
         private static void CalculateWorkArea()
@@ -90,14 +104,23 @@ namespace Testy_mapy
 
         public static void SetScale(float f_scale)
         {
-            scale = f_scale;
+            if (f_scale > minScale && f_scale < maxScale)
+            {
+                scale = f_scale;
 
-            CalculateWorkArea();
+                CalculateWorkArea();
+            }
+        }
+
+        public static float GetScale()
+        {
+            return scale;
         }
 
         public static void SetScreenSize(float width, float height)
         {
             screenSize = new Vector2(width, height);
+            screenOrigin = screenSize / 2;
 
             CalculateWorkArea();
         }
@@ -105,6 +128,23 @@ namespace Testy_mapy
         public static Vector2 MapPosToScreenPos(Vector2 pos)
         {
             return pos - (mapPos - screenSize / 2);
+        }
+
+        public static Rectangle CalculateScaleRectangle(Object o, out Vector2 origin)
+        {
+            Rectangle rect = new Rectangle();
+
+            float scale = GetScale();
+
+            rect.X = (int)(((o.pos.X - screenOrigin.X) * scale) + screenOrigin.X);
+            rect.Y = (int)(((o.pos.Y - screenOrigin.Y) * scale) + screenOrigin.Y);
+
+            rect.Width = (int)(o.size.X * scale);
+            rect.Height = (int)(o.size.Y * scale);
+
+            origin = new Vector2(o.original_origin.X * scale, o.original_origin.Y * scale);
+
+            return rect;
         }
 
         public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat 

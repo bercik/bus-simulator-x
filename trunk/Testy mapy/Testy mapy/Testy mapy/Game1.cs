@@ -229,6 +229,11 @@ namespace Testy_mapy
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
             drawMap.Update(gameTime, busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection()));
 
+            if (keybState.IsKeyDown(Keys.PageUp))
+                Helper.SetScale(Helper.GetScale() + 0.01f);
+            if (keybState.IsKeyDown(Keys.PageDown))
+                Helper.SetScale(Helper.GetScale() - 0.01f);
+
             base.Update(gameTime);
         }
 
@@ -281,7 +286,7 @@ namespace Testy_mapy
             spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);
             spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);
 
-            spriteBatch.DrawString(font, "Pedestrians: " + drawMap.GetNumberOfPedestrians(), new Vector2(0, 180), Color.White);
+            spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 180), Color.White);
 
             spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
             spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);

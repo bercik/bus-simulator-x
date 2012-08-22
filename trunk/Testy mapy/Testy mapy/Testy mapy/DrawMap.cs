@@ -68,12 +68,13 @@ namespace Testy_mapy
 
                 foreach (Object o in objectsToShow)
                 {
-                    Rectangle destinationRect = new Rectangle((int)o.pos.X, (int)o.pos.Y, (int)o.size.X, (int)o.size.Y);
+                    Vector2 origin;
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o, out origin);
 
                     if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, o.spriteEffects, 1);
+                                origin, o.spriteEffects, 1);
                     }
                 }
             }
@@ -88,12 +89,13 @@ namespace Testy_mapy
 
                 foreach (Object o in objectsToShow)
                 {
-                    Rectangle destinationRect = new Rectangle((int)o.pos.X, (int)o.pos.Y, (int)o.size.X, (int)o.size.Y);
+                    Vector2 origin;
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o, out origin);
 
                     if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, o.spriteEffects, 1);
+                                origin, o.spriteEffects, 1);
                     }
                 }
             }
@@ -115,12 +117,13 @@ namespace Testy_mapy
                 }
                 foreach (Object o in junctionsToShow)
                 {
-                    Rectangle destinationRect = new Rectangle((int)o.pos.X, (int)o.pos.Y, (int)o.size.X, (int)o.size.Y);
+                    Vector2 origin;
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o, out origin);
 
                     if (junctions.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, o.spriteEffects, 1);
+                                origin, o.spriteEffects, 1);
                     }
                 }
             }
@@ -140,12 +143,6 @@ namespace Testy_mapy
                             p.origin, p.spriteEffects, 1);
                 }
             }
-        }
-
-        // !!! FUNKCJA TYMCZASOWA DO USUNIECIA !!!
-        public int GetNumberOfPedestrians()
-        {
-            return pedestriansLogic.GetNumberOfPedestrians();
         }
 
         // funkcja pomocnicza sluzaca do pobrania punktow kolizji do ich pozniejszego wyswietlenia na ekranie

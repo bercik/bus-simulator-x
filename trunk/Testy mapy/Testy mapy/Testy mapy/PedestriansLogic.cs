@@ -365,19 +365,6 @@ namespace Testy_mapy
             return pedestriansToShow;
         }
 
-        // !!! FUNKCJA TYMCZASOWA DO USUNIECIA !!!
-        public int GetNumberOfPedestrians()
-        {
-            int numberOfPedestrians = 0;
-
-            foreach (SidewalkPedestrian sp in spawnSidewalks)
-            {
-                numberOfPedestrians += sp.GetAllPedestrians().Count;
-            }
-
-            return numberOfPedestrians;
-        }
-
         // pobiera skrajne punkty
         private void GetExtremePoints(out Vector2 leftUp, out Vector2 rightDown)
         {

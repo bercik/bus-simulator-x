@@ -416,8 +416,7 @@ namespace Testy_mapy
             for (int i = 0; i < junctionsInRange.Count; ++i)
             {
                 junctionsToShow.Add((Object)junctionsInRange[i].Clone());
-                junctionsToShow[i].pos.X -= (mapPos.X - screenSize.Width / 2);
-                junctionsToShow[i].pos.Y -= (mapPos.Y - screenSize.Height / 2);
+                junctionsToShow[i].pos = Helper.MapPosToScreenPos(junctionsToShow[i].pos);
             }
 
             return junctionsToShow;
@@ -430,8 +429,7 @@ namespace Testy_mapy
             for (int i = 0; i < objectsOnBusInRange.Count; ++i)
             {
                 objectsOnBusToShow.Add((Object)objectsOnBusInRange[i].Clone());
-                objectsOnBusToShow[i].pos.X -= (mapPos.X - screenSize.Width / 2);
-                objectsOnBusToShow[i].pos.Y -= (mapPos.Y - screenSize.Height / 2);
+                objectsOnBusToShow[i].pos = Helper.MapPosToScreenPos(objectsOnBusToShow[i].pos);
             }
 
             return objectsOnBusToShow;
@@ -444,8 +442,7 @@ namespace Testy_mapy
             for (int i = 0; i < objectsUnderBusInRange.Count; ++i)
             {
                 objectsUnderBusToShow.Add((Object)objectsUnderBusInRange[i].Clone());
-                objectsUnderBusToShow[i].pos.X -= (mapPos.X - screenSize.Width / 2);
-                objectsUnderBusToShow[i].pos.Y -= (mapPos.Y - screenSize.Height / 2);
+                objectsUnderBusToShow[i].pos = Helper.MapPosToScreenPos(objectsUnderBusToShow[i].pos);
             }
 
             return objectsUnderBusToShow;
