@@ -441,7 +441,7 @@ namespace Testy_mapy
 
         /* zwraca polaczenie zgodnie z polozeniem skrzyzowania wzgledem ekranu (zwraca polaczenie w strone ekranu)
          jezeli takiego polaczenia nie ma zwraca puste polaczenie */
-        private Connection GetConnectionFromPosition(Junction junction, Position position)
+        private Connection GetConnectionFromPosition(Junction junction, Position position, out int connectionIndex)
         {
             Direction[] directions = junctionTypes[junction.id].GetDirections(); // kierunki bez rotacji
 
@@ -455,44 +455,47 @@ namespace Testy_mapy
                 if ((int)newDirection > 3)
                     newDirection -= 4;
 
+                connectionIndex = -1;
+
                 // sprawdzamy czy skrzyzowanie posiada trase wychodzaca w kierunku ekranu
                 switch (position)
                 {
                     case Position.down:
                         if (newDirection == Direction.Up)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.up:
                         if (newDirection == Direction.Down)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.left:
                         if (newDirection == Direction.Right)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.right:
                         if (newDirection == Direction.Left)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.upLeft:
                         if (newDirection == Direction.Right || newDirection == Direction.Down)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.upRight:
                         if (newDirection == Direction.Left || newDirection == Direction.Down)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.downRight:
                         if (newDirection == Direction.Left || newDirection == Direction.Up)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                     case Position.downLeft:
                         if (newDirection == Direction.Right || newDirection == Direction.Up)
+                            connectionIndex = i;
                             return junction.connections[i];
-                        break;
                 }
             }
 
+            connectionIndex = -1;
             return new Connection();
         }
 
@@ -549,6 +552,14 @@ namespace Testy_mapy
             int id = Int32.Parse(split[4]);
 
             AddConnection(pos1, pos2, id);
+        }
+
+        private Vector2 GetRandomJunctionExitWithout(Junction junction, int connectionIndex)
+        {
+            if (connectionIndex == 0)
+                return junction.connections[1].point1;
+            else
+                return junction.connections[0].point1;
         }
 
         public void AddConnection(Vector2 pos1, Vector2 pos2, int sidewalkId)
@@ -671,7 +682,7 @@ namespace Testy_mapy
         }
 
         // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
-        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin)
+        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin, out Vector2 randomOutPoint)
         {
             List<Junction> junctionsFromArea = GetJunctionsFromArea(size);
 
@@ -679,27 +690,32 @@ namespace Testy_mapy
             {
                 connection = new Connection();
                 origin = new Vector2(0, 0);
+                randomOutPoint = new Vector2(0, 0);
                 return;
             }
+
+            int connectionIndex = -1;
 
             Junction junction = junctionsFromArea[rand.Next(junctionsFromArea.Count)];
 
             Position position = GetJunctionPosition(junction.pos, junction.origin);
 
-            Connection newTrack = GetConnectionFromPosition(junction, position);
+            Connection newTrack = GetConnectionFromPosition(junction, position, out connectionIndex);
 
             if (newTrack.IsEmpty())
             {
                 int i = 0; // licznik
                 while (i < 5) // zwiekszyc jezeli chcemy zwiekszyc szanse na zwrocenie drogi (niekoniecznie zwroconej w strone ekranu)
                 {
-                    newTrack = junction.connections[rand.Next(junction.connections.Length)];
+                    connectionIndex = rand.Next(junction.connections.Length);
+                    newTrack = junction.connections[connectionIndex];
                     ++i;
 
                     if (newTrack.point2 != Vector2.Zero)
                     {
                         connection = newTrack;
                         origin = junction.pos;
+                        randomOutPoint = GetRandomJunctionExitWithout(junction, connectionIndex);
                         return;
                     }
                 }
@@ -708,11 +724,13 @@ namespace Testy_mapy
             {
                 connection = newTrack;
                 origin = junction.pos;
+                randomOutPoint = GetRandomJunctionExitWithout(junction, connectionIndex);
                 return;
             }
 
             connection = new Connection();
             origin = new Vector2(0, 0);
+            randomOutPoint = new Vector2(0, 0);
         }
 
         public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)
