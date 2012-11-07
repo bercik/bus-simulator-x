@@ -136,8 +136,8 @@ namespace Testy_mapy
 
             float scale = GetScale();
 
-            rect.X = (int)(((o.pos.X - screenOrigin.X) * scale) + screenOrigin.X);
-            rect.Y = (int)(((o.pos.Y - screenOrigin.Y) * scale) + screenOrigin.Y);
+            rect.X = (int)(((o.pos.X - screenOrigin.X) * scale) + workAreaOrigin.X * scale);
+            rect.Y = (int)(((o.pos.Y - screenOrigin.Y) * scale) + workAreaOrigin.Y * scale);
 
             rect.Width = (int)(o.size.X * scale);
             rect.Height = (int)(o.size.Y * scale);
