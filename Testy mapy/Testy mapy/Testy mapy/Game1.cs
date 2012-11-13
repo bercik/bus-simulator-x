@@ -212,7 +212,9 @@ namespace Testy_mapy
                 Helper.mapPos = busLogic.GetBusPosition();
 
                 if (!drawMap.IsCollision(collisionPoints) && !trafficLogic.IsCollision(collisionPoints, busLogic.GetBusPosition()))
+                {
                     busLogic.AcceptNewPositionAndDirection();
+                }
                 else
                 {
                     busLogic.Collision();
