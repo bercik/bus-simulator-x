@@ -462,36 +462,60 @@ namespace Testy_mapy
                 {
                     case Position.down:
                         if (newDirection == Direction.Up)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.up:
                         if (newDirection == Direction.Down)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.left:
                         if (newDirection == Direction.Right)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.right:
                         if (newDirection == Direction.Left)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.upLeft:
                         if (newDirection == Direction.Right || newDirection == Direction.Down)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.upRight:
                         if (newDirection == Direction.Left || newDirection == Direction.Down)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.downRight:
                         if (newDirection == Direction.Left || newDirection == Direction.Up)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                     case Position.downLeft:
                         if (newDirection == Direction.Right || newDirection == Direction.Up)
+                        {
                             connectionIndex = i;
                             return junction.connections[i];
+                        }
+                        break;
                 }
             }
 
