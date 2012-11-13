@@ -27,7 +27,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 0) //droga w gore
                 {
-                    if (position.Y < end.Y)
+                    if (position.Y <= end.Y)
 
                         return true;
                     else
@@ -37,7 +37,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 180) //droga w dol
                 {
-                    if (position.Y > end.Y)
+                    if (position.Y >= end.Y)
                         return true;
                     else
                         return false;
@@ -45,7 +45,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 90) //droga w prawo
                 {
-                    if (position.X > end.X)
+                    if (position.X >= end.X)
                         return true;
                     else
                         return false;
@@ -53,7 +53,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 270) //droga w lewo
                 {
-                    if (position.X < end.X)
+                    if (position.X <= end.X)
                         return true;
                     else
                         return false;
@@ -88,6 +88,7 @@ namespace Testy_mapy
                 if (start.X == end.X && start.Y == end.Y) //jesli droga jest jednym punktem oblicz jej kierunek w oparciu o centrum skrzyzowania z ktorego wychodzi
                 {
                     float preDirection = CalculateDirection(center, start);
+                    //float preDirection = CalculateDirection(start, center);
 
                     if (preDirection > 315 || preDirection < 45)
                         this.lane.direction = 0;
@@ -196,16 +197,16 @@ namespace Testy_mapy
             private float stopCounter = 0; //licznik odpowiedzialny za dlugosc postoju w razie zatrzymania się
             private float startAfter = 3; //po ilu sekundach ma wystartować
 
-            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset) //constructor
+            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset, Vector2 junctionCenter, Vector2 additionalOutpoint) //constructor
             {
-                Vector2 center = new Vector2(0, 0);
-                this.road = new Road(start, destination, center);
+                this.road = new Road(start, destination, junctionCenter);
                 this.position = road.lane.start;
                 this.direction = road.lane.direction;
                 this.size = size;
                 this.skin = skin;
                 this.moveSize = moveSize;
                 this.sizeOffset = sizeOffset;
+                this.lastEnd = additionalOutpoint;
             }
 
             public Vector2[] GetCollisionPoints() //returns 4 collision points
@@ -454,7 +455,7 @@ namespace Testy_mapy
 
                         drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter); //bierzemy nową drogę
 
-                        lastEnd = road.end; //koniec poprzedniej drogi do teraz konbiec rogi aktualnej
+                        lastEnd = road.end; //koniec poprzedniej drogi to teraz koniec drogi aktualnej
 
                         Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter); //generujemy nową drogę w oparciu o punkty z changetrack
 
@@ -563,7 +564,10 @@ namespace Testy_mapy
                     collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
                     if (Helper.IsInside(point, rectangle))
+                    {
+                        busLogic.Collision();
                         return true;
+                    }
                 }
 
                 foreach (Vehicle vehicle in vehicles)
@@ -680,17 +684,17 @@ namespace Testy_mapy
         {
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
             {
-                Vector2 junctionCenter;
+                Vector2 junctionCenter, additionalOutpoint;
                 Connection getNewRoad;
 
-                drawMap.CreateTrack(spawnDistance, out getNewRoad, out junctionCenter);
+                drawMap.CreateTrack(spawnDistance, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
-                Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
+                if (!(getNewRoad.point1.X == 300 && getNewRoad.point1.Y == 150))
+                    return;
+                
+                //Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
 
-                //if (!(road.point1.X == 150 && road.point1.Y == 300))
-                //    return;
-
-                if (!getNewRoad.IsEmpty())
+                if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
                     Random random = new Random();
                     int randomNumber = random.Next(1, maxRandom);
@@ -709,7 +713,7 @@ namespace Testy_mapy
                         current += vehicleType.likelihoodOfApperance;
                     }
 
-                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset);
+                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset, junctionCenter, additionalOutpoint);
                     vehicles.Add(vehicle);
                     lastSpawn = 0;
                 }
@@ -757,18 +761,3 @@ namespace Testy_mapy
         }
     }
 }
-
-
-/* Vector2 newPoint = roadsSwitching.GetNewPoint();
- float newDirection = roadsSwitching.CalculateDirection(position, newPoint);
-
- direction = newDirection;
-
- position = newPoint;
-
- if (newPoint == road.lane.start)
- {
-     redirecting = false;
-     direction = road.lane.direction;
-     position = road.lane.start;
- }*/
