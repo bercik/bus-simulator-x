@@ -17,23 +17,20 @@ namespace Testy_mapy
                 public float direction;
             }
 
-            public Vector2 start; //punkt poczatkowy
-            public Vector2 end; //punkt końcowy (cel)
-            public Lane lane = new Lane(); //pas ruchu
-            private float width = 50; //o ile zmenic wspolzedna
+            public Vector2 start; //punkt poczatkowy drogi
+            public Vector2 end; //punkt końcowy drogi
+            public Lane lane = new Lane(); //klasa opisujaca pas ruchu
+            private float width = 50; //decyduje o ile zmienic wspolzedna dla pasa ruchu
 
             public bool EndReached(Vector2 position) //funkcja sprawdza czy bedac na podanej pozycji osiagnieto koniec drogi
             {
-
                 if (lane.direction == 0) //droga w gore
                 {
                     if (position.Y <= end.Y)
-
                         return true;
                     else
                         return false;
                 }
-
 
                 if (lane.direction == 180) //droga w dol
                 {
@@ -64,8 +61,8 @@ namespace Testy_mapy
 
             public Road(Vector2 start, Vector2 end, Vector2 center) //constructor
             {
-                this.start = start;
-                this.end = end;
+                this.start = start; //przypisz poczatek
+                this.end = end; //przypisz koniec
                 CalculateLane(center); //oblicz lane dla tej drogi
             }
 
@@ -81,14 +78,9 @@ namespace Testy_mapy
 
             private void CalculateLane(Vector2 center) //oblicza lane dla drogi, wywolywana przez konstruktor
             {
-                //this.lane.direction = (float)Math.Round(CalculateDirection(start, end));
-                //if (this.lane.direction < 0)
-                //this.lane.direction += 360;
-
                 if (start.X == end.X && start.Y == end.Y) //jesli droga jest jednym punktem oblicz jej kierunek w oparciu o centrum skrzyzowania z ktorego wychodzi
                 {
                     float preDirection = CalculateDirection(center, start);
-                    //float preDirection = CalculateDirection(start, center);
 
                     if (preDirection > 315 || preDirection < 45)
                         this.lane.direction = 0;
@@ -147,9 +139,9 @@ namespace Testy_mapy
 
         public class VehicleType //klasa przechowujaca typy pojazdow (jak wyglada, rozmiar itp. - wykorzystywane przy tworzeniu)
         {
-            public Vector2 size;
-            public int skin;
-            public int likelihoodOfApperance;
+            public Vector2 size; //rozmiar pojazdu
+            public int skin; //wyglad
+            public int likelihoodOfApperance; //
 
             public Vector2 moveSize; //pozwala przesuwać collision points
             public Vector2 sizeOffset; //pozwala modyfikowac wielkosc pojazdu z ktorej sa brane collision points
@@ -174,11 +166,11 @@ namespace Testy_mapy
             public RoadsSwitching roadsSwitching; //klasa odpowiadajaca za przekierowania od drogi do drogi, zakrety
 
             private bool driving = true; //jedzie czy został zmuszony do zatrzymania się?
-            public bool redirecting = false; //true kieruje sie do nowej drogi
+            private bool redirecting = false; //true kieruje sie do nowej drogi
             private float speed; //aktualna predkosc
             private Vector2 position; //aktualna pozycja
-            public Vector2 size = new Vector2(50, 100); //rozmiar
-            public float direction; //kierunek
+            private Vector2 size = new Vector2(50, 100); //rozmiar
+            private float direction; //kierunek
             public int skin; //jaki wyglad, skin
             public Vector2 moveSize;
             public Vector2 sizeOffset;
@@ -191,7 +183,6 @@ namespace Testy_mapy
 
             private float normalSpeed = 20; //predkosc standardowa przyjmowana podczas normalnego poruszania sie
             private float acceleration = 70; //standardowe przyspieszenie
-            //private float sideAcceleration = 2; //standardowy skręt
             private float speedMultiplier = 4;
 
             private float stopCounter = 0; //licznik odpowiedzialny za dlugosc postoju w razie zatrzymania się
@@ -234,21 +225,12 @@ namespace Testy_mapy
             {
                 Vector2 p2, p3; //create 2 points
 
-                // p1.X = position.X + ((size.Y + 50) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                // p1.Y = position.Y - ((size.Y + 50) * (float)Math.Cos(MathHelper.ToRadians(direction)));
-
                 p2.X = position.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
                 p2.Y = position.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
 
                 p3.X = position.X + (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2);
                 p3.Y = position.Y + (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
-
-                // p4.X = position.X - ((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
-                // p4.Y = position.Y - ((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
-
-                // p4.X = p4.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                // p4.Y = p4.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
                 p3.X = p3.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
                 p3.Y = p3.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
@@ -261,6 +243,22 @@ namespace Testy_mapy
             {
                 return CalculateCenter(position, direction);
             }
+
+            public Vector2 GetVehicleSize()
+            {
+                return size;
+            }
+
+            public float GetVehicleDirection()
+            {
+                return direction;
+            }
+
+            public bool IsRedirecting() //is the vehicle changing roads?
+            {
+                return redirecting;
+            }
+
 
             private Vector2 CalculateCenter(Vector2 vehiclePosition, float vehicleDirection) //oblicza srodek pojazdu
             {
@@ -552,9 +550,9 @@ namespace Testy_mapy
             return true;
         }
 
-        public bool IsCollision(Vector2[] points, BusLogic busLogic) //sprawdzanie czy wystepuje kolizja
+        public bool IsCollision(Vector2[] points, BusLogic busLogic) //sprawdzanie czy wystepuje kolizja miedzy czyms a samochodami
         {
-            foreach (Vector2 point in points)
+            foreach (Vector2 point in points) //dla kazdego z podanych punktow kolizji samochodu
             {
                 Vector2[] collisionPoints;
                 MyRectangle rectangle;
@@ -563,10 +561,15 @@ namespace Testy_mapy
                 {
                     collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
-                    if (Helper.IsInside(point, rectangle))
-                    {
-                        busLogic.Collision();
+                    if (Helper.IsInside(point, rectangle)) //jesli punkty kolizji samochodu sa w autobusie
                         return true;
+
+                    rectangle = new MyRectangle(points[3], points[2], points[1], points[0]);
+
+                    foreach (Vector2 busPoint in collisionPoints) //dla kazdego z podanych punktow kolizji autobusu sprawdz czy jest w samochodzie
+                    {
+                        if (Helper.IsInside(busPoint, rectangle)) //jesli punkty kolizji autobusu sa w samochodzie
+                            return true;
                     }
                 }
 
@@ -593,24 +596,24 @@ namespace Testy_mapy
 
             foreach (Vehicle vehicle in vehicles)
             {
-                Vector2 size = vehicle.size;
+                Vector2 size = vehicle.GetVehicleSize();
                 size.X += vehicle.sizeOffset.X;
                 size.Y += vehicle.sizeOffset.Y;
 
                 Vector2 position = vehicle.GetVehiclePosition();
-                position.X = position.X + (vehicle.moveSize.Y * (float)Math.Sin(MathHelper.ToRadians(vehicle.direction))); //przesuwamy do gory
-                position.Y = position.Y - (vehicle.moveSize.Y * (float)Math.Cos(MathHelper.ToRadians(vehicle.direction)));
+                position.X = position.X + (vehicle.moveSize.Y * (float)Math.Sin(MathHelper.ToRadians(vehicle.GetVehicleDirection()))); //przesuwamy do gory
+                position.Y = position.Y - (vehicle.moveSize.Y * (float)Math.Cos(MathHelper.ToRadians(vehicle.GetVehicleDirection())));
 
-                position.X = position.X + (vehicle.moveSize.X * (float)Math.Sin(MathHelper.ToRadians(vehicle.direction + 90))); //przesuwamy w prawo
-                position.Y = position.Y - (vehicle.moveSize.X * (float)Math.Cos(MathHelper.ToRadians(vehicle.direction + 90)));
+                position.X = position.X + (vehicle.moveSize.X * (float)Math.Sin(MathHelper.ToRadians(vehicle.GetVehicleDirection() + 90))); //przesuwamy w prawo
+                position.Y = position.Y - (vehicle.moveSize.X * (float)Math.Cos(MathHelper.ToRadians(vehicle.GetVehicleDirection() + 90)));
 
-                list.Add(new Object(vehicle.skin.ToString(), position, size, vehicle.direction));
+                list.Add(new Object(vehicle.skin.ToString(), position, size, vehicle.GetVehicleDirection()));
             }
 
             return list;
         }
 
-        private List<MyRectangle> GetCollisionRectangles(Vector2 busPosition) //kolizja autobusu
+        private List<MyRectangle> GetCollisionRectangles(Vector2 busPosition) //podaje collision pointsy samochodow polozonych blisko autobusu
         {
             List<MyRectangle> list = new List<MyRectangle>();
             Vector2[] pointsArray;
@@ -627,9 +630,11 @@ namespace Testy_mapy
             return list;
         }
 
-        public bool IsCollision(Vector2[] collisionPoints, Vector2 busPosition)
+        public bool IsCollisionWithBus(BusLogic busLogic) //funkcja zajmujaca sie kolizjami pomiedzy samochodami
         {
-            List<MyRectangle> boxesList = GetCollisionRectangles(busPosition);
+            List<MyRectangle> boxesList = GetCollisionRectangles(busLogic.GetBusPosition());
+            Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
+            MyRectangle rect;
 
             foreach (MyRectangle box in boxesList)
             {
@@ -637,6 +642,20 @@ namespace Testy_mapy
                 {
                     if (Helper.IsInside(point, box))
                         return true;
+                }
+            }
+
+            rect = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
+            foreach (Vehicle vehicle in vehicles)
+            {
+                collisionPoints = vehicle.GetCollisionPoints();
+                foreach (Vector2 point in collisionPoints)
+                {
+                    if (Helper.IsInside(point, rect))
+                    {
+                        vehicle.Collision();
+                        return true;
+                    }
                 }
             }
             return false;
@@ -689,10 +708,8 @@ namespace Testy_mapy
 
                 drawMap.CreateTrack(spawnDistance, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
-                if (!(getNewRoad.point1.X == 300 && getNewRoad.point1.Y == 150))
-                    return;
-                
-                //Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
+                //if (!(getNewRoad.point1.X == 600 && getNewRoad.point1.Y == 450))
+                  //  return;
 
                 if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
@@ -727,7 +744,7 @@ namespace Testy_mapy
             lastSpawn += timeCoherenceMultiplier; //zwiekszmy czas od ostatniego spawnu
             CreateNewVehicles(drawMap); //stworzmy nowe pojazdy
 
-            vehicles.RemoveAll(delegate(Vehicle vehicle)
+            vehicles.RemoveAll(delegate(Vehicle vehicle) //usunmy pojazdy bedace za daleko
             {
                 return Helper.CalculateDistance(busLogic.GetBusPosition(), vehicle.GetVehiclePosition()) > distanceToDelete;
             });

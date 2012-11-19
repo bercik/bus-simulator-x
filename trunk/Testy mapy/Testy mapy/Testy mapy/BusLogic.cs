@@ -28,6 +28,11 @@ namespace Testy_mapy
             return gearBox.currentGear;
         }
 
+        public void SetDirection(float direction)
+        {
+            this.direction = direction;
+        }
+
         public float GetCurrentSpeed()
         {
             return speed;
@@ -337,6 +342,11 @@ namespace Testy_mapy
             Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; //create list and add points
 
             return pointsArray;
+        }
+
+        public Vector2[] GetCollisionPoints() //returns 4 collision points without parameters
+        {
+            return GetCollisionPoints(position, direction);
         }
 
         public Vector2 GetDesiredPosition()

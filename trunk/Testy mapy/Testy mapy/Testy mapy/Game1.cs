@@ -211,7 +211,8 @@ namespace Testy_mapy
                 drawMap.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
                 Helper.mapPos = busLogic.GetBusPosition();
 
-                if (!drawMap.IsCollision(collisionPoints) && !trafficLogic.IsCollision(collisionPoints, busLogic.GetBusPosition()))
+                /*----<KOLIZJE>-----*/
+                if (!drawMap.IsCollision(collisionPoints) && !trafficLogic.IsCollisionWithBus(busLogic))
                 {
                     busLogic.AcceptNewPositionAndDirection();
                 }
@@ -220,6 +221,7 @@ namespace Testy_mapy
                     busLogic.Collision();
                     drawMap.SetPosition(busLogic.GetBusPosition());
                 }
+                /*----</KOLIZJE>-----*/
             }
             else
             {
