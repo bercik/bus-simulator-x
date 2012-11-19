@@ -530,7 +530,7 @@ namespace Testy_mapy
 
                 if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) //jesli autobus jest blisko sprawdz go
                 {
-                    collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
+                    collisionPoints = busLogic.GetCollisionPoints(busLogic.GetRealPosition(), busLogic.GetDirection());
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
                     if (Helper.IsInside(point, rectangle))
                         return false;
@@ -559,7 +559,7 @@ namespace Testy_mapy
 
                 if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) //jesli autobus jest blisko sprawdz go
                 {
-                    collisionPoints = busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection());
+                    collisionPoints = busLogic.GetCollisionPoints(busLogic.GetRealPosition(), busLogic.GetDirection());
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
                     if (Helper.IsInside(point, rectangle)) //jesli punkty kolizji samochodu sa w autobusie
                         return true;
