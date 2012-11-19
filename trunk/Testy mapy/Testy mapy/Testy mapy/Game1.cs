@@ -126,7 +126,7 @@ namespace Testy_mapy
             point = Content.Load<Texture2D>("point");
 
             drawMap.LoadMap("test.mp", ref busLogic.position);
-            startPos = busLogic.position; // !!! do EW. USUNIECIA !!!
+            startPos = busLogic.GetRealPosition(); // !!! do EW. USUNIECIA !!!
             Helper.mapPos = startPos; // !!! TO TEZ
         }
 
@@ -164,7 +164,7 @@ namespace Testy_mapy
 
                 if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false; //skrecamy w lewo?
 
-                if (keybState.IsKeyDown(Keys.Space)) busLogic.position = startPos; //przywroc
+                if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos); //przywroc
 
                 if (keybState.IsKeyDown(Keys.Escape)) Exit(); //wyjdz
 
@@ -231,7 +231,7 @@ namespace Testy_mapy
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-            drawMap.Update(gameTime, busLogic.GetCollisionPoints(busLogic.position, busLogic.GetDirection()));
+            drawMap.Update(gameTime, busLogic.GetCollisionPoints());
 
             if (keybState.IsKeyDown(Keys.PageUp))
                 Helper.SetScale(Helper.GetScale() + 0.01f);

@@ -1,4 +1,4 @@
-1050;1150
+150;600
 2300;6200
 //nazwa;pozycja x;pozycja y(srodka);szerokosc;wysokosc(domyslne-0);rotacja(0-360);efekty(0-bez,1-odwroc poziomo,2-odwroc pionowo)
 budynek0;750;1420;350;350;0,0;0

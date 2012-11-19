@@ -8,7 +8,7 @@ namespace Testy_mapy
 {
     class BusLogic
     {
-        public Vector2 position;
+        private Vector2 position;
         private float direction;
         private float speed;
         private Vector2 size;
@@ -23,34 +23,68 @@ namespace Testy_mapy
         private GearBox gearBox = new GearBox();
         private Wheel wheel = new Wheel();
 
-        public int GetCurrentGear()
-        {
-            return gearBox.currentGear;
-        }
-
+        /// <summary>
+        /// Set bus direction.
+        /// </summary>
         public void SetDirection(float direction)
         {
             this.direction = direction;
         }
 
+        /// <summary>
+        /// Set bus position.
+        /// </summary>
+        public void SetPosition(Vector2 position)
+        {
+            this.position = position;
+        }
+
+        /// <summary>
+        /// Get current gear.
+        /// </summary>
+        public int GetCurrentGear()
+        {
+            return gearBox.currentGear;
+        }
+
+        /// <summary>
+        /// Get current speed.
+        /// </summary>
         public float GetCurrentSpeed()
         {
             return speed;
         }
 
+        /// <summary>
+        /// Get current direction.
+        /// </summary>
         public float GetCurrentDirection()
         {
             return direction;
         }
 
+        /// <summary>
+        /// Get current acceleration.
+        /// </summary>
         public float GetCurrentAcceleration()
         {
             return gearBox.GetAcceleration(speed);
         }
 
+        /// <summary>
+        /// Get the center of the bus eg. for drawing.
+        /// </summary>
         public Vector2 GetBusPosition() //Get the center of the bus to draw the center of the map
         {
             return CalculateCenter(position, direction);
+        }
+
+        /// <summary>
+        /// Get real bus position - directly from the variable.
+        /// </summary>
+        public Vector2 GetRealPosition() //Get the real position
+        {
+            return position;
         }
 
         public Vector2 CalculateCenter(Vector2 busPosition, float busDirection)
