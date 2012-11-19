@@ -241,7 +241,7 @@ namespace Testy_mapy
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu
-        public bool LoadMap(string path, ref Vector2 startPosition)
+        public bool LoadMap(string path, ref Vector2 startPosition, ref float startRotation)
         {
             path = "maps/" + path;
 
@@ -250,10 +250,11 @@ namespace Testy_mapy
                 FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
                 StreamReader sr = new StreamReader(fs);
 
-                // pobieramy startowa pozycje autobusu
+                // pobieramy startowa pozycje autobusu i jego rotacje
                 string s_startPosition = sr.ReadLine();
                 string[] split = s_startPosition.Split(new char[] { ';' });
                 startPosition = new Vector2(float.Parse(split[0]), float.Parse(split[1]));
+                startRotation = float.Parse(sr.ReadLine()); // pobieramy startow¹ rotacjê
 
                 mapLogic.LoadMap(ref sr);
                 trackLogic.LoadTrack(ref sr);

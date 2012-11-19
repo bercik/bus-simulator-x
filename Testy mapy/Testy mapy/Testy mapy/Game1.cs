@@ -125,7 +125,12 @@ namespace Testy_mapy
             font = Content.Load<SpriteFont>("font1");
             point = Content.Load<Texture2D>("point");
 
-            drawMap.LoadMap("test.mp", ref busLogic.position);
+            Vector2 busPosition = new Vector2(0, 0);
+            float busRotation = 0.0f;
+            drawMap.LoadMap("test.mp", ref busPosition, ref busRotation);
+            busLogic.SetDirection(busRotation);
+            busLogic.SetPosition(busPosition);
+
             startPos = busLogic.GetRealPosition(); // !!! do EW. USUNIECIA !!!
             Helper.mapPos = startPos; // !!! TO TEZ
         }
