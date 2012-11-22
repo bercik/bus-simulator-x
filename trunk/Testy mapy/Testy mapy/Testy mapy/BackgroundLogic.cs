@@ -29,8 +29,10 @@ namespace Testy_mapy
         Point numberOfGrass;
         Grass[,] grass;
         int amountOfGrass;
+
         Random rand;
         bool first_pos_load = true;
+
         const string grassName = "trawa"; // nazwa plikow graficznych dla trawy (nie wiem po co, tak lubie pisac uniwersalny kod)
 
         public BackgroundLogic()
@@ -126,39 +128,52 @@ namespace Testy_mapy
             }
         }
 
-        private void Move(Direction direct)
+        // ustawia pozycje całej trawy do takiej jaka jest na początku (czyli niweluje jakieś przesunięcia związane z zaokrąglaniem)
+        private void SetToStartPosition(Location location)
         {
-            MoveGrassNames(direct);
-
             for (int i = 0; i < numberOfGrass.X; ++i)
             {
                 for (int j = 0; j < numberOfGrass.Y; ++j)
                 {
-                    Vector2 pos = new Vector2();
-
-                    switch (direct)
+                    if (location == Location.horizontal)
                     {
-                        case Direction.Down:
-                            pos.Y = -grassSize.Y;
-                            RandomGrassLine(0);
-                            break;
-                        case Direction.Up:
-                            pos.Y = grassSize.Y;
-                            RandomGrassLine(numberOfGrass.Y - 1);
-                            break;
-                        case Direction.Right:
-                            pos.X = -grassSize.X;
-                            RandomGrassColumn(0);
-                            break;
-                        case Direction.Left:
-                            pos.X = grassSize.X;
-                            RandomGrassColumn(numberOfGrass.X - 1);
-                            break;
+                        grass[i, j].pos.X = i * grassSize.X - grassSize.X;
                     }
-
-                    grass[i, j].pos += pos;
+                    else if (location == Location.vertical)
+                    {
+                        grass[i, j].pos.Y = j * grassSize.Y - grassSize.Y;
+                    }
                 }
             }
+        }
+
+        private void Move(Direction direct)
+        {
+            MoveGrassNames(direct);
+
+            Location location = Location.horizontal;
+
+            switch (direct)
+            {
+                case Direction.Down:
+                    location = Location.vertical;
+                    RandomGrassLine(0);
+                    break;
+                case Direction.Up:
+                    location = Location.vertical;
+                    RandomGrassLine(numberOfGrass.Y - 1);
+                    break;
+                case Direction.Right:
+                    location = Location.horizontal;
+                    RandomGrassColumn(0);
+                    break;
+                case Direction.Left:
+                    location = Location.horizontal;
+                    RandomGrassColumn(numberOfGrass.X - 1);
+                    break;
+            }
+
+            SetToStartPosition(location);
         }
 
         public void UpdatePos(Vector2 pos)
