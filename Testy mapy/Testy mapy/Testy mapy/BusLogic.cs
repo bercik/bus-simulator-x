@@ -13,8 +13,9 @@ namespace Testy_mapy
         private float speed;
         private Vector2 size;
 
-        private Vector2 newPosition;
-        private float newDirection;
+        // Used for moving back the bus in case of the collision.
+        private Vector2 oldPosition;
+        private float oldDirection;
 
         private float speedMultiplier = 4;
         private float brakeAcc = 20;
@@ -82,7 +83,7 @@ namespace Testy_mapy
         /// <summary>
         /// Get real bus position - directly from the variable.
         /// </summary>
-        public Vector2 GetRealPosition() //Get the real position
+        public Vector2 GetRealPosition()
         {
             return position;
         }
@@ -117,7 +118,7 @@ namespace Testy_mapy
             return direction;
         }
 
-        class GearBox //gearbox is responsible for calculating accelerations of the bus...
+        class GearBox // Gearbox is responsible for calculating accelerations of the bus...
         {
             class Gear //...it is full of the gears...
             {
@@ -212,7 +213,7 @@ namespace Testy_mapy
             }
         }
 
-        class Wheel //wheel is responsible for calculating changes in direction...
+        class Wheel // Wheel is responsible for calculating changes in direction...
         {
             class AccelerationCurve //...and it is basically a curve
             {
@@ -343,7 +344,7 @@ namespace Testy_mapy
             }
         }
 
-        public BusLogic(float x, float y, float direction, float speed, Vector2 size) //constructor
+        public BusLogic(float x, float y, float direction, float speed, Vector2 size) // Constructor.
         {
             this.position.X = x;
             this.position.Y = y;
@@ -352,16 +353,19 @@ namespace Testy_mapy
             this.size = size;
         }
 
-        private float DegToRad(float degrees) //convert degrees to radians
+        private float DegToRad(float degrees) // Convert degrees to radians.
         {
             return MathHelper.ToRadians(degrees);
         }
 
-        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection) //returns 4 collision points
+        /// <summary>
+        /// Get collision points.
+        /// </summary>
+        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection)
         {
-            Vector2 p1, p2, p3, p4; //create 4 points
+            Vector2 p1, p2, p3, p4; // Create 4 points.
 
-            p3.X = busPosition.X + ((size.X * (float)Math.Cos(DegToRad(busDirection))) / 2); //calculate their positions
+            p3.X = busPosition.X + ((size.X * (float)Math.Cos(DegToRad(busDirection))) / 2); // Calculate their positions.
             p3.Y = busPosition.Y + ((size.X * (float)Math.Sin(DegToRad(busDirection))) / 2);
 
             p4.X = busPosition.X - (size.X * (float)Math.Cos(DegToRad(busDirection)) / 2);
@@ -373,30 +377,23 @@ namespace Testy_mapy
             p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
             p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
 
-            Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; //create list and add points
+            Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; // Create list and add points.
 
             return pointsArray;
         }
 
-        public Vector2[] GetCollisionPoints() //returns 4 collision points without parameters
+        /// <summary>
+        /// Get collision points for current position and direction.
+        /// </summary>
+        public Vector2[] GetCollisionPoints()
         {
             return GetCollisionPoints(position, direction);
         }
 
-        public Vector2 GetDesiredPosition()
+        public void RewindPositionAndDirection()
         {
-            return newPosition;
-        }
-
-        public float GetDesiredDirection()
-        {
-            return newDirection;
-        }
-
-        public void AcceptNewPositionAndDirection()
-        {
-            direction = newDirection;
-            position = newPosition;
+            direction = oldDirection;
+            position = oldPosition;
         }
 
         private Vector2 CalculateNewPosition(float busSpeed, float busDirection)
@@ -410,14 +407,20 @@ namespace Testy_mapy
         public void Collision()
         {
             speed = 0;
+            RewindPositionAndDirection();
         }
 
-        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, TimeSpan framesInterval) //main update function adjsuting speed, direction and so on
+        /// <summary>
+        /// Main logic.
+        /// </summary>
+        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, TimeSpan framesInterval)
         {
             float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000;
 
             if (accelerate)
+            {
                 speed += gearBox.GetAcceleration(speed) * timeCoherenceMultiplier;
+            }
 
             if (brake)
             {
@@ -456,10 +459,16 @@ namespace Testy_mapy
                     speed = 0;
             }
 
-            newDirection = direction + wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
-            newPosition = CalculateNewPosition(speed * timeCoherenceMultiplier, newDirection);
+            oldDirection = direction;
+            oldPosition = position;
+            
+            direction += wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
+            position = CalculateNewPosition(speed * timeCoherenceMultiplier, direction);
         }
 
+        /// <summary>
+        /// Get the points which should be shown on the screen.
+        /// </summary>
         public Vector2[] GetPointsToDraw()
         {
             List<Vector2> list = new List<Vector2>();

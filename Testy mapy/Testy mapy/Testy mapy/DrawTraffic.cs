@@ -17,11 +17,14 @@ namespace Testy_mapy
     {
         Texture2D vehicleTexture, vehicleTexture0, vehicleTexture1, vehicleTexture2, point, indicatorTexture;
 
+        // Constructor.
         public DrawTraffic()
         {
-
         }
 
+        /// <summary>
+        /// Load sprites.
+        /// </summary>
         public void LoadContent(ContentManager content)
         {
             vehicleTexture0 = content.Load<Texture2D>("vehicle0");
@@ -31,6 +34,9 @@ namespace Testy_mapy
             point = content.Load<Texture2D>("point");
         }
 
+        /// <summary>
+        /// Draw vehicle.
+        /// </summary>
         public void Draw(SpriteBatch spriteBatch, Object vehicle)
         {
             Vector2 position = Helper.MapPosToScreenPos(vehicle.pos);
@@ -48,6 +54,9 @@ namespace Testy_mapy
             spriteBatch.Draw(vehicleTexture, rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicle.origin, SpriteEffects.None, 1);
         }
 
+        /// <summary>
+        /// Draw indicator.
+        /// </summary>
         public void DrawIndicator(SpriteBatch spriteBatch, Object indicator)
         {
             Vector2 position = Helper.MapPosToScreenPos(indicator.pos);

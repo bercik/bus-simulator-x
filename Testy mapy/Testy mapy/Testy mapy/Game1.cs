@@ -24,8 +24,9 @@ namespace Testy_mapy
         BusLogic busLogic;
         TrafficLogic trafficLogic;
         DrawTraffic drawTraffic;
+        CollisionsLogic collisionsLogic;
 
-        bool left, right, brake, accelerate, up, down, prevup, prevdown; //tymczasowe zmienne sluzace do sterowana autobusem
+        bool left, right, brake, accelerate, up, down, prevup, prevdown; // Zmienne s³u¿¹ce do sterowana autobusem.
 
         // licznik FPS:
         int a_fps = 0;
@@ -87,6 +88,7 @@ namespace Testy_mapy
             busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
+            collisionsLogic = new CollisionsLogic();
 
             Helper.mapPos = startPos;
         }
@@ -161,21 +163,21 @@ namespace Testy_mapy
 
             if (busMode)
             {
-                if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false; //powinien hamowac?
+                if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false;         // Powinien hamowac?
 
-                if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; //powinien przyspieszac?
+                if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; // Powinien przyspieszac?
 
-                if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false; //skrecamy w prawo?
+                if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false;        // Skrêcamy w prawo?
 
-                if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false; //skrecamy w lewo?
+                if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false;           // Skrêcamy w lewo?
 
-                if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos); //przywroc
+                if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos);          // Przywróæ na pozycje pocz¹tkow¹.
 
-                if (keybState.IsKeyDown(Keys.Escape)) Exit(); //wyjdz
+                if (keybState.IsKeyDown(Keys.Escape)) Exit();                                 // WyjdŸ z gry.
 
                 if (keybState.IsKeyDown(Keys.B) && b_release)
                 {
-                    busMode = false; // wylacza jezdzenie autobusem
+                    busMode = false; // Wy³¹cza je¿d¿enie autobusem.
                     drawMap.CreateGrass();
                     b_release = false;
                 }
@@ -183,8 +185,8 @@ namespace Testy_mapy
                     b_release = true;
 
                 /*---<ZMIANY BIEGOW>--- 
-                  byc moze zostanie przeniesione do bus logic zeby nie smiecic, to wszystko zapobiega zmienieniu biegu z kazdym tickiem
-                  ma sie zmieniac tylko przy nacisnieciu. NOPE. Po zastanowieniu odgórne funkcje steruj¹ce musz¹ zostaæ tutaj*/
+                  To wszystko zapobiega zmienieniu biegu z ka¿dym tickiem, w koñcu chcemy ¿eby zosta³ zmieniony tylko przy wciœniêciu przycisku
+                */
                 if (keybState.IsKeyDown(Keys.A) && prevup)
                 {
                     up = true;
@@ -210,22 +212,13 @@ namespace Testy_mapy
 
                 /*---<LOGIKA AUTOBUSU>---*/
                 busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
-                Vector2[] collisionPoints = busLogic.GetCollisionPoints(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection());
                 /*---</LOGIKA AUTOBUSU>---*/
 
-                drawMap.SetPosition(busLogic.CalculateCenter(busLogic.GetDesiredPosition(), busLogic.GetDesiredDirection())); // bedzie busLogic.GetBusPosition() ale obecnie i tak mapa nie dziala
+                drawMap.SetPosition(busLogic.GetBusPosition());
                 Helper.mapPos = busLogic.GetBusPosition();
 
                 /*----<KOLIZJE>-----*/
-                if (!drawMap.IsCollision(collisionPoints) && !trafficLogic.IsCollisionWithBus(busLogic))
-                {
-                    busLogic.AcceptNewPositionAndDirection();
-                }
-                else
-                {
-                    busLogic.Collision();
-                    drawMap.SetPosition(busLogic.GetBusPosition());
-                }
+                collisionsLogic.HandleCollisions(trafficLogic, busLogic);
                 /*----</KOLIZJE>-----*/
             }
             else
@@ -274,8 +267,10 @@ namespace Testy_mapy
                 drawTraffic.DrawIndicator(spriteBatch, indicator);
             //</traffic>
 
+            //<bus>
             Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection());
             drawBus.Draw(spriteBatch, bus);
+            //</bus>
 
             drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
 
