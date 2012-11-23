@@ -147,7 +147,12 @@ namespace Testy_mapy
             return rect;
         }
 
-        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle) //podaj punkt i kwadrat 
+        /// <summary>
+        /// Check if the point is inside the rectangle.
+        /// </summary>
+        /// <param name="point">Point.</param>
+        /// <param name="givenRrectangle">Rectangle. Points should be given clockwise.</param>
+        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle)
         {
             Vector2 p1, p2;
 

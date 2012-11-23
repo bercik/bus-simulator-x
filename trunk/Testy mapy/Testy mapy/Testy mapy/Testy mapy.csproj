@@ -112,6 +112,7 @@
   <ItemGroup>
     <Compile Include="BackgroundLogic.cs" />
     <Compile Include="BusLogic.cs" />
+    <Compile Include="CollisionsLogic.cs" />
     <Compile Include="DrawBus.cs" />
     <Compile Include="DrawMap.cs" />
     <Compile Include="DrawTraffic.cs" />
