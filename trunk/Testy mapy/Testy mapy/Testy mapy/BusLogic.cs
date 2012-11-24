@@ -13,6 +13,8 @@ namespace Testy_mapy
         private float speed;
         private Vector2 size;
 
+        private bool breaking = false; // Used for displaying tail lights.
+
         // Used for moving back the bus in case of the collision.
         private Vector2 oldPosition;
         private float oldDirection;
@@ -20,6 +22,7 @@ namespace Testy_mapy
         private float speedMultiplier = 4;
         private float brakeAcc = 20;
         private float speedDecay = (float)0.5;
+        private Vector2 tailLightTextureSize = new Vector2(50, 50); //Rozmiar tekstury migacza.
 
         private GearBox gearBox = new GearBox();
         private Wheel wheel = new Wheel();
@@ -30,6 +33,14 @@ namespace Testy_mapy
         public void SetDirection(float direction)
         {
             this.direction = direction;
+        }
+
+        /// <summary>
+        /// Check if the bus is breaking.
+        /// </summary>
+        public bool IsBreaking()
+        {
+            return breaking;
         }
 
         /// <summary>
@@ -116,6 +127,26 @@ namespace Testy_mapy
         public float GetDirection()
         {
             return direction;
+        }
+
+        /// <summary>
+        /// Get the tail lights position if active or empty list if disabled.
+        /// </summary>
+        /// <returns></returns>
+        public List<Object> GetTailLightsPoints()
+        {
+            List<Object> list = new List<Object>();
+            Vector2[] pointsArray;
+
+            if (IsBreaking())
+            {
+                pointsArray = GetCollisionPoints();
+
+                list.Add(new Object("", pointsArray[2], tailLightTextureSize, 0));
+                list.Add(new Object("", pointsArray[3], tailLightTextureSize, 0));
+            }
+
+            return list;
         }
 
         class GearBox // Gearbox is responsible for calculating accelerations of the bus...
@@ -424,6 +455,7 @@ namespace Testy_mapy
 
             if (brake)
             {
+                breaking = true;
                 if (speed > 0)
                 {
                     speed -= brakeAcc * timeCoherenceMultiplier;
@@ -437,6 +469,10 @@ namespace Testy_mapy
                     if (speed > 0)
                         speed = 0;
                 }
+            }
+            else
+            {
+                breaking = false;
             }
 
             if (gearUp)
@@ -461,7 +497,7 @@ namespace Testy_mapy
 
             oldDirection = direction;
             oldPosition = position;
-            
+
             direction += wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
             position = CalculateNewPosition(speed * timeCoherenceMultiplier, direction);
         }

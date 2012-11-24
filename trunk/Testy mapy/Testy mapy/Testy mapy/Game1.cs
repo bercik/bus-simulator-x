@@ -85,7 +85,7 @@ namespace Testy_mapy
 
             drawMap = new DrawMap();
             drawBus = new DrawBus();
-            busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150)); //stworz bus logic
+            busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150));
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
             collisionsLogic = new CollisionsLogic();
@@ -158,7 +158,7 @@ namespace Testy_mapy
                 this.Exit();
 
             // TODO: Add your update logic here
-            // obsluga klawiatury
+            // Obs³uga klawiatury.
             KeyboardState keybState = Keyboard.GetState();
 
             if (busMode)
@@ -184,7 +184,7 @@ namespace Testy_mapy
                 if (keybState.IsKeyUp(Keys.B))
                     b_release = true;
 
-                /*---<ZMIANY BIEGOW>--- 
+                /* <ZMIANY BIEGOW>
                   To wszystko zapobiega zmienieniu biegu z ka¿dym tickiem, w koñcu chcemy ¿eby zosta³ zmieniony tylko przy wciœniêciu przycisku
                 */
                 if (keybState.IsKeyDown(Keys.A) && prevup)
@@ -208,18 +208,17 @@ namespace Testy_mapy
 
                 if (keybState.IsKeyUp(Keys.Z))
                     prevdown = true;
-                /*---</ZMIANY BIEGOW>---*/
+                /* </ZMIANY BIEGOW> */
 
-                /*---<LOGIKA AUTOBUSU>---*/
+                // Logika autobusu.
                 busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
-                /*---</LOGIKA AUTOBUSU>---*/
 
+                // Ustawienia mapy i klasy pomocniczej.
                 drawMap.SetPosition(busLogic.GetBusPosition());
                 Helper.mapPos = busLogic.GetBusPosition();
 
-                /*----<KOLIZJE>-----*/
+                // Kolizje.
                 collisionsLogic.HandleCollisions(trafficLogic, busLogic);
-                /*----</KOLIZJE>-----*/
             }
             else
             {
@@ -257,21 +256,13 @@ namespace Testy_mapy
             drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
             drawMap.DrawPedestrians(spriteBatch, gameTime);
 
-            //<traffic>
-            List<Object> vehiclesList = trafficLogic.GetAllVehicles();
-            foreach (Object vehicle in vehiclesList)
-                drawTraffic.Draw(spriteBatch, vehicle);
-            
-            List<Object> indicatorsList = trafficLogic.GetIndicatorPoints();
-            foreach (Object indicator in indicatorsList)
-                drawTraffic.DrawIndicator(spriteBatch, indicator);
-            //</traffic>
+            // Traffic.
+            drawTraffic.Draw(trafficLogic, spriteBatch);
 
-            //<bus>
-            Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection());
-            drawBus.Draw(spriteBatch, bus);
-            //</bus>
+            // Bus.
+            drawBus.Draw(busLogic, spriteBatch);
 
+            // Something very nice and useful - most likely map object wchich are supposed to be above the bus.
             drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
 
             // zmienne pomocnicze rysowane na ekranie:

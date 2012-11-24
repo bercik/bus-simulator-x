@@ -15,7 +15,7 @@ namespace Testy_mapy
 {
     class DrawBus
     {
-        Texture2D busTexture;
+        Texture2D busTexture, tailLightTexture;
 
         public DrawBus()
         {
@@ -25,13 +25,33 @@ namespace Testy_mapy
         public void LoadContent(ContentManager content)
         {
             busTexture = content.Load<Texture2D>("bus");
+            tailLightTexture = content.Load<Texture2D>("vehicle_taillight");
         }
 
-        public void Draw(SpriteBatch spriteBatch, Object bus)
+        public void Draw(BusLogic busLogic, SpriteBatch spriteBatch)
+        {
+            Object bus = new Object("bus", busLogic.GetBusPosition(), busLogic.GetSize(), busLogic.GetDirection());
+            DrawTheBus(spriteBatch, bus);
+
+            List<Object> tailLights = busLogic.GetTailLightsPoints();
+
+            foreach (Object tailLight in tailLights)
+                DrawTailLight(spriteBatch, tailLight);
+        }
+
+        private void DrawTheBus(SpriteBatch spriteBatch, Object bus)
         {
             Vector2 position = Helper.MapPosToScreenPos(bus.pos);
             Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)bus.size.X, (int)bus.size.Y);
             spriteBatch.Draw(busTexture, rect, null, Color.White, MathHelper.ToRadians(bus.rotate), bus.origin, SpriteEffects.None, 1);
+        }
+
+        public void DrawTailLight(SpriteBatch spriteBatch, Object tailLight)
+        {
+            Vector2 position = Helper.MapPosToScreenPos(tailLight.pos);
+            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)tailLight.size.X, (int)tailLight.size.Y);
+
+            spriteBatch.Draw(tailLightTexture, rect, null, Color.White, MathHelper.ToRadians(tailLight.rotate), tailLight.origin, SpriteEffects.None, 1);
         }
     }
 }
