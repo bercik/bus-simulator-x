@@ -228,7 +228,7 @@ namespace Testy_mapy
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-            drawMap.Update(gameTime, busLogic.GetCollisionPoints());
+            drawMap.Update(gameTime, busLogic.GetCollisionPoints(), busLogic.GetCurrentSpeed());
 
             if (keybState.IsKeyDown(Keys.PageUp))
                 Helper.SetScale(Helper.GetScale() + 0.01f);
