@@ -157,8 +157,8 @@ namespace Testy_mapy
             public int skin;     // Numer sprite'a.
             public int likelihoodOfApperance; // Prawdopodobieństwo pojawienia się - liczba całkowita. Przykład: jeśli wynosi 1 a dla pozostałych dwóch samochodów po 2, to: 1/(2 + 2 + 1) = 0.2
 
-            public Vector2 moveSize;   // Pozwala przesuwać collision points.
-            public Vector2 sizeOffset; // Pozwala modyfikować wielkość pojazdu, na podstawie której są obliczne collision points.
+            public Vector2 moveSize;   // Pozwala przesuwać sprite.
+            public Vector2 sizeOffset; // Pozwala modyfikować rozmiar, sprite'a.
 
             public VehicleType(Vector2 size, int skin, int likelihoodOfApperance, Vector2 moveSize, Vector2 sizeOffset) // Constructor.
             {
@@ -189,6 +189,8 @@ namespace Testy_mapy
             public Vector2 moveSize;          // Pozwala przesuwać collision points.
             public Vector2 sizeOffset;        // Pozwala modyfikować wielkość pojazdu, na podstawie której są obliczne collision points.
 
+            private float detectionPointsDistance = 50; // Odległość detection points od przodu samochodu.
+
             // Used for moving bus back in case of collision.
             private Vector2 oldPosition;
             private float oldDirection;
@@ -200,7 +202,7 @@ namespace Testy_mapy
             public Vector2 lastEnd = new Vector2(0, 0); // Koniec ostatniej drogi podawane do ChangeTrack podczas prośby o podanie nowej drogi.
 
             private float normalSpeed = 20;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
-            private float acceleration = 70;   // Standardowe przyspieszenie.
+            private float acceleration = 50;   // Standardowe przyspieszenie.
             private float speedMultiplier = 4;
 
             private float stopCounter = 0; // Licznik odpowiedzialny za długość postoju w razie zatrzymania się w celu uniknięcia kolizji.
@@ -250,18 +252,41 @@ namespace Testy_mapy
             /// <returns></returns>
             public Vector2[] GetDetectionPoints()
             {
-                Vector2 p2, p3;
+                Vector2 frontPosition; // Pozycja środka przodu samochodu.
 
-                p2.X = position.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                p2.Y = position.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                frontPosition.X = position.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                frontPosition.Y = position.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                p3.X = position.X + (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2);
-                p3.Y = position.Y + (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
+                float detectionDirection; // Kierunek detekcji.
+                if (IsRedirecting())
+                {
+                    Vector2 forwardPoint = roadsSwitching.GetForwardPoint(100); //Oblicz kierunek z kierunku ruchu po skrzyżowaniu.
+                    detectionDirection = Helper.CalculateDirection(frontPosition, forwardPoint);
+                }
+                else
+                {
+                    detectionDirection = direction; // Przypysz kierunek ruchu samochodu.
+                }                
 
-                p3.X = p3.X + ((size.Y + 30) * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                p3.Y = p3.Y - ((size.Y + 30) * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                Vector2 p1, p2, p3;
 
-                Vector2[] array = new Vector2[] { p2, p3 };
+                // Oblicz punkt p2.
+                p2.X = position.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));  // Przeuń do przodu.
+                p2.Y = position.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                p2.X += (detectionPointsDistance * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))); // Przesuń punkt p2 w kierunku detekcji.
+                p2.Y -= (detectionPointsDistance * (float)Math.Cos(MathHelper.ToRadians(detectionDirection)));
+
+                // Oblicz punkt p1.
+                p1.X = p2.X - (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(detectionDirection))) / 2);
+                p1.Y = p2.Y - (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))) / 2);
+                
+                
+                // Oblicz punkt p3.
+                p3.X = p2.X + (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(detectionDirection))) / 2);
+                p3.Y = p2.Y + (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))) / 2);
+
+                Vector2[] array = new Vector2[] { p1, p2, p3 };
                 return array;
             }
 
@@ -284,6 +309,14 @@ namespace Testy_mapy
             }
 
             /// <summary>
+            /// Get the speed of the vehicle.
+            /// </summary>
+            public float GetVehicleSpeed()
+            {
+                return speed;
+            }
+
+            /// <summary>
             /// Get Vehicle direction.
             /// </summary>
             public float GetVehicleDirection()
@@ -297,6 +330,14 @@ namespace Testy_mapy
             public bool IsRedirecting()
             {
                 return redirecting;
+            }
+
+            /// <summary>
+            /// Checks if vehicle is driving or breaking.
+            /// </summary>
+            public bool IsDriving()
+            {
+                return driving;
             }
 
             /// <summary>
@@ -348,6 +389,7 @@ namespace Testy_mapy
             public void Collision()
             {
                 accident = true;
+                driving = true;
                 RewindPositionAndDirection();
             }
 
@@ -452,9 +494,8 @@ namespace Testy_mapy
                 }
 
                 /// <summary>
-                /// Dunction generating Bezier curve.
+                /// Function generating new point from Bezier curve.
                 /// </summary>
-                /// <returns></returns>
                 public Vector2 GetNewPoint()
                 {
                     Vector2 point;
@@ -463,11 +504,33 @@ namespace Testy_mapy
                     if (bezierT > 1)
                         return end;
 
-                    bezierT = (float)Math.Round(bezierT, 5);
+                    point = GenerateBezierCurve(bezierT);
 
-                    point.X = (float)((1 - bezierT) * (1 - bezierT) * start.X + 2 * (1 - bezierT) * bezierT * controlPoint.X + bezierT * bezierT * end.X);
-                    point.Y = (float)((1 - bezierT) * (1 - bezierT) * start.Y + 2 * (1 - bezierT) * bezierT * controlPoint.Y + bezierT * bezierT * end.Y);
+                    return point;
+                }
 
+                /// <summary>
+                /// Get one of the next points from the Bezier curve without increasing the bezierT parameter.
+                /// </summary>
+                /// <param name="add">Which next point do you want? It will return 10th new point if 10 given.</param>
+                public Vector2 GetForwardPoint(float add)
+                {
+                    float bezierParameterT = bezierT + (bezierTInc * add);
+                    Vector2 point = GenerateBezierCurve(bezierParameterT);
+                    return point;
+                }
+
+                /// <summary>
+                /// Private function generating Bezier curve.
+                /// </summary>
+                private Vector2 GenerateBezierCurve(float bezierParameterT)
+                {
+                    Vector2 point;
+                    bezierParameterT = (float)Math.Round(bezierParameterT, 5);
+                    
+                    point.X = (float)((1 - bezierParameterT) * (1 - bezierParameterT) * start.X + 2 * (1 - bezierParameterT) * bezierParameterT * controlPoint.X + bezierParameterT * bezierParameterT * end.X);
+                    point.Y = (float)((1 - bezierParameterT) * (1 - bezierParameterT) * start.Y + 2 * (1 - bezierParameterT) * bezierParameterT * controlPoint.Y + bezierParameterT * bezierParameterT * end.Y);
+                 
                     return point;
                 }
 
@@ -587,8 +650,10 @@ namespace Testy_mapy
         private Vector2 spawnDistance = new Vector2(2000, 2000); // Maksymalna odleglość spawowania od autobusu.
         private float minVehicleSpawnDistance = 100; // Minimalna odleglość od innego samochodu aby zespanowac.
         private float distanceToDelete = 2000; // Samochody będace dalej niż podany dystans zostaną usunięte.
+        private float distanceToDeleteWhenAccident = 500; // Samochody, które uległy wypadkowi będace dalej niż podany dystans zostaną usunięte.
 
         Vector2 indicatorTextureSize = new Vector2(50, 50); // Rozmiar tekstury migacza.
+        Vector2 tailLightTextureSize = new Vector2(50, 50); // Rozmiar tekstury tylnych świateł.
         float indicatorBlinkInterval = 1; // Jak czesto mają migać migacze.
 
         private int maxRandom = 0;
@@ -597,11 +662,12 @@ namespace Testy_mapy
 
         public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
         {
-            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 1, new Vector2(5, -18), new Vector2(14, 10));
-            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 1, new Vector2(-1, -7), new Vector2(5, 5));
-            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 1, new Vector2(0, -15), new Vector2(10, 5));
+            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(5, -18), new Vector2(14, 10));
+            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(-1, -7), new Vector2(5, 5));
+            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, -15), new Vector2(10, 5));
+            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(10, -30), new Vector2(0, 0));
 
-            vehiclesTypes = new VehicleType[3] { vehicleType1, vehicleType2, vehicleType3 };
+            vehiclesTypes = new VehicleType[4] { vehicleType1, vehicleType2, vehicleType3, vehicleType4 };
 
             foreach (VehicleType vehicleType in vehiclesTypes)
             {
@@ -612,8 +678,9 @@ namespace Testy_mapy
         /// <summary>
         /// Check if the road in front of the car is clear.
         /// </summary>
-        public bool IsRoadClear(Vector2[] points, BusLogic busLogic)
+        public bool IsRoadClear(Vehicle vehicle, BusLogic busLogic)
         {
+            Vector2[] points = vehicle.GetDetectionPoints();
             foreach (Vector2 point in points)
             {
                 Vector2[] collisionPoints;
@@ -627,11 +694,11 @@ namespace Testy_mapy
                         return false;
                 }
 
-                foreach (Vehicle vehicle in vehicles)
+                foreach (Vehicle checkedVehicle in vehicles)
                 {
-                    if (Helper.CalculateDistance(vehicle.GetVehiclePosition(), point) < 200) // Jeśli dany pojazd jest dostatecznie blisko, sprawdż go.
+                    if (Helper.CalculateDistance(checkedVehicle.GetVehiclePosition(), point) < 200 && vehicle != checkedVehicle) // Jeśli dany pojazd jest dostatecznie blisko, sprawdż go.
                     {
-                        collisionPoints = vehicle.GetCollisionPoints();
+                        collisionPoints = checkedVehicle.GetCollisionPoints();
                         rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
                         if (Helper.IsInside(point, rectangle))
                             return false;
@@ -685,6 +752,9 @@ namespace Testy_mapy
 
                 foreach (Vector2 point in pointsArray)
                     list.Add(Helper.MapPosToScreenPos(point));
+
+                if (vehicle.IsRedirecting())
+                    list.Add(Helper.MapPosToScreenPos(vehicle.roadsSwitching.GetForwardPoint(50)));
             }
 
             return list.ToArray();
@@ -705,6 +775,28 @@ namespace Testy_mapy
                     pointsArray = vehicle.GetCollisionPoints();
                     foreach (Vector2 point in pointsArray)
                         list.Add(new Object("", point, indicatorTextureSize, 0));
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Get the positions of all active tail lights.
+        /// </summary>
+        public List<Object> GetTailLightsPoints()
+        {
+            List<Object> list = new List<Object>();
+            Vector2[] pointsArray;
+
+            foreach (Vehicle vehicle in vehicles)
+            {
+                if (!vehicle.IsDriving() && vehicle.GetVehicleSpeed() > 0)
+                {
+                    pointsArray = vehicle.GetCollisionPoints();
+                    
+                    list.Add(new Object("", pointsArray[2], tailLightTextureSize, 0));
+                    list.Add(new Object("", pointsArray[3], tailLightTextureSize, 0));
                 }
             }
 
@@ -784,7 +876,11 @@ namespace Testy_mapy
 
             vehicles.RemoveAll(delegate(Vehicle vehicle) // Usuńmy pojazdy będące za daleko.
             {
-                return Helper.CalculateDistance(busLogic.GetBusPosition(), vehicle.GetVehiclePosition()) > distanceToDelete;
+                float distance = Helper.CalculateDistance(busLogic.GetBusPosition(), vehicle.GetVehiclePosition());
+                if (distance > distanceToDelete || (distance > distanceToDeleteWhenAccident && vehicle.accident))
+                    return true;
+                else
+                    return false;
             });
 
 
@@ -792,7 +888,7 @@ namespace Testy_mapy
             {
                 if (!vehicle.accident)
                 {
-                    if (IsRoadClear(vehicle.GetDetectionPoints(), busLogic)) // ...sprawdź czy ma się zatrzymać
+                    if (IsRoadClear(vehicle, busLogic)) // ...sprawdź czy ma się zatrzymać
                         vehicle.Start(timeCoherenceMultiplier);
                     else
                         vehicle.Stop();

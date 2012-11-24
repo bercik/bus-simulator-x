@@ -217,9 +217,24 @@ namespace Testy_mapy
             return rotateRectangle;
         }
 
-        public static float CalculateDistance(Vector2 point1, Vector2 point2) //oblicza dystans pomiedzy dwoma punktami
+        /// <summary>
+        /// Calculate the distance beetween two points.
+        /// </summary>
+        public static float CalculateDistance(Vector2 point1, Vector2 point2)
         {
             return (float)Math.Round(Math.Sqrt(Math.Pow(point1.X - point2.X, 2) + Math.Pow(point1.Y - point2.Y, 2)), 2);
+        }
+
+        /// <summary>
+        /// Calculate direction beetween two points.
+        /// </summary>
+        public static float CalculateDirection(Vector2 start, Vector2 end)
+        {
+            float direction = MathHelper.ToDegrees((float)Math.Atan2(end.X - start.X, start.Y - end.Y));
+            if (direction < 0)
+                direction += 360;
+
+            return direction;
         }
     }
 }
