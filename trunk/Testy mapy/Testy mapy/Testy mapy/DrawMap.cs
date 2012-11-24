@@ -53,10 +53,10 @@ namespace Testy_mapy
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public void Update(GameTime gameTime, Vector2[] busCollisionPoints)
+        public void Update(GameTime gameTime, Vector2[] busCollisionPoints, float busSpeed)
         {
             // TODO: Add your update code here
-            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
+            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints, busSpeed);
         }
 
         // rysuje obiekty pod autobusem

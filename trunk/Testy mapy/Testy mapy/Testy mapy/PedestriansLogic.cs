@@ -55,6 +55,7 @@ namespace Testy_mapy
 
         bool collision; // czy wystapila kolizja
         bool makeTurn; // czy wykonac kolejny obrot
+        bool uniqueCollisionWithBus = false; // czy wlasnie unikamy kolizji z autobusem i zmieniamy kierunek poruszania sie
         static readonly float diffrenceRotateOnTurn = 80.0f; // maksymalna roznica rotacji stopni przy obracaniu sie
 
         float time; // jaki czas odczekano
@@ -96,6 +97,7 @@ namespace Testy_mapy
         }
         public float rotate { get; private set; } // rotacja
         Vector2 origin; // srodek (polowa rozmiaru)
+        Vector2 size; // rozmiar
 
         Location location; // polozenie (poziome lub pionowe)
         float min, max; // min i maks wspolrzedna (X lub Y zalezy od polozenia)
@@ -106,6 +108,7 @@ namespace Testy_mapy
             this.time = waitingTime; // dzieki temu od razu po utworzeniu pieszy porusza sie
 
             this.name = "pedestrian" + id.ToString();
+            this.size = size;
             this.origin = size / 2;
 
             this.location = location;
@@ -135,27 +138,32 @@ namespace Testy_mapy
                         else if (rotate < 0.0f)
                             rotate += 360.0f;
                     }
-                    else if (!makeTurn)
-                    {
-                        pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
-
-                        if (CheckIsComeToDestination(framesInterval))
-                        {
-                            makeTurn = true;
-
-                            RandomDestinationRotate();
-                        }
-                    }
                     else
                     {
-                        makeTurn = Convert.ToBoolean(rand.Next(2));
+                        uniqueCollisionWithBus = false;
 
                         if (!makeTurn)
-                            RandomDestination();
-                        else
-                            RandomDestinationRotate();
+                        {
+                            pos_y += (float)(((invertSpeed) ? -speed : speed) * framesInterval.TotalMilliseconds);
 
-                        time = 0.0f;
+                            if (CheckIsComeToDestination(framesInterval))
+                            {
+                                makeTurn = true;
+
+                                RandomDestinationRotate();
+                            }
+                        }
+                        else
+                        {
+                            makeTurn = Convert.ToBoolean(rand.Next(2));
+
+                            if (!makeTurn)
+                                RandomDestination();
+                            else
+                                RandomDestinationRotate();
+
+                            time = 0.0f;
+                        }
                     }
                 }
                 else
@@ -165,7 +173,7 @@ namespace Testy_mapy
             }
         }
 
-        public bool CheckCollision(Vector2[] busCollisionPoints)
+        public bool CheckCollision(Vector2[] busCollisionPoints, float busSpeed)
         {
             if (!collision)
             {
@@ -179,11 +187,31 @@ namespace Testy_mapy
                 pedestrianCollisionRectangle.point3 = new Vector2(v_pos.X + origin.X, v_pos.Y + origin.Y); // 3
                 pedestrianCollisionRectangle.point4 = new Vector2(v_pos.X - origin.X, v_pos.Y + origin.Y); // 4
 
-                if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
+                if (busSpeed != 0.0f) // jezeli autobus sie porusza
                 {
-                    name = "died_pedestrian";
-                    collision = true;
-                    return true;
+                    if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
+                    {
+                        name = "died_pedestrian";
+                        collision = true;
+                        return true;
+                    }
+                }
+                else // jezeli autobus sie nie porusza (zwiekszamy obszar kolizji, zeby piesi zatrzymywali sie wczesniej przed autobusem
+                {
+                    pedestrianCollisionRectangle.point1 += new Vector2(-size.X, -size.Y); // 1
+                    pedestrianCollisionRectangle.point2 += new Vector2(size.X, -size.Y); // 2
+                    pedestrianCollisionRectangle.point3 += new Vector2(size.X, size.Y); // 3
+                    pedestrianCollisionRectangle.point4 += new Vector2(-size.X, size.Y); // 4
+
+                    if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
+                    {
+                        if (!uniqueCollisionWithBus) // zatrzymaj sie, zmien kierunek chodu
+                        {
+                            RandomOpositeDestination();
+                            uniqueCollisionWithBus = true;
+                            return false;
+                        }
+                    }
                 }
 
                 return false;
@@ -218,6 +246,31 @@ namespace Testy_mapy
             }
         }
 
+        // losuje docelowe miejsce ruchu pieszego, w przeciwnym kierunku niz obecny
+        private void RandomOpositeDestination()
+        {
+            direction = (Direction)((int)(direction + 2) % 4); // zmiana kierunku na przeciwny
+            RandomSpeed(); // losujemy nowa predkos pieszego
+            makeTurn = false; // nie ma wykonywac obrotow w miejscu
+            time = waitingTime; // pieszy od razu sie poruszy
+            invertSpeed = !invertSpeed; // odwracamy predkosc poruszania sie
+
+            // losujemy nowa pozycje w przeciwnym kierunku do aktualnego
+            if (direction == Direction.Up || direction == Direction.Left)
+            {
+                destinationPos = rand.Next((int)min, (int)pos_y);
+            }
+            else if (direction == Direction.Down || direction == Direction.Right)
+            {
+                destinationPos = rand.Next((int)pos_y, (int)max);
+            }
+        }
+
+        private void RandomSpeed()
+        {
+            speed = (float)rand.Next(8, 14) / 400.0f;
+        }
+
         private void RandomDestinationRotate()
         {
             destinationRotate = rand.Next((int)(rotate - diffrenceRotateOnTurn),(int)(rotate + diffrenceRotateOnTurn));
@@ -235,7 +288,7 @@ namespace Testy_mapy
 
         private void RandomDestination()
         {
-            speed = (float)rand.Next(8, 14) / 400.0f;
+            RandomSpeed();
             destinationPos = rand.Next((int)min, (int)max);
 
             if (destinationPos > pos_y)
@@ -321,7 +374,7 @@ namespace Testy_mapy
             this.frequences = frequences;
         }
 
-        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints)
+        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints, float busSpeed)
         {
             if (lastUpdateTime > updateTime)
             {
@@ -342,7 +395,7 @@ namespace Testy_mapy
                 for (int i = 0; i < alivePedestrians.Count; ++i)
                 {
                     alivePedestrians[i].Update(framesInterval);
-                    if (alivePedestrians[i].CheckCollision(busCollisionPoints))
+                    if (alivePedestrians[i].CheckCollision(busCollisionPoints, busSpeed))
                     {
                         sidewalkPedestrian.DiePedestrian(alivePedestrians[i]);
                         --i;
