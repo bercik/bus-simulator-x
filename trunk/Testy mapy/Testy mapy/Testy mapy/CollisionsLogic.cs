@@ -21,6 +21,14 @@ namespace Testy_mapy
         }
 
         /// <summary>
+        /// Prepare the rectangle using the 4 points given.
+        /// </summary>
+        private MyRectangle PrepareRectangle(Vector2[] collisionPoints)
+        {
+            return new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
+        }
+
+        /// <summary>
         /// Main logic.
         /// </summary>
         public void HandleCollisions(TrafficLogic trafficLogic, BusLogic busLogic)
@@ -28,7 +36,7 @@ namespace Testy_mapy
             foreach (TrafficLogic.Vehicle vehicle in trafficLogic.vehicles)
             {
                 Vector2[] vehicleCollisionPoints = vehicle.GetCollisionPoints();
-                MyRectangle vehicleCollisionBox = new MyRectangle(vehicleCollisionPoints[3], vehicleCollisionPoints[2], vehicleCollisionPoints[1], vehicleCollisionPoints[0]);
+                MyRectangle vehicleCollisionBox = PrepareRectangle(vehicleCollisionPoints);
 
                 foreach (TrafficLogic.Vehicle subVehicle in trafficLogic.vehicles)
                 {
@@ -36,7 +44,7 @@ namespace Testy_mapy
                     if (subVehicle != vehicle && ShouldBeChecked(vehicle.GetVehiclePosition(), subVehicle.GetVehiclePosition(), vehicle.GetVehicleSize(), subVehicle.GetVehicleSize()))
                     {
                         Vector2[] subVehicleCollisionPoints = subVehicle.GetCollisionPoints();
-                        MyRectangle subVehicleCollisionBox = new MyRectangle(subVehicleCollisionPoints[3], subVehicleCollisionPoints[2], subVehicleCollisionPoints[1], subVehicleCollisionPoints[0]);
+                        MyRectangle subVehicleCollisionBox = PrepareRectangle(subVehicleCollisionPoints);
 
                         // Sprawdź czy punkty kolizji subPojazdu są w collision boxie pojazdu
                         foreach (Vector2 point in vehicleCollisionPoints)
@@ -64,7 +72,7 @@ namespace Testy_mapy
                 if (ShouldBeChecked(vehicle.GetVehiclePosition(), busLogic.GetBusPosition(), vehicle.GetVehicleSize(), busLogic.GetSize()))
                 {
                     Vector2[] busCollisionPoints = busLogic.GetCollisionPoints();
-                    MyRectangle busCollisionBox = new MyRectangle(busCollisionPoints[3], busCollisionPoints[2], busCollisionPoints[1], busCollisionPoints[0]);
+                    MyRectangle busCollisionBox = PrepareRectangle(busCollisionPoints);
 
                     foreach (Vector2 point in vehicleCollisionPoints)
                     {
