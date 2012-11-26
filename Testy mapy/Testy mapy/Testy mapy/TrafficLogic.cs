@@ -202,8 +202,13 @@ namespace Testy_mapy
             public Vector2 lastEnd = new Vector2(0, 0); // Koniec ostatniej drogi podawane do ChangeTrack podczas prośby o podanie nowej drogi.
 
             private float normalSpeed = 20;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
-            private float acceleration = 50;   // Standardowe przyspieszenie.
+            private float fastSpeed = 30;      // Prędkość na długich, prostych odcinkach.
+            private float minDistanceToFastSpeed = 150; // Odlagłość od końców drogi wymagana dla osiągnięcia tej prędkości.
+            private float acceleration = 70;   // Standardowe przyspieszenie.
+            private float lightAcceleration = 20;   // Małe przyspieszenie.
             private float speedMultiplier = 4;
+
+            private bool breaking = false;      // Czy zwalnia? Używane do rysowania świateł tylnych.
 
             private float stopCounter = 0; // Licznik odpowiedzialny za długość postoju w razie zatrzymania się w celu uniknięcia kolizji.
             private float startAfter = 3;  // Po ilu sekundach od zatrzymania ma wystartować.
@@ -333,11 +338,19 @@ namespace Testy_mapy
             }
 
             /// <summary>
-            /// Checks if vehicle is driving or breaking.
+            /// Checks if vehicle is driving.
             /// </summary>
             public bool IsDriving()
             {
                 return driving;
+            }
+
+            /// <summary>
+            /// Checks if vehicle is breaking.
+            /// </summary>
+            public bool IsBreaking()
+            {
+                return breaking;
             }
 
             /// <summary>
@@ -381,7 +394,25 @@ namespace Testy_mapy
             {
                 driving = false;
                 stopCounter = 0;
-            } 
+            }
+
+            /// <summary>
+            /// Used for accelerating.
+            /// </summary>
+            private void Accelerate(float acceleration, float timeCoherenceMultiplier)
+            {
+                speed += acceleration * timeCoherenceMultiplier; // Przyspieszaj.
+                breaking = false;
+            }
+
+            /// <summary>
+            /// Used for breaking.
+            /// </summary>
+            private void Break(float acceleration, float timeCoherenceMultiplier)
+            {
+                speed -= acceleration * timeCoherenceMultiplier; // Zwalniaj.
+                breaking = true;
+            }
 
             /// <summary>
             /// Simulate the collsion.
@@ -390,6 +421,7 @@ namespace Testy_mapy
             {
                 accident = true;
                 driving = true;
+                breaking = false;
                 RewindPositionAndDirection();
             }
 
@@ -577,15 +609,30 @@ namespace Testy_mapy
 
             public void Update(DrawMap drawMap, float timeCoherenceMultiplier)
             {
+                float maxSpeed;
+                if (Helper.CalculateDistance(GetVehiclePosition(), road.lane.end) > minDistanceToFastSpeed && !IsRedirecting())
+                    maxSpeed = fastSpeed;
+                else
+                    maxSpeed = normalSpeed;
+                
                 if (driving)
                 {
-                    speed += acceleration * timeCoherenceMultiplier; // Przyspieszaj.
-                    if (speed > normalSpeed)
-                        speed = normalSpeed;
+                    if (speed <= maxSpeed)
+                    {
+                        Accelerate(lightAcceleration, timeCoherenceMultiplier);
+                        if (speed > maxSpeed)
+                            speed = maxSpeed;
+                    }
+                    else
+                    {
+                        Break(lightAcceleration, timeCoherenceMultiplier);
+                        if (speed < 0)
+                            speed = 0;
+                    }
                 }
                 else
                 {
-                    speed -= acceleration * timeCoherenceMultiplier; // Zwalniaj.
+                    Break(acceleration, timeCoherenceMultiplier);
                     if (speed < 0)
                         speed = 0;
                 }
@@ -791,7 +838,7 @@ namespace Testy_mapy
 
             foreach (Vehicle vehicle in vehicles)
             {
-                if (!vehicle.IsDriving() && vehicle.GetVehicleSpeed() > 0)
+                if (vehicle.IsBreaking())
                 {
                     pointsArray = vehicle.GetCollisionPoints();
                     

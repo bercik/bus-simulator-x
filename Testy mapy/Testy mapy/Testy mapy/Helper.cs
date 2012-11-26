@@ -148,7 +148,7 @@ namespace Testy_mapy
         }
 
         /// <summary>
-        /// Check if the point is inside the rectangle.
+        /// Check if the point is inside the rectangle. This function is not working properly.
         /// </summary>
         /// <param name="point">Point.</param>
         /// <param name="givenRrectangle">Rectangle. Points should be given clockwise.</param>
