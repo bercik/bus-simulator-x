@@ -48,8 +48,12 @@ namespace Testy_mapy
 
     class Pedestrian
     {
+        static readonly float rotateEscapeSpeed = 0.25f; // predkosc rotacji przy ucieczce
+        static readonly float rotateNormalSpeed = 0.08f; // normalna predkosc rotacji
+        static readonly float escapeSpeed = 0.08f; // predkosc ucieczki pieszego
+
+        float rotateSpeed = rotateNormalSpeed; // predkosc rotacji
         bool invertRotate; // czy odwrocic rotacje
-        static readonly float rotateSpeed = 0.05f; // predkosc rotacji
         float speed; // predkosc poruszania sie pieszych
         bool invertSpeed; // czy odwrocic predkosc
 
@@ -221,6 +225,11 @@ namespace Testy_mapy
                         UniqueCollision(busCollisionPoints);
                         return false;
                     }
+                    else
+                    {
+                        rotateSpeed = rotateNormalSpeed;
+                        RandomSpeed();
+                    }
                 }
 
                 return false;
@@ -325,10 +334,12 @@ namespace Testy_mapy
             return false;
         }
 
-        private void ChangeDirection()
+        // uciekamy pieszym od autobusu (który jest prowadzony przez Borka i chce nas zabić!)
+        private void Escape()
         {
             direction = (Direction)((int)(direction + 2) % 4); // zmiana kierunku na przeciwny
-            RandomSpeed(); // losujemy nowa predkosc pieszego
+            speed = escapeSpeed; // losujemy nowa predkosc pieszego
+            rotateSpeed = rotateEscapeSpeed; // zmieniamy predkosc rotacji na ta dla ucieczki
             makeTurn = false; // nie ma wykonywac obrotow w miejscu
             time = waitingTime; // pieszy od razu sie poruszy
             invertSpeed = !invertSpeed; // odwracamy predkosc poruszania sie
@@ -352,7 +363,7 @@ namespace Testy_mapy
             // sprawdzamy czy pieszy idzie w kierunku autobusu
             if (IsGoInDirectionOfBus(busCollisionPoints))
             {
-                ChangeDirection();
+                Escape();
             }
         }
 
@@ -618,20 +629,20 @@ namespace Testy_mapy
 
             Sidewalk sidewalk = sidewalkPedestrian.sidewalk;
 
-            int id = rand.Next(0, amountOfPedestrians);
-
             float min = (sidewalk.location == Location.horizontal) ? sidewalk.pos.X - sidewalk.origin.Y
                     : sidewalk.pos.Y - sidewalk.origin.Y;
             float max = (sidewalk.location == Location.horizontal) ? sidewalk.pos.X + sidewalk.origin.Y
                     : sidewalk.pos.Y + sidewalk.origin.Y;
 
             int numberOfSidewalks = (int)(sidewalk.size.Y / oneSidewalkHeight); // ilosc "kawalkow" chodnika
-            int numberOfDraws = numberOfSidewalks * frequences[sidewalk.id];
+            int numberOfDraws = numberOfSidewalks * frequences[sidewalk.id]; // liczba prób utworzenia pieszego
 
             for (int i = 0; i < numberOfDraws; ++i)
             {
                 if (rand.Next(4) == 1) // 25 % szans na utworzenie pieszego
                 {
+                    int id = rand.Next(0, amountOfPedestrians); // losowy typ pieszego
+
                     if (sidewalk.location == Location.horizontal)
                     {
                         pos.Y = rand.Next((int)pedestrianOrigin.X, (int)(sidewalk.size.X - pedestrianOrigin.X))
