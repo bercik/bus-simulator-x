@@ -68,13 +68,12 @@ namespace Testy_mapy
 
                 foreach (Object o in objectsToShow)
                 {
-                    Vector2 origin;
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o, out origin);
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o);
 
                     if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                origin, o.spriteEffects, 1);
+                                o.original_origin, o.spriteEffects, 1);
                     }
                 }
             }
@@ -89,13 +88,12 @@ namespace Testy_mapy
 
                 foreach (Object o in objectsToShow)
                 {
-                    Vector2 origin;
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o, out origin);
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o);
 
                     if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                origin, o.spriteEffects, 1);
+                                o.original_origin, o.spriteEffects, 1);
                     }
                 }
             }
@@ -113,17 +111,18 @@ namespace Testy_mapy
 
                 foreach (Grass g in grassToShow)
                 {
-                    spriteBatch.Draw(grass[g.name], g.pos, Color.White);
+                    Rectangle destinationRectangle = Helper.CalculateScaleRectangle(g.pos, backgroundLogic.getGrassSize());
+
+                    spriteBatch.Draw(grass[g.name], destinationRectangle, Color.White);
                 }
                 foreach (Object o in junctionsToShow)
                 {
-                    Vector2 origin;
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o, out origin);
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o);
 
                     if (junctions.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                origin, o.spriteEffects, 1);
+                                o.original_origin, o.spriteEffects, 1);
                     }
                 }
             }
@@ -137,7 +136,7 @@ namespace Testy_mapy
 
                 foreach (Object p in pedestriansToShow)
                 {
-                    Rectangle destinationRect = new Rectangle((int)p.pos.X, (int)p.pos.Y, (int)p.size.X, (int)p.size.Y);
+                    Rectangle destinationRect = Helper.CalculateScaleRectangle(p);
 
                     spriteBatch.Draw(pedestrians[p.name], destinationRect, null, Color.White, MathHelper.ToRadians(p.rotate),
                             p.origin, p.spriteEffects, 1);
@@ -173,7 +172,7 @@ namespace Testy_mapy
             grass.Add("trawa2", content.Load<Texture2D>("trawa2"));
 
             Vector2 grassSize = new Vector2(grass[grass.Keys.ToList()[0]].Width, grass[grass.Keys.ToList()[0]].Width); // wielkosc tekstury trawy (MUSI byc jednakowa dla wszystkich tekstur trawy)
-            backgroundLogic.SetProperties((int)Helper.screenSize.X, (int)Helper.screenSize.Y, grassSize, grass.Count);
+            backgroundLogic.SetProperties(grassSize, grass.Count);
 
             // ladowanie tekstur i typow skrzyzowan
             Vector2 size;
