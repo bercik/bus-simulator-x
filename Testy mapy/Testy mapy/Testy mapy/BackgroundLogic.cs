@@ -25,7 +25,6 @@ namespace Testy_mapy
         Vector2 last_change_pos;
         Vector2 last_pos;
         Vector2 grassSize;
-        Vector2 screenSize;
         Point numberOfGrass;
         Grass[,] grass;
         int amountOfGrass;
@@ -51,6 +50,11 @@ namespace Testy_mapy
                     RandomGrass(i, j);
                 }
             }
+        }
+
+        public Vector2 getGrassSize()
+        {
+            return grassSize;
         }
 
         private void RandomGrass(int x, int y)
@@ -241,13 +245,12 @@ namespace Testy_mapy
             return grassToShow;
         }
 
-        public void SetProperties(int screenWidth, int screenHeight, Vector2 grassSize, int amountOfGrass)
+        public void SetProperties(Vector2 grassSize, int amountOfGrass)
         {
             this.amountOfGrass = amountOfGrass;
             this.grassSize = grassSize;
-            this.screenSize = new Vector2(screenWidth, screenHeight);
-            numberOfGrass.X = (int)screenWidth / (int)grassSize.X + ((screenWidth % (int)grassSize.X == 0) ? 2 : 3);
-            numberOfGrass.Y = (int)screenHeight / (int)grassSize.Y + ((screenHeight % (int)grassSize.Y == 0) ? 2 : 3);
+            numberOfGrass.X = (int)Helper.maxWorkAreaSize.X / (int)grassSize.X + (((int)Helper.maxWorkAreaSize.X % (int)grassSize.X == 0) ? 2 : 3);
+            numberOfGrass.Y = (int)Helper.maxWorkAreaSize.Y / (int)grassSize.Y + (((int)Helper.maxWorkAreaSize.Y % (int)grassSize.Y == 0) ? 2 : 3);
 
             CreateGrass();
         }

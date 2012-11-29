@@ -84,21 +84,15 @@ namespace Testy_mapy
 
         private readonly static float maxScale = 1.5f; // maksymalna skala mapy
         private readonly static float minScale = 0.5f; // minimalna skala mapy
-        public readonly static Vector2 maxWorkAreaSize; // maksymalny rozmiar ekranu roboczego
-        public readonly static Vector2 minWorkAreaSize; // maksymalny rozmiar ekranu roboczego
+        public static Vector2 maxWorkAreaSize { get; private set; } // maksymalny rozmiar ekranu roboczego
+        public static Vector2 minWorkAreaSize { get; private set; } // maksymalny rozmiar ekranu roboczego
 
         public static Vector2 mapPos; // pozycja mapy
-
-        static Helper()
-        {
-            maxWorkAreaSize = screenSize / scale;
-            minWorkAreaSize = screenSize / scale;
-        }
 
         // wywolac ZAWSZE po zmianie screenSize lub scale
         private static void CalculateWorkArea()
         {
-            workAreaSize = screenSize / scale;
+            workAreaSize = screenSize * scale;
             workAreaOrigin = workAreaSize / 2;
         }
 
@@ -120,6 +114,8 @@ namespace Testy_mapy
         public static void SetScreenSize(float width, float height)
         {
             screenSize = new Vector2(width, height);
+            maxWorkAreaSize = screenSize * maxScale;
+            minWorkAreaSize = screenSize * minScale;
             screenOrigin = screenSize / 2;
 
             CalculateWorkArea();
@@ -130,21 +126,26 @@ namespace Testy_mapy
             return pos - (mapPos - screenSize / 2);
         }
 
-        public static Rectangle CalculateScaleRectangle(Object o, out Vector2 origin)
+        public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size)
         {
             Rectangle rect = new Rectangle();
 
-            float scale = GetScale();
+            Vector2 v_mapPos = MapPosToScreenPos(mapPos);
 
-            rect.X = (int)(((o.pos.X - screenOrigin.X) * scale) + workAreaOrigin.X * scale);
-            rect.Y = (int)(((o.pos.Y - screenOrigin.Y) * scale) + workAreaOrigin.Y * scale);
+            int x = (int)((pos.X - v_mapPos.X) / scale);
+            rect.X = (int)(v_mapPos.X + x);
+            int y = (int)((pos.Y - v_mapPos.Y) / scale);
+            rect.Y = (int)(v_mapPos.Y + y);
 
-            rect.Width = (int)(o.size.X * scale);
-            rect.Height = (int)(o.size.Y * scale);
-
-            origin = new Vector2(o.original_origin.X * scale, o.original_origin.Y * scale);
+            rect.Width = (int)(size.X / scale);
+            rect.Height = (int)(size.Y / scale);
 
             return rect;
+        }
+
+        public static Rectangle CalculateScaleRectangle(Object o)
+        {
+            return CalculateScaleRectangle(o.pos, o.size);
         }
 
         /// <summary>

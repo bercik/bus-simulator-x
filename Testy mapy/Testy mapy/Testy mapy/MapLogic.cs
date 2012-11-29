@@ -12,7 +12,6 @@ namespace Testy_mapy
     {
         Chunk[,] chunks;
         Size chunkSize;
-        Size screenSize;
         Point numberOfChunks;
         
         private Vector2 v_mapPos;
@@ -48,12 +47,10 @@ namespace Testy_mapy
             objectsOnBusInRange = new List<Object>();
         }
 
-        private void CreateChunks(int screenWidth, int screenHeight, int mapWidth, int mapHeight)
+        private void CreateChunks(int mapWidth, int mapHeight)
         {
-            screenSize.Width = screenWidth;
-            screenSize.Height = screenHeight;
-            chunkSize.Width = screenWidth + maxObjectSize.Width;
-            chunkSize.Height = screenHeight + maxObjectSize.Height;
+            chunkSize.Width = (int)(Helper.maxWorkAreaSize.X + maxObjectSize.Width);
+            chunkSize.Height = (int)(Helper.maxWorkAreaSize.Y + maxObjectSize.Height);
             numberOfChunks.X = (mapWidth / chunkSize.Width) + 1;
             numberOfChunks.Y = (mapHeight / chunkSize.Height) + 1;
 
@@ -194,12 +191,12 @@ namespace Testy_mapy
 
                 if (!b_x) // sprawdzamy czy współrzędne X obiektu nie znajdują się pomiędzy ekranem
                 {
-                    if (CheckCord(mapPos.X, x1, x2, screenSize.Width))
+                    if (CheckCord(mapPos.X, x1, x2, (int)Helper.workAreaSize.X))
                         b_x = true;
                 }
                 if (!b_y) // analogicznie jak wyżej dla współrzędnych Y
                 {
-                    if (CheckCord(mapPos.Y, y1, y2, screenSize.Height))
+                    if (CheckCord(mapPos.Y, y1, y2, (int)Helper.workAreaSize.Y))
                         b_y = true;
                 }
 
@@ -235,12 +232,12 @@ namespace Testy_mapy
 
         private bool SmallWidth(float a)
         {
-            return (Math.Abs(a) <= screenSize.Width / 2);
+            return (Math.Abs(a) <= (int)Helper.workAreaSize.X / 2);
         }
 
         private bool SmallHeight(float a)
         {
-            return (Math.Abs(a) <= screenSize.Height / 2);
+            return (Math.Abs(a) <= (int)Helper.workAreaSize.Y / 2);
         }
 
         private void ClearChunks()
@@ -335,7 +332,7 @@ namespace Testy_mapy
             int mapWidth = Int32.Parse(mapSize.Substring(0, mapSize.IndexOf(';')));
             int mapHeight = Int32.Parse(mapSize.Substring(mapSize.IndexOf(';') + 1));
 
-            CreateChunks((int)Helper.screenSize.X, (int)Helper.screenSize.Y, mapWidth, mapHeight);
+            CreateChunks(mapWidth, mapHeight);
 
             string s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
 

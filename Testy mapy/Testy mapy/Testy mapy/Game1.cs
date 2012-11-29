@@ -83,14 +83,15 @@ namespace Testy_mapy
             //graphics.PreferredBackBufferHeight = 768;
             //graphics.PreferredBackBufferWidth = 1024;
 
+            // inicjujemy klasê Helper
+            Helper.mapPos = startPos;
+
             drawMap = new DrawMap();
             drawBus = new DrawBus();
             busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150));
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
             collisionsLogic = new CollisionsLogic();
-
-            Helper.mapPos = startPos;
         }
 
         /// <summary>
@@ -230,10 +231,15 @@ namespace Testy_mapy
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
             drawMap.Update(gameTime, busLogic.GetCollisionPoints(), busLogic.GetCurrentSpeed());
 
+            // obs³uga skali mapy:
             if (keybState.IsKeyDown(Keys.PageUp))
                 Helper.SetScale(Helper.GetScale() + 0.01f);
+
             if (keybState.IsKeyDown(Keys.PageDown))
                 Helper.SetScale(Helper.GetScale() - 0.01f);
+
+            if (keybState.IsKeyDown(Keys.Delete))
+                Helper.SetScale(1.0f);
 
             base.Update(gameTime);
         }
