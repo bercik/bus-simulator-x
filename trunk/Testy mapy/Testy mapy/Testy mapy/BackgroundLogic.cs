@@ -22,15 +22,14 @@ namespace Testy_mapy
 
     class BackgroundLogic
     {
-        Vector2 last_change_pos;
-        Vector2 last_pos;
-        Vector2 grassSize;
-        Point numberOfGrass;
-        Grass[,] grass;
-        int amountOfGrass;
+        Vector2 last_change_pos; // ostatnio zmieniona pozycja w jednostkach mapy (przy przesunięciu trawy tzw. "skoku")
+        Vector2 grassSize; // rozmiar trawy
+        Point numberOfGrass; // ilość bloków trawy w pionie i poziomie
+        Grass[,] grass; // tablica trawy
+        int amountOfGrass; // ilość typów trawy
 
-        Random rand;
-        bool first_pos_load = true;
+        Random rand; // klasa losująca
+        bool first_pos_load = true; // czy to pierwsze załadowanie
 
         const string grassName = "trawa"; // nazwa plikow graficznych dla trawy (nie wiem po co, tak lubie pisac uniwersalny kod)
 
@@ -39,8 +38,10 @@ namespace Testy_mapy
             rand = new Random();
         }
 
-        public void CreateGrass()
+        public void CreateGrass(Vector2 mapPos)
         {
+            this.last_change_pos = mapPos;
+
             grass = new Grass[numberOfGrass.X, numberOfGrass.Y];
 
             for (int i = 0; i < numberOfGrass.X; ++i)
@@ -60,7 +61,8 @@ namespace Testy_mapy
         private void RandomGrass(int x, int y)
         {
             string name = RandomGrassName();
-            grass[x, y] = new Grass(name, new Vector2(x * grassSize.X - grassSize.X, y * grassSize.Y - grassSize.Y));
+            Vector2 leftUpEdge = last_change_pos - (Helper.maxWorkAreaSize / 2); // lewy górny kraniec mapy
+            grass[x, y] = new Grass(name, new Vector2(leftUpEdge.X + (x * grassSize.X) - (grassSize.X / 2), leftUpEdge.Y + (y * grassSize.Y) - (grassSize.Y / 2)));
         }
 
         private void RandomGrassName(int x, int y)
@@ -141,11 +143,15 @@ namespace Testy_mapy
                 {
                     if (location == Location.horizontal)
                     {
-                        grass[i, j].pos.X = i * grassSize.X - grassSize.X;
+                        float leftUpX = last_change_pos.X - (Helper.maxWorkAreaSize.X / 2); // lewy górny kraniec mapy
+
+                        grass[i, j].pos.X = leftUpX +  (i * grassSize.X) - (grassSize.X / 2);
                     }
                     else if (location == Location.vertical)
                     {
-                        grass[i, j].pos.Y = j * grassSize.Y - grassSize.Y;
+                        float leftUpY = last_change_pos.Y - (Helper.maxWorkAreaSize.Y / 2); // lewy górny kraniec mapy
+
+                        grass[i, j].pos.Y =leftUpY + (j * grassSize.Y) - (grassSize.Y / 2);
                     }
                 }
             }
@@ -185,7 +191,6 @@ namespace Testy_mapy
             if (first_pos_load)
             {
                 last_change_pos = pos;
-                last_pos = pos;
 
                 first_pos_load = false;
             }
@@ -194,39 +199,28 @@ namespace Testy_mapy
 
             if (difference_pos.X > grassSize.X)
             {
-                last_change_pos.X = pos.X + Math.Abs(pos.X - last_pos.X);
+                last_change_pos.X = pos.X;
 
                 Move(Direction.Right);
             }
             else if (difference_pos.X < -grassSize.X)
             {
-                last_change_pos.X = pos.X - Math.Abs(pos.X - last_pos.X);
+                last_change_pos.X = pos.X;
 
                 Move(Direction.Left);
             }
             if (difference_pos.Y > grassSize.Y)
             {
-                last_change_pos.Y = pos.Y + Math.Abs(pos.Y - last_pos.Y);
+                last_change_pos.Y = pos.Y;
 
                 Move(Direction.Down);
             }
             else if (difference_pos.Y < -grassSize.Y)
             {
-                last_change_pos.Y = pos.Y - Math.Abs(pos.Y - last_pos.Y);
+                last_change_pos.Y = pos.Y;
 
                 Move(Direction.Up);
             }
-
-            // wlasciwa metoda wyznaczajaca pozycje trawy
-            for (int i = 0; i < numberOfGrass.X; ++i)
-            {
-                for (int j = 0; j < numberOfGrass.Y; ++j)
-                {
-                    grass[i, j].pos += last_pos - pos;
-                }
-            }
-
-            last_pos = pos;
         }
 
         public List<Grass> getGrassToShow()
@@ -238,7 +232,9 @@ namespace Testy_mapy
             {
                 for (int j = 0; j < numberOfGrass.Y; ++j)
                 {
-                    grassToShow.Add(grass[i, j]);
+                    Grass g = new Grass(grass[i, j].name, grass[i, j].pos);
+                    g.pos = Helper.MapPosToScreenPos(g.pos);
+                    grassToShow.Add(g);
                 }
             }
 
@@ -249,10 +245,8 @@ namespace Testy_mapy
         {
             this.amountOfGrass = amountOfGrass;
             this.grassSize = grassSize;
-            numberOfGrass.X = (int)Helper.maxWorkAreaSize.X / (int)grassSize.X + (((int)Helper.maxWorkAreaSize.X % (int)grassSize.X == 0) ? 2 : 3);
-            numberOfGrass.Y = (int)Helper.maxWorkAreaSize.Y / (int)grassSize.Y + (((int)Helper.maxWorkAreaSize.Y % (int)grassSize.Y == 0) ? 2 : 3);
-
-            CreateGrass();
+            numberOfGrass.X = (int)((Helper.maxWorkAreaSize.X / (int)grassSize.X) + 3);
+            numberOfGrass.Y = (int)((Helper.maxWorkAreaSize.Y / (int)grassSize.Y) + 3);
         }
     }
 }

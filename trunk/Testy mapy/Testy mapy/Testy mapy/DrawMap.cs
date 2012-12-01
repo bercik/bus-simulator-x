@@ -297,9 +297,9 @@ namespace Testy_mapy
             trackLogic.ChangeTrack(endPoint, lastEndPoint, out connection, out origin);
         }
 
-        public void CreateGrass()
+        public void CreateGrass(Vector2 mapPos)
         {
-            backgroundLogic.CreateGrass();
+            backgroundLogic.CreateGrass(mapPos);
         }
     }
 }
