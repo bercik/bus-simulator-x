@@ -86,13 +86,13 @@ namespace Testy_mapy
         /// <summary>
         /// Get the center of the bus eg. for drawing.
         /// </summary>
-        public Vector2 GetBusPosition() //Get the center of the bus to draw the center of the map
+        public Vector2 GetBusPosition()
         {
             return CalculateCenter(position, direction);
         }
 
         /// <summary>
-        /// Get real bus position - directly from the variable.
+        /// Get the center of the back of the bus - it's real position, directly from the variable.
         /// </summary>
         public Vector2 GetRealPosition()
         {

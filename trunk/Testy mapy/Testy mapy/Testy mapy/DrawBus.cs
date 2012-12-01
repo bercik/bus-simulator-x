@@ -42,7 +42,11 @@ namespace Testy_mapy
         private void DrawTheBus(SpriteBatch spriteBatch, Object bus)
         {
             Vector2 position = Helper.MapPosToScreenPos(bus.pos);
-            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)bus.size.X, (int)bus.size.Y);
+            Vector2 size = bus.size;
+            //Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)bus.size.X, (int)bus.size.Y);
+
+            Rectangle rect = Helper.CalculateScaleRectangle(position, size);
+
             spriteBatch.Draw(busTexture, rect, null, Color.White, MathHelper.ToRadians(bus.rotate), bus.origin, SpriteEffects.None, 1);
         }
 

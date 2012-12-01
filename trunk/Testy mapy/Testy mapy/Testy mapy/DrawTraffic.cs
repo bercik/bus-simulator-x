@@ -60,7 +60,7 @@ namespace Testy_mapy
         public void DrawVehicle(SpriteBatch spriteBatch, Object vehicle)
         {
             Vector2 position = Helper.MapPosToScreenPos(vehicle.pos);
-            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)vehicle.size.X, (int)vehicle.size.Y);
+            Rectangle rect = Helper.CalculateScaleRectangle(position, vehicle.size);
 
             if (vehicle.name == "0")
                 vehicleTexture = vehicleTexture0;
