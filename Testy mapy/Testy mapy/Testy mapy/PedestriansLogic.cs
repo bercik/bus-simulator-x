@@ -447,7 +447,7 @@ namespace Testy_mapy
         int[] frequences; // tablica z czestoscia wystepowania pieszych na danym (id) chodniku
 
         float lastUpdateTime = 0.0f; // ostatni czas update
-        int updateTime = 200; // co ile nalezy wykonac update (w milisekundach)
+        int updateTime = 100; // co ile nalezy wykonac update (w milisekundach)
 
         Random rand; // klasa losujaca
 

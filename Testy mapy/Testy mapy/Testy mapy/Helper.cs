@@ -78,14 +78,14 @@ namespace Testy_mapy
         public static Vector2 screenSize { get; private set; } // wielkosc ekranu
         public static Vector2 screenOrigin { get; private set; } // srodek ekranu
 
-        public static Vector2 workAreaSize { get; private set; } // wielkosc robocza (wielkosc ekranu / skalowanie)
+        public static Vector2 workAreaSize { get; private set; } // wielkosc robocza (wielkosc ekranu * skalowanie)
         public static Vector2 workAreaOrigin { get; private set; } // srodek roboczego ekranu
         private static float scale; // skalowanie
 
         private readonly static float maxScale = 1.5f; // maksymalna skala mapy
         private readonly static float minScale = 0.5f; // minimalna skala mapy
         public static Vector2 maxWorkAreaSize { get; private set; } // maksymalny rozmiar ekranu roboczego
-        public static Vector2 minWorkAreaSize { get; private set; } // maksymalny rozmiar ekranu roboczego
+        public static Vector2 minWorkAreaSize { get; private set; } // minimalny rozmiar ekranu roboczego
 
         public static Vector2 mapPos; // pozycja mapy
 
@@ -126,6 +126,12 @@ namespace Testy_mapy
             return pos - (mapPos - screenSize / 2);
         }
 
+        /// <summary>
+        /// Oblicza przeskalowany prostokąt służący do wyświetlania
+        /// </summary>
+        /// <param name="pos">Oryginalna pozycja w jednostkach ekranowych</param>
+        /// <param name="size">Oryginalny rozmiar</param>
+        /// <returns></returns>
         public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size)
         {
             Rectangle rect = new Rectangle();
@@ -143,9 +149,30 @@ namespace Testy_mapy
             return rect;
         }
 
+        /// <summary>
+        /// Oblicza przeskalowany prostokąt służący do wyświetlania
+        /// </summary>
+        /// <param name="o">obiekt, który chcemy przeskalować</param>
+        /// <returns></returns>
         public static Rectangle CalculateScaleRectangle(Object o)
         {
             return CalculateScaleRectangle(o.pos, o.size);
+        }
+
+        /// <summary>
+        /// Oblicza pozycję punktu po przeskalowaniu
+        /// </summary>
+        /// <param name="position">Oryginalna pozycja w jednostkach ekranowych</param>
+        /// <returns></returns>
+        public static Vector2 CalculateScalePoint(Vector2 position)
+        {
+            Vector2 newPos = new Vector2();
+
+            Vector2 v_mapPos = MapPosToScreenPos(mapPos);
+
+            newPos = v_mapPos + ((position - v_mapPos) / scale);
+
+            return newPos;
         }
 
         /// <summary>

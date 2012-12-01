@@ -43,7 +43,9 @@ namespace Testy_mapy
         // !!! metody pomocnicze do EW. USUNIECIA !!!
         public void DrawPoint(Vector2 pos)
         {
-            Rectangle rect = new Rectangle((int)pos.X, (int)pos.Y, 4, 4);
+            Vector2 newPos = Helper.CalculateScalePoint(pos);
+            Rectangle rect = new Rectangle((int)newPos.X, (int)newPos.Y, 4, 4);
+
             spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
         }
 
@@ -66,6 +68,7 @@ namespace Testy_mapy
             if (keybState.IsKeyDown(Keys.B) && b_release)
             {
                 busMode = true;
+                drawMap.CreateGrass(busLogic.GetBusPosition());
                 b_release = false;
             }
             if (keybState.IsKeyUp(Keys.B))
@@ -133,6 +136,7 @@ namespace Testy_mapy
             drawMap.LoadMap("test.mp", ref busPosition, ref busRotation);
             busLogic.SetDirection(busRotation);
             busLogic.SetPosition(busPosition);
+            drawMap.CreateGrass(busLogic.GetBusPosition());
 
             startPos = busLogic.GetRealPosition(); // !!! do EW. USUNIECIA !!!
             Helper.mapPos = startPos; // !!! TO TEZ
@@ -179,7 +183,6 @@ namespace Testy_mapy
                 if (keybState.IsKeyDown(Keys.B) && b_release)
                 {
                     busMode = false; // Wy³¹cza je¿d¿enie autobusem.
-                    drawMap.CreateGrass();
                     b_release = false;
                 }
                 if (keybState.IsKeyUp(Keys.B))
