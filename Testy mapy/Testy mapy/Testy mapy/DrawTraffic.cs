@@ -83,7 +83,7 @@ namespace Testy_mapy
         public void DrawIndicator(SpriteBatch spriteBatch, Object indicator)
         {
             Vector2 position = Helper.MapPosToScreenPos(indicator.pos);
-            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)indicator.size.X, (int)indicator.size.Y);
+            Rectangle rect = Helper.CalculateScaleRectangle(position, indicator.size);
 
             spriteBatch.Draw(indicatorTexture, rect, null, Color.White, MathHelper.ToRadians(indicator.rotate), indicator.origin, SpriteEffects.None, 1);
         }
@@ -94,7 +94,7 @@ namespace Testy_mapy
         public void DrawTailLight(SpriteBatch spriteBatch, Object tailLight)
         {
             Vector2 position = Helper.MapPosToScreenPos(tailLight.pos);
-            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)tailLight.size.X, (int)tailLight.size.Y);
+            Rectangle rect = Helper.CalculateScaleRectangle(position, tailLight.size);
 
             spriteBatch.Draw(tailLightTexture, rect, null, Color.White, MathHelper.ToRadians(tailLight.rotate), tailLight.origin, SpriteEffects.None, 1);
         }
