@@ -190,6 +190,7 @@ namespace Testy_mapy
             public Vector2 sizeOffset;        // Pozwala modyfikować wielkość pojazdu, na podstawie której są obliczne collision points.
 
             private float detectionPointsDistance = 50; // Odległość detection points od przodu samochodu.
+            private float forwardDetectionPointsDistance = 80; // Odległość forward detection points od samochodu.
 
             // Used for moving bus back in case of collision.
             private Vector2 oldPosition;
@@ -252,10 +253,24 @@ namespace Testy_mapy
             }
 
             /// <summary>
-            /// Points used for detecting if the car should stop.
+            /// This version of the function takes no arguments and sets the default distance.
             /// </summary>
             /// <returns></returns>
             public Vector2[] GetDetectionPoints()
+            {
+                return GetDetectionPoints(detectionPointsDistance);
+            }
+
+            public Vector2[] GetForwardDetectionPoints()
+            {
+                return GetDetectionPoints(forwardDetectionPointsDistance);
+            }
+
+            /// <summary>
+            /// Points used for detecting if the car should stop.
+            /// </summary>
+            /// <returns></returns>
+            private Vector2[] GetDetectionPoints(float distanceFromFront)
             {
                 Vector2 frontPosition; // Pozycja środka przodu samochodu.
 
@@ -265,7 +280,7 @@ namespace Testy_mapy
                 float detectionDirection; // Kierunek detekcji.
                 if (IsRedirecting())
                 {
-                    Vector2 forwardPoint = roadsSwitching.GetForwardPoint(100); //Oblicz kierunek z kierunku ruchu po skrzyżowaniu.
+                    Vector2 forwardPoint = roadsSwitching.GetForwardPoint(distanceFromFront, frontPosition); //Oblicz kierunek z kierunku ruchu po skrzyżowaniu.
                     detectionDirection = Helper.CalculateDirection(frontPosition, forwardPoint);
                 }
                 else
@@ -276,11 +291,10 @@ namespace Testy_mapy
                 Vector2 p1, p2, p3;
 
                 // Oblicz punkt p2.
-                p2.X = position.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));  // Przeuń do przodu.
-                p2.Y = position.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                p2 = frontPosition; // Już obliczyliśmy tą wartość.
 
-                p2.X += (detectionPointsDistance * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))); // Przesuń punkt p2 w kierunku detekcji.
-                p2.Y -= (detectionPointsDistance * (float)Math.Cos(MathHelper.ToRadians(detectionDirection)));
+                p2.X += (distanceFromFront * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))); // Przesuń punkt p2 w kierunku detekcji.
+                p2.Y -= (distanceFromFront * (float)Math.Cos(MathHelper.ToRadians(detectionDirection)));
 
                 // Oblicz punkt p1.
                 p1.X = p2.X - (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(detectionDirection))) / 2);
@@ -298,10 +312,17 @@ namespace Testy_mapy
             /// <summary>
             /// Get the center of the vehicle.
             /// </summary>
-            /// <returns></returns>
             public Vector2 GetVehiclePosition()
             {
                 return CalculateCenter(position, direction);
+            }
+
+            /// <summary>
+            /// Get the position directly from the variable.
+            /// </summary>
+            public Vector2 GetRealVehiclePosition()
+            {
+                return position;
             }
 
             /// <summary>
@@ -544,12 +565,31 @@ namespace Testy_mapy
                 /// <summary>
                 /// Get one of the next points from the Bezier curve without increasing the bezierT parameter.
                 /// </summary>
-                /// <param name="add">Which next point do you want? It will return 10th new point if 10 given.</param>
-                public Vector2 GetForwardPoint(float add)
+                /// <param name="distance">The required distance from the given point.</param>
+                /// <param name="from">Given point.</param>
+                public Vector2 GetForwardPoint(float distance, Vector2 from)
                 {
-                    float bezierParameterT = bezierT + (bezierTInc * add);
-                    Vector2 point = GenerateBezierCurve(bezierParameterT);
-                    return point;
+                    float bezierParameterT = bezierT;
+                    Vector2 point;
+                    float lastDistance;
+                    bool increasing = false;
+
+                    point = GenerateBezierCurve(bezierParameterT);
+                    lastDistance = Helper.CalculateDistance(from, point);
+
+                    while(true)
+                    {
+                        bezierParameterT += bezierTInc;
+                        point = GenerateBezierCurve(bezierParameterT);
+                        
+                        float currentDistance = Helper.CalculateDistance(from, point);
+
+                        if (currentDistance > lastDistance)
+                            increasing = true;
+
+                        if (increasing && currentDistance >= distance)
+                            return point;
+                    }
                 }
 
                 /// <summary>
@@ -756,6 +796,39 @@ namespace Testy_mapy
         }
 
         /// <summary>
+        /// Check if the car should match the speed of any other vehicle.
+        /// </summary>
+        public bool MatchSpeeds(Vehicle vehicle, BusLogic busLogic)
+        {
+            Vector2[] points = vehicle.GetDetectionPoints();
+            foreach (Vector2 point in points)
+            {
+                Vector2[] collisionPoints;
+                MyRectangle rectangle;
+
+                if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) // Jeśli autobus jest blisko, sprawdź go.
+                {
+                    collisionPoints = busLogic.GetCollisionPoints(busLogic.GetRealPosition(), busLogic.GetDirection());
+                    rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
+                    if (Helper.IsInside(point, rectangle))
+                        return false;
+                }
+
+                foreach (Vehicle checkedVehicle in vehicles)
+                {
+                    if (Helper.CalculateDistance(checkedVehicle.GetVehiclePosition(), point) < 200 && vehicle != checkedVehicle) // Jeśli dany pojazd jest dostatecznie blisko, sprawdż go.
+                    {
+                        collisionPoints = checkedVehicle.GetCollisionPoints();
+                        rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
+                        if (Helper.IsInside(point, rectangle))
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Get the list of all vehicles as Objects.
         /// </summary>
         public List<Object> GetAllVehicles()
@@ -800,8 +873,22 @@ namespace Testy_mapy
                 foreach (Vector2 point in pointsArray)
                     list.Add(Helper.MapPosToScreenPos(point));
 
+                pointsArray = vehicle.GetForwardDetectionPoints();
+
+                foreach (Vector2 point in pointsArray)
+                    list.Add(Helper.MapPosToScreenPos(point));
+
+
                 if (vehicle.IsRedirecting())
-                    list.Add(Helper.MapPosToScreenPos(vehicle.roadsSwitching.GetForwardPoint(50)));
+                {
+                    Vector2 frontPosition; // Pozycja środka przodu samochodu.
+
+                    frontPosition.X = vehicle.GetRealVehiclePosition().X + (vehicle.GetVehicleSize().Y * (float)Math.Sin(MathHelper.ToRadians(vehicle.GetVehicleDirection())));
+                    frontPosition.Y = vehicle.GetRealVehiclePosition().Y - (vehicle.GetVehicleSize().Y * (float)Math.Cos(MathHelper.ToRadians(vehicle.GetVehicleDirection())));
+
+                    list.Add(Helper.MapPosToScreenPos(vehicle.roadsSwitching.GetForwardPoint(50, frontPosition)));
+                    list.Add(Helper.MapPosToScreenPos(vehicle.roadsSwitching.GetForwardPoint(100, frontPosition)));
+                }
             }
 
             return list.ToArray();
