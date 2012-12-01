@@ -43,7 +43,6 @@ namespace Testy_mapy
         {
             Vector2 position = Helper.MapPosToScreenPos(bus.pos);
             Vector2 size = bus.size;
-            //Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)bus.size.X, (int)bus.size.Y);
 
             Rectangle rect = Helper.CalculateScaleRectangle(position, size);
 
@@ -53,7 +52,7 @@ namespace Testy_mapy
         public void DrawTailLight(SpriteBatch spriteBatch, Object tailLight)
         {
             Vector2 position = Helper.MapPosToScreenPos(tailLight.pos);
-            Rectangle rect = new Rectangle((int)position.X, (int)position.Y, (int)tailLight.size.X, (int)tailLight.size.Y);
+            Rectangle rect = Helper.CalculateScaleRectangle(position, tailLight.size);
 
             spriteBatch.Draw(tailLightTexture, rect, null, Color.White, MathHelper.ToRadians(tailLight.rotate), tailLight.origin, SpriteEffects.None, 1);
         }
