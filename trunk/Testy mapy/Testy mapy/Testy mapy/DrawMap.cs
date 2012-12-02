@@ -286,10 +286,17 @@ namespace Testy_mapy
             return mapLogic.IsCollision(points);
         }
 
-        // size okreœla o ile od krawêdzi mapy mo¿e byæ oddalone skrzy¿owanie
-        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin, out Vector2 randomOutPoint)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="size">Okreœla o ile od krawêdzi mapy mo¿e najdalej byæ skrzy¿owanie</param>
+        /// <param name="carLength">D³ugoœæ auta (czyli wspó³rzêdna Y wielkoœci lub Height)</param>
+        /// <param name="connection">Po³¹czenie miêdzy skrzy¿owaniami</param>
+        /// <param name="origin">Œrodek jednego z skrzy¿owañ</param>
+        /// <param name="randomOutPoint">Losowy punkt wyjœcia inny od tego z connection z danego skrzy¿owania</param>
+        public void CreateTrack(Vector2 size, float carLength, out Connection connection, out Vector2 origin, out Vector2 randomOutPoint)
         {
-            trackLogic.CreateTrack(size, out connection, out origin, out randomOutPoint);
+            trackLogic.CreateTrack(size, carLength, out connection, out origin, out randomOutPoint);
         }
 
         public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)

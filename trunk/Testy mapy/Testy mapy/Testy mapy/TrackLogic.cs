@@ -362,29 +362,27 @@ namespace Testy_mapy
         }
 
         // pobiera skrzyzowania z obszaru wiekszego od wielkosci ekranu, mniejszego od wielkosci ekranu + zadanego
-        private List<Junction> GetJunctionsFromArea(Vector2 size)
+        private List<Junction> GetJunctionsFromArea(Vector2 size, float carLength)
         {
             List<Junction> junctionsFromArea = new List<Junction>();
 
             foreach (Junction junction in junctions)
             {
                 Vector2 distance = new Vector2();
-                distance.X = Math.Abs(Helper.mapPos.X - junction.pos.X) - junction.origin.X;
-                distance.Y = Math.Abs(Helper.mapPos.Y - junction.pos.Y) - junction.origin.Y;
-
-                Vector2 halfScreenSize = Helper.screenSize / 2;
+                distance.X = Math.Abs(Helper.mapPos.X - junction.pos.X) - junction.origin.X + (carLength / 2);
+                distance.Y = Math.Abs(Helper.mapPos.Y - junction.pos.Y) - junction.origin.Y + (carLength / 2);
 
                 // sprawdzamy czy dane skrzyzowanie jest w naszym zadanym obszarze dla szerokosci
-                if (distance.X > halfScreenSize.X && distance.X < halfScreenSize.X + size.X
-                        && distance.Y < halfScreenSize.Y + size.Y)
+                if (distance.X > Helper.workAreaOrigin.X && distance.X < Helper.workAreaOrigin.X + size.X
+                        && distance.Y < Helper.workAreaOrigin.Y + size.Y)
                 {
                     junctionsFromArea.Add(junction);
                     continue;
                 }
 
                 // j.w. dla wysokosci
-                if (distance.Y > halfScreenSize.Y && distance.Y < halfScreenSize.Y + size.Y
-                        && distance.X < halfScreenSize.X + size.X)
+                if (distance.Y > Helper.workAreaOrigin.Y && distance.Y < Helper.workAreaOrigin.Y + size.Y
+                        && distance.X < Helper.workAreaOrigin.X + size.X)
                 {
                     junctionsFromArea.Add(junction);
                     continue;
@@ -706,9 +704,9 @@ namespace Testy_mapy
         }
 
         // size określa o ile od krawędzi mapy może być oddalone skrzyżowanie
-        public void CreateTrack(Vector2 size, out Connection connection, out Vector2 origin, out Vector2 randomOutPoint)
+        public void CreateTrack(Vector2 size, float carLength, out Connection connection, out Vector2 origin, out Vector2 randomOutPoint)
         {
-            List<Junction> junctionsFromArea = GetJunctionsFromArea(size);
+            List<Junction> junctionsFromArea = GetJunctionsFromArea(size, carLength);
 
             if (junctionsFromArea.Count == 0)
             {
