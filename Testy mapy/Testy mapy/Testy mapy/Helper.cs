@@ -138,13 +138,13 @@ namespace Testy_mapy
 
             Vector2 v_mapPos = MapPosToScreenPos(mapPos);
 
-            int x = (int)((pos.X - v_mapPos.X) / scale);
-            rect.X = (int)(v_mapPos.X + x);
-            int y = (int)((pos.Y - v_mapPos.Y) / scale);
-            rect.Y = (int)(v_mapPos.Y + y);
+            float x = ((pos.X - v_mapPos.X) / scale);
+            rect.X = (int)Math.Round(v_mapPos.X + x);
+            float y = ((pos.Y - v_mapPos.Y) / scale);
+            rect.Y = (int)Math.Round(v_mapPos.Y + y);
 
-            rect.Width = (int)(size.X / scale);
-            rect.Height = (int)(size.Y / scale);
+            rect.Width = (int)Math.Ceiling(size.X / scale);
+            rect.Height = (int)Math.Ceiling(size.Y / scale);
 
             return rect;
         }

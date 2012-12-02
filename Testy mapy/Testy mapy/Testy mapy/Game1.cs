@@ -44,7 +44,7 @@ namespace Testy_mapy
         public void DrawPoint(Vector2 pos)
         {
             Vector2 newPos = Helper.CalculateScalePoint(pos);
-            Rectangle rect = new Rectangle((int)newPos.X, (int)newPos.Y, 4, 4);
+            Rectangle rect = new Rectangle((int)Math.Round(newPos.X), (int)Math.Round(newPos.Y), 4, 4);
 
             spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
         }

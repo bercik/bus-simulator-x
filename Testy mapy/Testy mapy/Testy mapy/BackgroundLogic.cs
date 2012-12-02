@@ -23,6 +23,7 @@ namespace Testy_mapy
     class BackgroundLogic
     {
         Vector2 last_change_pos; // ostatnio zmieniona pozycja w jednostkach mapy (przy przesunięciu trawy tzw. "skoku")
+        Vector2 last_pos;
         Vector2 grassSize; // rozmiar trawy
         Point numberOfGrass; // ilość bloków trawy w pionie i poziomie
         Grass[,] grass; // tablica trawy
@@ -62,7 +63,7 @@ namespace Testy_mapy
         {
             string name = RandomGrassName();
             Vector2 leftUpEdge = last_change_pos - (Helper.maxWorkAreaSize / 2); // lewy górny kraniec mapy
-            grass[x, y] = new Grass(name, new Vector2(leftUpEdge.X + (x * grassSize.X) - (grassSize.X / 2), leftUpEdge.Y + (y * grassSize.Y) - (grassSize.Y / 2)));
+            grass[x, y] = new Grass(name, new Vector2(leftUpEdge.X + (x * grassSize.X) - (grassSize.X), leftUpEdge.Y + (y * grassSize.Y) - (grassSize.Y)));
         }
 
         private void RandomGrassName(int x, int y)
@@ -145,13 +146,13 @@ namespace Testy_mapy
                     {
                         float leftUpX = last_change_pos.X - (Helper.maxWorkAreaSize.X / 2); // lewy górny kraniec mapy
 
-                        grass[i, j].pos.X = leftUpX +  (i * grassSize.X) - (grassSize.X / 2);
+                        grass[i, j].pos.X = leftUpX +  (i * grassSize.X) - (grassSize.X);
                     }
                     else if (location == Location.vertical)
                     {
                         float leftUpY = last_change_pos.Y - (Helper.maxWorkAreaSize.Y / 2); // lewy górny kraniec mapy
 
-                        grass[i, j].pos.Y =leftUpY + (j * grassSize.Y) - (grassSize.Y / 2);
+                        grass[i, j].pos.Y =leftUpY + (j * grassSize.Y) - (grassSize.Y);
                     }
                 }
             }
@@ -199,28 +200,30 @@ namespace Testy_mapy
 
             if (difference_pos.X > grassSize.X)
             {
-                last_change_pos.X = pos.X;
+                last_change_pos.X = pos.X + Math.Abs(pos.X - last_pos.X);
 
                 Move(Direction.Right);
             }
             else if (difference_pos.X < -grassSize.X)
             {
-                last_change_pos.X = pos.X;
+                last_change_pos.X = pos.X - Math.Abs(pos.X - last_pos.X);
 
                 Move(Direction.Left);
             }
             if (difference_pos.Y > grassSize.Y)
             {
-                last_change_pos.Y = pos.Y;
+                last_change_pos.Y = pos.Y + Math.Abs(pos.Y - last_pos.Y);
 
                 Move(Direction.Down);
             }
             else if (difference_pos.Y < -grassSize.Y)
             {
-                last_change_pos.Y = pos.Y;
+                last_change_pos.Y = pos.Y - Math.Abs(pos.Y - last_pos.Y);
 
                 Move(Direction.Up);
             }
+
+            last_pos = pos;
         }
 
         public List<Grass> getGrassToShow()
