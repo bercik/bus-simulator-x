@@ -697,7 +697,7 @@ namespace Testy_mapy
 
             s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
 
-            while ((s_object = sr.ReadLine()) != null)
+            while ((s_object = sr.ReadLine()) != null && s_object != "*areas*")
             {
                 AddConnection(s_object);
             }

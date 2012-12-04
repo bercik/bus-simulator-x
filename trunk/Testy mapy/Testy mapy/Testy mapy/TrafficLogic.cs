@@ -963,7 +963,7 @@ namespace Testy_mapy
                 Vector2 junctionCenter, additionalOutpoint;
                 Connection getNewRoad;
 
-                drawMap.CreateTrack(spawnDistance, out getNewRoad, out junctionCenter, out additionalOutpoint);
+                drawMap.CreateTrack(spawnDistance, 100.0f, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
                 //if (!(getNewRoad.point1.X == 600 && getNewRoad.point1.Y == 450))
                   //  return;

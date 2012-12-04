@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -18,6 +19,8 @@ namespace Testy_mapy
     /// </summary>
     public class DrawMap
     {
+        SpriteFont areaChangeFont; // czcionka u¿ywana do wyœwietlenia nazwy zmienianego obszaru
+
         Dictionary<string, Texture2D> textures;
         Dictionary<string, Texture2D> grass;
         Dictionary<string, Texture2D> junctions;
@@ -27,6 +30,7 @@ namespace Testy_mapy
         BackgroundLogic backgroundLogic;
         TrackLogic trackLogic;
         PedestriansLogic pedestriansLogic;
+        AreasLogic areasLogic;
         Vector2 pos =  new Vector2(0, 0);
 
         bool load = false;
@@ -38,6 +42,7 @@ namespace Testy_mapy
             backgroundLogic = new BackgroundLogic();
             trackLogic = new TrackLogic();
             pedestriansLogic = new PedestriansLogic();
+            areasLogic = new AreasLogic();
         }
 
         /// <summary>
@@ -53,10 +58,29 @@ namespace Testy_mapy
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public void Update(GameTime gameTime, Vector2[] busCollisionPoints, float busSpeed)
+        public void Update(GameTime gameTime, Vector2[] busCollisionPoints)
         {
             // TODO: Add your update code here
-            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints, busSpeed);
+            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
+            areasLogic.Update(gameTime.ElapsedGameTime);
+        }
+
+        public void DrawAreasChange(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            string text;
+            Color color;
+
+            areasLogic.GetTextAndColorToShow(gameTime.ElapsedGameTime, out text, out color);
+
+            if (text != "")
+            {
+                // ustalanie pozycji tekstu na ekranie (tak aby by³ na samym jego œrodku):
+                Vector2 textSize = areaChangeFont.MeasureString(text);
+                Vector2 position = new Vector2(Helper.screenOrigin.X - (textSize.X / 2), 0);
+
+                // wyœwietlanie napisu na ekranie
+                spriteBatch.DrawString(areaChangeFont, text, position, color);
+            }
         }
 
         // rysuje obiekty pod autobusem
@@ -155,6 +179,9 @@ namespace Testy_mapy
             // ladujemy informacje o obiektach
             mapLogic.LoadObjectsInformation("objects.if");
 
+            // ladujemy czcionke uzywana do wyswietlania zmienionych obszarow
+            areaChangeFont = content.Load<SpriteFont>("areaChangeFont");
+
             // ladowanie tekstur obiektow (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();
 
@@ -239,7 +266,7 @@ namespace Testy_mapy
             pedestriansLogic.SetProperties(size, 3, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych
         }
 
-        // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu
+        // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu, startowa rotacja autobusu
         public bool LoadMap(string path, ref Vector2 startPosition, ref float startRotation)
         {
             path = "maps/" + path;
@@ -247,7 +274,8 @@ namespace Testy_mapy
             if (File.Exists(path))
             {
                 FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
+                Encoding enc = Encoding.GetEncoding("Windows-1250"); // dziêki temu mo¿emy odczytywaæ polskie znaki
+                StreamReader sr = new StreamReader(fs, enc);
 
                 // pobieramy startowa pozycje autobusu i jego rotacje
                 string s_startPosition = sr.ReadLine();
@@ -257,6 +285,7 @@ namespace Testy_mapy
 
                 mapLogic.LoadMap(ref sr);
                 trackLogic.LoadTrack(ref sr);
+                areasLogic.LoadAreas(ref sr);
                 mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania, drogi i chodniki jako obiekty do wyswietlenia
                 pedestriansLogic.SetSidewalks(trackLogic.GetSidewalks()); // ustawiamy skrzyzowania w klasie pedestriansLogic
 

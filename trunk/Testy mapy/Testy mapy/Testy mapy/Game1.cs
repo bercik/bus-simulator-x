@@ -232,7 +232,7 @@ namespace Testy_mapy
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-            drawMap.Update(gameTime, busLogic.GetCollisionPoints(), busLogic.GetCurrentSpeed());
+            drawMap.Update(gameTime, busLogic.GetCollisionPoints());
 
             // obs³uga skali mapy:
             if (keybState.IsKeyDown(Keys.PageUp))
@@ -255,7 +255,7 @@ namespace Testy_mapy
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 
             base.Draw(gameTime);
 
@@ -283,6 +283,8 @@ namespace Testy_mapy
 
             DrawPoints(drawMap.GetCollisionPointsToDraw());
 
+            // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
+            drawMap.DrawAreasChange(spriteBatch, gameTime);
 
             spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
             spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);

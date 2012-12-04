@@ -110,6 +110,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AreasLogic.cs" />
     <Compile Include="BackgroundLogic.cs" />
     <Compile Include="BusLogic.cs" />
     <Compile Include="CollisionsLogic.cs" />
