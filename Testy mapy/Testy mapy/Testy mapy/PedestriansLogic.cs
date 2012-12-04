@@ -193,7 +193,7 @@ namespace Testy_mapy
             }
         }
 
-        public bool CheckCollision(Vector2[] busCollisionPoints, float busSpeed)
+        public bool CheckCollision(Vector2[] busCollisionPoints)
         {
             if (!collision)
             {
@@ -475,7 +475,7 @@ namespace Testy_mapy
             this.frequences = frequences;
         }
 
-        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints, float busSpeed)
+        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints)
         {
             if (lastUpdateTime > updateTime)
             {
@@ -496,7 +496,7 @@ namespace Testy_mapy
                 for (int i = 0; i < alivePedestrians.Count; ++i)
                 {
                     alivePedestrians[i].Update(framesInterval);
-                    if (alivePedestrians[i].CheckCollision(busCollisionPoints, busSpeed))
+                    if (alivePedestrians[i].CheckCollision(busCollisionPoints))
                     {
                         sidewalkPedestrian.DiePedestrian(alivePedestrians[i]);
                         --i;
