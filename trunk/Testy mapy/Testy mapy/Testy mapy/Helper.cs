@@ -98,9 +98,9 @@ namespace Testy_mapy
 
         public static void SetScale(float f_scale)
         {
-            if (f_scale > minScale && f_scale < maxScale)
+            if (f_scale >= minScale && f_scale <= maxScale)
             {
-                scale = f_scale;
+                scale = (float)Math.Round(f_scale, 3);
 
                 CalculateWorkArea();
             }
@@ -136,7 +136,7 @@ namespace Testy_mapy
         {
             Rectangle rect = new Rectangle();
 
-            Vector2 v_mapPos = MapPosToScreenPos(mapPos);
+            Vector2 v_mapPos = Helper.screenOrigin; // pozycja srodka mapy w wspolrzednych ekranowych (zawsze srodek)
 
             float x = ((pos.X - v_mapPos.X) / scale);
             rect.X = (int)Math.Round(v_mapPos.X + x);

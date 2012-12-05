@@ -255,7 +255,7 @@ namespace Testy_mapy
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            spriteBatch.Begin();
 
             base.Draw(gameTime);
 
@@ -284,6 +284,8 @@ namespace Testy_mapy
             DrawPoints(drawMap.GetCollisionPointsToDraw());
 
             // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
             drawMap.DrawAreasChange(spriteBatch, gameTime);
 
             spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
