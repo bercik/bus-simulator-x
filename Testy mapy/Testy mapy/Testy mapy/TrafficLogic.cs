@@ -189,8 +189,8 @@ namespace Testy_mapy
             public Vector2 moveSize;          // Pozwala przesuwać collision points.
             public Vector2 sizeOffset;        // Pozwala modyfikować wielkość pojazdu, na podstawie której są obliczne collision points.
 
-            private float detectionPointsDistance = 50; // Odległość detection points od przodu samochodu.
-            private float forwardDetectionPointsDistance = 80; // Odległość forward detection points od samochodu.
+            private float detectionPointsDistance = 60; // Odległość detection points od przodu samochodu.
+            private float forwardDetectionPointsDistance = 100; // Odległość forward detection points od samochodu.
 
             // Used for moving bus back in case of collision.
             private Vector2 oldPosition;
@@ -272,21 +272,26 @@ namespace Testy_mapy
             /// <returns></returns>
             private Vector2[] GetDetectionPoints(float distanceFromFront)
             {
+                float widthOffset = 25; // O ile na boki zwiększyć rozmiar dla obliczeń punktów.
+
                 Vector2 frontPosition; // Pozycja środka przodu samochodu.
 
                 frontPosition.X = position.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));
                 frontPosition.Y = position.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
                 float detectionDirection; // Kierunek detekcji.
+                float detectionAngle; // Kąt detekcji.
                 if (IsRedirecting())
                 {
                     Vector2 forwardPoint = roadsSwitching.GetForwardPoint(distanceFromFront, frontPosition); //Oblicz kierunek z kierunku ruchu po skrzyżowaniu.
                     detectionDirection = Helper.CalculateDirection(frontPosition, forwardPoint);
+                    detectionAngle = Helper.CalculateDirection(position, forwardPoint);
                 }
                 else
                 {
-                    detectionDirection = direction; // Przypysz kierunek ruchu samochodu.
-                }                
+                    detectionDirection = direction; // Przypisz kierunek ruchu samochodu.
+                    detectionAngle = detectionDirection;
+                }
 
                 Vector2 p1, p2, p3;
 
@@ -297,13 +302,13 @@ namespace Testy_mapy
                 p2.Y -= (distanceFromFront * (float)Math.Cos(MathHelper.ToRadians(detectionDirection)));
 
                 // Oblicz punkt p1.
-                p1.X = p2.X - (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(detectionDirection))) / 2);
-                p1.Y = p2.Y - (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))) / 2);
+                p1.X = p2.X - (((size.X + widthOffset) * (float)Math.Cos(MathHelper.ToRadians(detectionAngle))) / 2);
+                p1.Y = p2.Y - (((size.X + widthOffset) * (float)Math.Sin(MathHelper.ToRadians(detectionAngle))) / 2);
                 
                 
                 // Oblicz punkt p3.
-                p3.X = p2.X + (((size.X + 5) * (float)Math.Cos(MathHelper.ToRadians(detectionDirection))) / 2);
-                p3.Y = p2.Y + (((size.X + 5) * (float)Math.Sin(MathHelper.ToRadians(detectionDirection))) / 2);
+                p3.X = p2.X + (((size.X + widthOffset) * (float)Math.Cos(MathHelper.ToRadians(detectionAngle))) / 2);
+                p3.Y = p2.Y + (((size.X + widthOffset) * (float)Math.Sin(MathHelper.ToRadians(detectionAngle))) / 2);
 
                 Vector2[] array = new Vector2[] { p1, p2, p3 };
                 return array;
@@ -589,6 +594,8 @@ namespace Testy_mapy
 
                         if (increasing && currentDistance >= distance)
                             return point;
+
+                        lastDistance = currentDistance;
                     }
                 }
 
@@ -763,9 +770,36 @@ namespace Testy_mapy
         }
 
         /// <summary>
+        /// Set low traffic density.
+        /// </summary>
+        public void SetTrafficDensityLow()
+        {
+            spawnInterval = 10;
+            maxVehicles = 5;
+        }
+
+        /// <summary>
+        /// Set medium traffic density.
+        /// </summary>
+        public void SetTrafficDensityMedium()
+        {
+            spawnInterval = 5;
+            maxVehicles = 10;
+        }
+
+        /// <summary>
+        /// Set high traffic density.
+        /// </summary>
+        public void SetTrafficDensityHigh()
+        {
+            spawnInterval = 2;
+            maxVehicles = 15;
+        }
+
+        /// <summary>
         /// Check if the road in front of the car is clear.
         /// </summary>
-        public bool IsRoadClear(Vehicle vehicle, BusLogic busLogic)
+        private bool IsRoadClear(Vehicle vehicle, BusLogic busLogic)
         {
             Vector2[] points = vehicle.GetDetectionPoints();
             foreach (Vector2 point in points)
@@ -960,33 +994,33 @@ namespace Testy_mapy
         {
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
             {
+                Random random = new Random();
+                int randomNumber = random.Next(1, maxRandom + 1);
+                int current = 0;
+
+                VehicleType type = new VehicleType();
+
+                foreach (VehicleType vehicleType in vehiclesTypes)
+                {
+                    if (randomNumber > current && randomNumber <= current + vehicleType.likelihoodOfApperance)
+                    {
+                        type = vehicleType;
+                        break;
+                    }
+
+                    current += vehicleType.likelihoodOfApperance;
+                }
+                
                 Vector2 junctionCenter, additionalOutpoint;
                 Connection getNewRoad;
 
-                drawMap.CreateTrack(spawnDistance, 100.0f, out getNewRoad, out junctionCenter, out additionalOutpoint);
+                drawMap.CreateTrack(spawnDistance, type.size.Y, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
                 //if (!(getNewRoad.point1.X == 600 && getNewRoad.point1.Y == 450))
                   //  return;
 
                 if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
-                    Random random = new Random();
-                    int randomNumber = random.Next(1, maxRandom + 1);
-                    int current = 0;
-
-                    VehicleType type = new VehicleType();
-
-                    foreach (VehicleType vehicleType in vehiclesTypes)
-                    {
-                        if (randomNumber > current && randomNumber <= current + vehicleType.likelihoodOfApperance)
-                        {
-                            type = vehicleType;
-                            break;
-                        }
-
-                        current += vehicleType.likelihoodOfApperance;
-                    }
-
                     Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset, junctionCenter, additionalOutpoint);
 
                     if (NoVehicleNearby(vehicle.GetVehiclePosition(), vehicle.GetVehicleSize()))
