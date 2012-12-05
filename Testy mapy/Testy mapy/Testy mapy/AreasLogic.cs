@@ -52,9 +52,12 @@ namespace Testy_mapy
         float transparency = 0.0f; // przeźroczystość tekstu
         bool hiding = false; // czy ukrywamy tekst
 
+        Color[] textColors; // kolory tekstu dla różnych typów obszaru
+
         public AreasLogic()
         {
             areas = new List<Area>();
+            textColors = new Color[]{ Color.Green, Color.Yellow, Color.Red };
         }
 
         /// <summary>
@@ -83,7 +86,8 @@ namespace Testy_mapy
             if (showText)
             {
                 text = areas[actualAreaIndex].name;
-                color = new Color((byte)100, (byte)200, (byte)155, (byte)transparency);
+                Color c = textColors[(int)areas[actualAreaIndex].areaType - 1]; // wybieramy kolor na podstawie typu obszaru
+                color = new Color((byte)c.R, (byte)c.G, (byte)c.B, (byte)transparency);
 
                 currentWaitingTime += (float)framesInterval.TotalMilliseconds;
                 UpdateTransparency((float)framesInterval.TotalMilliseconds);
