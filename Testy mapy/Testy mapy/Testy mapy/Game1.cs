@@ -128,7 +128,7 @@ namespace Testy_mapy
             drawTraffic.LoadContent(this.Content);
             drawMap.LoadContent(this.Content);
 
-            font = Content.Load<SpriteFont>("font1");
+            font = Content.Load<SpriteFont>("fonts/font1");
             point = Content.Load<Texture2D>("point");
 
             Vector2 busPosition = new Vector2(0, 0);
@@ -232,7 +232,7 @@ namespace Testy_mapy
             }
 
             trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-            drawMap.Update(gameTime, busLogic.GetCollisionPoints());
+            drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
 
             // obs³uga skali mapy:
             if (keybState.IsKeyDown(Keys.PageUp))

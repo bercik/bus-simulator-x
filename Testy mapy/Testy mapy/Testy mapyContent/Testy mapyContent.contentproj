@@ -42,22 +42,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="beczka.png">
+    <Compile Include="objects\beczka.png">
       <Name>beczka</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="junction1.png">
+    <Compile Include="junctions\junction1.png">
       <Name>junction1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="pole.png">
+    <Compile Include="objects\pole.png">
       <Name>pole</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="przystanek.png">
+    <Compile Include="objects\przystanek.png">
       <Name>przystanek</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -72,50 +72,50 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="znak_uwaga_zakret_w_lewo.png">
+    <Compile Include="objects\znak_uwaga_zakret_w_lewo.png">
       <Name>znak_uwaga_zakret_w_lewo</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="font1.spritefont">
+    <Compile Include="fonts\font1.spritefont">
       <Name>font1</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="trawa1.jpg">
+    <Compile Include="grass\trawa1.jpg">
       <Name>trawa1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="junction0.png">
+    <Compile Include="junctions\junction0.png">
       <Name>junction0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="junction2.png">
+    <Compile Include="junctions\junction2.png">
       <Name>junction2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="street0.png">
+    <Compile Include="streets\street0.png">
       <Name>street0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="street1.png">
+    <Compile Include="streets\street1.png">
       <Name>street1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="trawa0.jpg">
+    <Compile Include="grass\trawa0.jpg">
       <Name>trawa0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -129,47 +129,47 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="trawa2.jpg">
+    <Compile Include="grass\trawa2.jpg">
       <Name>trawa2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="street2.png">
+    <Compile Include="streets\street2.png">
       <Name>street2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="budynek0.png">
+    <Compile Include="objects\budynek0.png">
       <Name>budynek0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="junction3.png">
+    <Compile Include="junctions\junction3.png">
       <Name>junction3</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="drzewo.png">
+    <Compile Include="objects\drzewo.png">
       <Name>drzewo</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="oczko_wodne.png">
+    <Compile Include="objects\oczko_wodne.png">
       <Name>oczko_wodne</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="pasy.png">
+    <Compile Include="objects\pasy.png">
       <Name>pasy</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -179,7 +179,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="smietnik.png">
+    <Compile Include="objects\smietnik.png">
       <Name>smietnik</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -200,104 +200,104 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="barierka_duza.png">
+    <Compile Include="objects\barierka_duza.png">
       <Name>barierka_duza</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="barierka_mala.png">
+    <Compile Include="objects\barierka_mala.png">
       <Name>barierka_mala</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="chodnik0.png">
+    <Compile Include="sidewalks\chodnik0.png">
       <Name>chodnik0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="chodnik1.png">
+    <Compile Include="sidewalks\chodnik1.png">
       <Name>chodnik1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="murek.png">
+    <Compile Include="objects\murek.png">
       <Name>murek</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="kwiatek_bordowy.png">
+    <Compile Include="objects\kwiatek_bordowy.png">
       <Name>kwiatek_bordowy</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="kwiatek_pomaranczowy.png">
+    <Compile Include="objects\kwiatek_pomaranczowy.png">
       <Name>kwiatek_pomaranczowy</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="kwiatek_rozowy.png">
+    <Compile Include="objects\kwiatek_rozowy.png">
       <Name>kwiatek_rozowy</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="kwiatek_czerwony.png">
+    <Compile Include="objects\kwiatek_czerwony.png">
       <Name>kwiatek_czerwony</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="zatoka.png">
+    <Compile Include="objects\zatoka.png">
       <Name>zatoka</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="junction4.png">
+    <Compile Include="junctions\junction4.png">
       <Name>junction4</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="budynek1.png">
+    <Compile Include="objects\budynek1.png">
       <Name>budynek1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="pedestrian0.png">
+    <Compile Include="pedestrians\pedestrian0.png">
       <Name>pedestrian0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="pedestrian1.png">
+    <Compile Include="pedestrians\pedestrian1.png">
       <Name>pedestrian1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="pedestrian2.png">
+    <Compile Include="pedestrians\pedestrian2.png">
       <Name>pedestrian2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="chodnik2.png">
+    <Compile Include="sidewalks\chodnik2.png">
       <Name>chodnik2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="chodnik3.png">
+    <Compile Include="sidewalks\chodnik3.png">
       <Name>chodnik3</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="died_pedestrian.png">
+    <Compile Include="pedestrians\died_pedestrian.png">
       <Name>died_pedestrian</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -318,12 +318,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="areaChangeFont.spritefont">
+    <Compile Include="fonts\areaChangeFont.spritefont">
       <Name>areaChangeFont</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
+      <SubType>Designer</SubType>
     </Compile>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
