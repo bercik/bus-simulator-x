@@ -17,7 +17,7 @@ namespace Testy_mapy
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class DrawMap
+    class DrawMap
     {
         SpriteFont areaChangeFont; // czcionka u¿ywana do wyœwietlenia nazwy zmienianego obszaru
 
@@ -58,11 +58,11 @@ namespace Testy_mapy
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public void Update(GameTime gameTime, Vector2[] busCollisionPoints)
+        public void Update(GameTime gameTime, Vector2[] busCollisionPoints, ref TrafficLogic trafficLogic)
         {
             // TODO: Add your update code here
             pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
-            areasLogic.Update(gameTime.ElapsedGameTime);
+            areasLogic.Update(gameTime.ElapsedGameTime, ref trafficLogic);
         }
 
         public void DrawAreasChange(SpriteBatch spriteBatch, GameTime gameTime)
@@ -180,23 +180,24 @@ namespace Testy_mapy
             mapLogic.LoadObjectsInformation("objects.if");
 
             // ladujemy czcionke uzywana do wyswietlania zmienionych obszarow
-            areaChangeFont = content.Load<SpriteFont>("areaChangeFont");
+            areaChangeFont = content.Load<SpriteFont>("fonts/areaChangeFont");
 
             // ladowanie tekstur obiektow (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();
 
             string[] names = mapLogic.GetObjectsNames();
+            string objectTexturesDirectory = "objects/";
 
             foreach (string name in names)
-                textures.Add(name, content.Load<Texture2D>(name));
+                textures.Add(name, content.Load<Texture2D>(objectTexturesDirectory + name));
 
             mapLogic.AddStandartObjectsSize(textures);
 
             // ladowanie tekstur trawy
             grass = new Dictionary<string, Texture2D>();
-            grass.Add("trawa0", content.Load<Texture2D>("trawa0"));
-            grass.Add("trawa1", content.Load<Texture2D>("trawa1"));
-            grass.Add("trawa2", content.Load<Texture2D>("trawa2"));
+            grass.Add("trawa0", content.Load<Texture2D>("grass/trawa0"));
+            grass.Add("trawa1", content.Load<Texture2D>("grass/trawa1"));
+            grass.Add("trawa2", content.Load<Texture2D>("grass/trawa2"));
 
             Vector2 grassSize = new Vector2(grass[grass.Keys.ToList()[0]].Width, grass[grass.Keys.ToList()[0]].Width); // wielkosc tekstury trawy (MUSI byc jednakowa dla wszystkich tekstur trawy)
             backgroundLogic.SetProperties(grassSize, grass.Count);
@@ -209,44 +210,44 @@ namespace Testy_mapy
 
             // kierunki dodawaæ w kolejnoœci: GÓRA, PRAWO, DÓ£, LEWO
 
-            junctions.Add("junction0", content.Load<Texture2D>("junction0"));
+            junctions.Add("junction0", content.Load<Texture2D>("junctions/junction0"));
             directions = new Direction[] { Direction.Up, Direction.Right, Direction.Down, Direction.Left };
             size = new Vector2(junctions["junction0"].Width, junctions["junction0"].Height);
             trackLogic.AddJunctionType(size, directions);
 
-            junctions.Add("junction1", content.Load<Texture2D>("junction1"));
+            junctions.Add("junction1", content.Load<Texture2D>("junctions/junction1"));
             directions = new Direction[] { Direction.Right, Direction.Down };
             size = new Vector2(junctions["junction1"].Width, junctions["junction1"].Height);
             trackLogic.AddJunctionType(size, directions);
 
-            junctions.Add("junction2", content.Load<Texture2D>("junction2"));
+            junctions.Add("junction2", content.Load<Texture2D>("junctions/junction2"));
             directions = new Direction[] { Direction.Right, Direction.Down, Direction.Left };
             size = new Vector2(junctions["junction2"].Width, junctions["junction2"].Height);
             trackLogic.AddJunctionType(size, directions);
 
-            junctions.Add("junction3", content.Load<Texture2D>("junction3"));
+            junctions.Add("junction3", content.Load<Texture2D>("junctions/junction3"));
             directions = new Direction[] { Direction.Right, Direction.Down };
             size = new Vector2(junctions["junction3"].Width, junctions["junction3"].Height);
             trackLogic.AddJunctionType(size, directions);
 
-            junctions.Add("junction4", content.Load<Texture2D>("junction4"));
+            junctions.Add("junction4", content.Load<Texture2D>("junctions/junction4"));
             directions = new Direction[] { Direction.Right, Direction.Down, Direction.Left };
             size = new Vector2(junctions["junction4"].Width, junctions["junction4"].Height);
             trackLogic.AddJunctionType(size, directions);
 
             // ladowanie tekstur ulic
-            junctions.Add("street0", content.Load<Texture2D>("street0"));
-            junctions.Add("street1", content.Load<Texture2D>("street1"));
-            junctions.Add("street2", content.Load<Texture2D>("street2"));
+            junctions.Add("street0", content.Load<Texture2D>("streets/street0"));
+            junctions.Add("street1", content.Load<Texture2D>("streets/street1"));
+            junctions.Add("street2", content.Load<Texture2D>("streets/street2"));
 
             size = new Vector2(junctions["street0"].Width, junctions["street0"].Height);
             trackLogic.SetStreetSize(size, 3); // !!! zmieniæ przy dodaniu lub usunieciu tekstury ulicy
 
             // ladowanie tekstur chodnikow
-            junctions.Add("chodnik0", content.Load<Texture2D>("chodnik0"));
-            junctions.Add("chodnik1", content.Load<Texture2D>("chodnik1"));
-            junctions.Add("chodnik2", content.Load<Texture2D>("chodnik2"));
-            junctions.Add("chodnik3", content.Load<Texture2D>("chodnik3"));
+            junctions.Add("chodnik0", content.Load<Texture2D>("sidewalks/chodnik0"));
+            junctions.Add("chodnik1", content.Load<Texture2D>("sidewalks/chodnik1"));
+            junctions.Add("chodnik2", content.Load<Texture2D>("sidewalks/chodnik2"));
+            junctions.Add("chodnik3", content.Load<Texture2D>("sidewalks/chodnik3"));
 
             int[] frequences = new int[] { 1, 3, 5, 12 }; // dodac lub usunac przy dodaniu lub usunieciu jednego typu chodnika
             pedestriansLogic.SetFrequencyOfOccurrencePedestrians(frequences);
@@ -257,10 +258,10 @@ namespace Testy_mapy
 
             // ladowanie tekstur pieszych
             pedestrians = new Dictionary<string, Texture2D>();
-            pedestrians.Add("died_pedestrian", content.Load<Texture2D>("died_pedestrian"));
-            pedestrians.Add("pedestrian0", content.Load<Texture2D>("pedestrian0"));
-            pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrian1"));
-            pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrian2"));
+            pedestrians.Add("died_pedestrian", content.Load<Texture2D>("pedestrians/died_pedestrian"));
+            pedestrians.Add("pedestrian0", content.Load<Texture2D>("pedestrians/pedestrian0"));
+            pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrians/pedestrian1"));
+            pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrians/pedestrian2"));
 
             size = new Vector2(pedestrians["pedestrian0"].Width, pedestrians["pedestrian0"].Height);
             pedestriansLogic.SetProperties(size, 3, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych

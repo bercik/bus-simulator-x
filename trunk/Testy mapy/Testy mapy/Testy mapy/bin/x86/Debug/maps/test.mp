@@ -112,5 +112,5 @@ barierka_duza;439;1910;0;0;270,0;0
 1500;5850;1500;5850;-1
 *areas*
 //nazwa;typ(1,2,3);iloœæ prostok¹tów obszaru;pozycja x; pozycja y;szerokosc;wysokosc (prostokata obszaru 1, potem ew. 2 itd.)
-centrum;3;2;0;0;1500;1200;900;1200;600;1000
-przedmieœcia;2;2;0;1200;900;1000;0;2200;2100;4800
+CENTRUM;3;2;0;0;1500;1200;900;1200;600;1000
+PRZEDMIEŒCIA;2;2;0;1200;900;1000;0;2200;2100;4800

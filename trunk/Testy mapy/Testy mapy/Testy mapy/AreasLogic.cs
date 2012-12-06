@@ -65,19 +65,41 @@ namespace Testy_mapy
         /// </summary>
         /// <param name="framesInterval"></param>
         /// <returns></returns>
-        public AreaType Update(TimeSpan framesInterval)
+        public void Update(TimeSpan framesInterval, ref TrafficLogic trafficLogic)
         {
             if (lastUpdateTime > updateTime)
             {
                 lastUpdateTime = 0.0f;
 
-                return CheckTypeOfAreaItsLocated();
+                if (CheckIsChangeAreaType())
+                {
+                    ChangeTraffic(ref trafficLogic);
+                }
             }
             else
             {
                 lastUpdateTime += (float)framesInterval.TotalMilliseconds;
 
-                return (actualAreaIndex != -1 ? areas[actualAreaIndex].areaType : AreaType.village);
+                if (actualAreaIndex == -1)
+                {
+                    return;
+                }
+            }
+        }
+
+        private void ChangeTraffic(ref TrafficLogic trafficLogic)
+        {
+            switch (areas[actualAreaIndex].areaType)
+            {
+                case AreaType.village:
+                    trafficLogic.SetTrafficDensityLow();
+                    break;
+                case AreaType.suburbs:
+                    trafficLogic.SetTrafficDensityMedium();
+                    break;
+                case AreaType.town:
+                    trafficLogic.SetTrafficDensityHigh();
+                    break;
             }
         }
 
@@ -128,11 +150,15 @@ namespace Testy_mapy
             }
         }
 
-        private AreaType CheckTypeOfAreaItsLocated()
+        private bool CheckIsChangeAreaType()
         {
             // jezeli nie pokazujemy aktualnie tekstu o zmienieniu obszaru (jezeli tak to czekamy az ten tekst zniknie i wtedy wznawiamy sprawdzanie)
             if (!showText)
             {
+                if (actualAreaIndex != -1 && areas[actualAreaIndex].ContainPoint(Helper.mapPos))
+                {
+                    return false;
+                }
                 for (int i = 0; i < areas.Count; ++i)
                 {
                     if (i == actualAreaIndex)
@@ -143,13 +169,22 @@ namespace Testy_mapy
                     {
                         // tutaj ma się znaleźć metoda która wyświetla na ekranie informacje o wjechaniu do nowej strefy!
                         showText = true;
-                        actualAreaIndex = i;
-                        return areas[i].areaType;
+
+                        if (actualAreaIndex == -1 || (areas[actualAreaIndex].areaType != areas[i].areaType))
+                        {
+                            actualAreaIndex = i;
+                            return true;
+                        }
+                        else
+                        {
+                            actualAreaIndex = i;
+                            return false;
+                        }
                     }
                 }
             }
 
-            return (actualAreaIndex != -1 ? areas[actualAreaIndex].areaType : AreaType.village);
+            return false;
         }
 
         // laduje obszary z pliku
