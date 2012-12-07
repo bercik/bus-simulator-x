@@ -82,7 +82,7 @@ namespace Testy_mapy
         public static Vector2 workAreaOrigin { get; private set; } // srodek roboczego ekranu
         private static float scale; // skalowanie
 
-        private readonly static float maxScale = 1.5f; // maksymalna skala mapy
+        private readonly static float maxScale = 2.0f; // maksymalna skala mapy (nie dawać zbyt dużej wartości, bo może spowolnić szybkość działania gry)
         private readonly static float minScale = 0.5f; // minimalna skala mapy
         public static Vector2 maxWorkAreaSize { get; private set; } // maksymalny rozmiar ekranu roboczego
         public static Vector2 minWorkAreaSize { get; private set; } // minimalny rozmiar ekranu roboczego
