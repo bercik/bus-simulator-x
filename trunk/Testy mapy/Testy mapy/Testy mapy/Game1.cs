@@ -118,7 +118,7 @@ namespace Testy_mapy
         {
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            Helper.SetScale(1.0f);
+            Helper.SetScale(2.0f);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
