@@ -369,8 +369,8 @@ namespace Testy_mapy
             foreach (Junction junction in junctions)
             {
                 Vector2 distance = new Vector2();
-                distance.X = Math.Abs(Helper.mapPos.X - junction.pos.X) - junction.origin.X + (carLength / 2);
-                distance.Y = Math.Abs(Helper.mapPos.Y - junction.pos.Y) - junction.origin.Y + (carLength / 2);
+                distance.X = Math.Abs(Helper.mapPos.X - junction.pos.X) - junction.origin.X - (carLength / 2);
+                distance.Y = Math.Abs(Helper.mapPos.Y - junction.pos.Y) - junction.origin.Y - (carLength / 2);
 
                 // sprawdzamy czy dane skrzyzowanie jest w naszym zadanym obszarze dla szerokosci
                 if (distance.X > Helper.workAreaOrigin.X && distance.X < Helper.workAreaOrigin.X + size.X
