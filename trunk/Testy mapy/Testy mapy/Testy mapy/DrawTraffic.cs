@@ -32,7 +32,7 @@ namespace Testy_mapy
             vehicleTexture3 = content.Load<Texture2D>("vehicle3");
             indicatorTexture = content.Load<Texture2D>("vehicle_indicator");
             tailLightTexture = content.Load<Texture2D>("vehicle_taillight");
-            point = content.Load<Texture2D>("point");
+            point = content.Load<Texture2D>("help/point");
         }
 
         /// <summary>

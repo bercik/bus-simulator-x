@@ -59,11 +59,24 @@ namespace Testy_mapy
             return grassSize;
         }
 
+        private float GetXPosition(int x)
+        {
+            float leftUpX = last_change_pos.X - (Helper.maxWorkAreaSize.X / 2); // lewy górny kraniec mapy
+
+            return leftUpX + (x * grassSize.X) - (grassSize.X);
+        }
+
+        private float GetYPosition(int y)
+        {
+            float leftUpY = last_change_pos.Y - (Helper.maxWorkAreaSize.Y / 2); // lewy górny kraniec mapy
+
+            return leftUpY + (y * grassSize.Y) - (grassSize.Y);
+        }
+
         private void RandomGrass(int x, int y)
         {
             string name = RandomGrassName();
-            Vector2 leftUpEdge = last_change_pos - (Helper.maxWorkAreaSize / 2); // lewy górny kraniec mapy
-            grass[x, y] = new Grass(name, new Vector2(leftUpEdge.X + (x * grassSize.X) - (grassSize.X), leftUpEdge.Y + (y * grassSize.Y) - (grassSize.Y)));
+            grass[x, y] = new Grass(name, new Vector2(GetXPosition(x), GetYPosition(y)));
         }
 
         private void RandomGrassName(int x, int y)
@@ -144,15 +157,11 @@ namespace Testy_mapy
                 {
                     if (location == Location.horizontal)
                     {
-                        float leftUpX = last_change_pos.X - (Helper.maxWorkAreaSize.X / 2); // lewy górny kraniec mapy
-
-                        grass[i, j].pos.X = leftUpX +  (i * grassSize.X) - (grassSize.X);
+                        grass[i, j].pos.X = GetXPosition(i);
                     }
                     else if (location == Location.vertical)
                     {
-                        float leftUpY = last_change_pos.Y - (Helper.maxWorkAreaSize.Y / 2); // lewy górny kraniec mapy
-
-                        grass[i, j].pos.Y =leftUpY + (j * grassSize.Y) - (grassSize.Y);
+                        grass[i, j].pos.Y = GetYPosition(j);
                     }
                 }
             }

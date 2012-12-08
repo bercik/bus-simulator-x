@@ -35,10 +35,20 @@ namespace Testy_mapy
 
         // !!! pomocnicze zmienne do EW. USUNIECIA !!!
         Vector2 startPos = new Vector2(200, 1200); //poczatkowa pozycja
-        Texture2D point;
+        Texture2D point; // tekstura punktu
+        
+        float scrollingSpeed = 10.0f; // predkosc przewijania mapy
+
+        // BUS MODE:
         bool busMode = true; // czy jezdzimy autobusem czy przesuwamy mape
-        float scrollingSpeed = 10.0f;
-        bool b_release = true;
+        bool b_release = true; // czy zwolniono klawisz B
+
+        // MAP PREVIEW:
+        bool m_release = true; // czy zwolniono klawisz M
+        bool previewMode = false; // czy aktualnie jesteœmy w trybie podgl¹du mapy
+        float previewScale = 7.0f; // skala przy podgl¹dzie
+        readonly float maxPreviewScale = 10.0f; // maksymalna skala podgl¹du mapy
+        readonly float minPreviewScale = 4.0f; // minimalna skala podgl¹du mapy
 
         // !!! metody pomocnicze do EW. USUNIECIA !!!
         public void DrawPoint(Vector2 pos)
@@ -65,16 +75,6 @@ namespace Testy_mapy
                 Helper.mapPos += new Vector2(-scrollingSpeed, 0);
             if (keybState.IsKeyDown(Keys.Right))
                 Helper.mapPos += new Vector2(scrollingSpeed, 0);
-            if (keybState.IsKeyDown(Keys.B) && b_release)
-            {
-                busMode = true;
-                drawMap.CreateGrass(busLogic.GetBusPosition());
-                b_release = false;
-            }
-            if (keybState.IsKeyUp(Keys.B))
-                b_release = true;
-            if (keybState.IsKeyDown(Keys.Escape))
-                Exit();
         }
 
         public Game1()
@@ -129,7 +129,7 @@ namespace Testy_mapy
             drawMap.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("fonts/font1");
-            point = Content.Load<Texture2D>("point");
+            point = Content.Load<Texture2D>("help/point");
 
             Vector2 busPosition = new Vector2(0, 0);
             float busRotation = 0.0f;
@@ -166,83 +166,128 @@ namespace Testy_mapy
             // Obs³uga klawiatury.
             KeyboardState keybState = Keyboard.GetState();
 
-            if (busMode)
+            if (!previewMode) // je¿eli nie jesteœmy obecnie w podgl¹dzie mapy to wszystko dzia³a normalnie
             {
-                if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false;         // Powinien hamowac?
+                if (busMode)
+                {
+                    if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false;         // Powinien hamowac?
 
-                if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; // Powinien przyspieszac?
+                    if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; // Powinien przyspieszac?
 
-                if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false;        // Skrêcamy w prawo?
+                    if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false;        // Skrêcamy w prawo?
 
-                if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false;           // Skrêcamy w lewo?
+                    if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false;           // Skrêcamy w lewo?
 
-                if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos);          // Przywróæ na pozycje pocz¹tkow¹.
+                    if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos);          // Przywróæ na pozycje pocz¹tkow¹.
 
-                if (keybState.IsKeyDown(Keys.Escape)) Exit();                                 // WyjdŸ z gry.
+                    /* <ZMIANY BIEGOW>
+                      To wszystko zapobiega zmienieniu biegu z ka¿dym tickiem, w koñcu chcemy ¿eby zosta³ zmieniony tylko przy wciœniêciu przycisku
+                    */
+                    if (keybState.IsKeyDown(Keys.A) && prevup)
+                    {
+                        up = true;
+                        prevup = false;
+                    }
+                    else
+                        up = false;
 
+                    if (keybState.IsKeyUp(Keys.A))
+                        prevup = true;
+
+                    if (keybState.IsKeyDown(Keys.Z) && prevdown)
+                    {
+                        down = true;
+                        prevdown = false;
+                    }
+                    else
+                        down = false;
+
+                    if (keybState.IsKeyUp(Keys.Z))
+                        prevdown = true;
+                    /* </ZMIANY BIEGOW> */
+
+                    // Logika autobusu.
+                    busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
+
+                    // Ustawienia mapy i klasy pomocniczej.
+                    drawMap.SetPosition(busLogic.GetBusPosition());
+                    Helper.mapPos = busLogic.GetBusPosition();
+                    Helper.busPos = busLogic.GetBusPosition();
+
+                    // Kolizje.
+                    collisionsLogic.HandleCollisions(trafficLogic, busLogic);
+                }
+                else
+                {
+                    UpdatePos(keybState, gameTime);
+
+                    drawMap.SetPosition(Helper.mapPos);
+                }
+
+                // obs³uga BUS MODE i MAP PREVIEW
                 if (keybState.IsKeyDown(Keys.B) && b_release)
                 {
-                    busMode = false; // Wy³¹cza je¿d¿enie autobusem.
+                    if (!busMode)
+                        drawMap.CreateGrass(Helper.mapPos);
+
+                    busMode = !busMode;
                     b_release = false;
                 }
                 if (keybState.IsKeyUp(Keys.B))
                     b_release = true;
 
-                /* <ZMIANY BIEGOW>
-                  To wszystko zapobiega zmienieniu biegu z ka¿dym tickiem, w koñcu chcemy ¿eby zosta³ zmieniony tylko przy wciœniêciu przycisku
-                */
-                if (keybState.IsKeyDown(Keys.A) && prevup)
+                if (keybState.IsKeyDown(Keys.M) && m_release) // w³¹cza/wy³¹cza podgl¹d mapy
                 {
-                    up = true;
-                    prevup = false;
+                    previewMode = !previewMode;
+                    m_release = false;
                 }
-                else
-                    up = false;
+                if (keybState.IsKeyUp(Keys.M))
+                    m_release = true;
 
-                if (keybState.IsKeyUp(Keys.A))
-                    prevup = true;
+                // obs³uga skali mapy:
+                if (keybState.IsKeyDown(Keys.PageUp))
+                    Helper.SetScale(Helper.GetScale() + 0.01f);
 
-                if (keybState.IsKeyDown(Keys.Z) && prevdown)
-                {
-                    down = true;
-                    prevdown = false;
-                }
-                else
-                    down = false;
+                if (keybState.IsKeyDown(Keys.PageDown))
+                    Helper.SetScale(Helper.GetScale() - 0.01f);
 
-                if (keybState.IsKeyUp(Keys.Z))
-                    prevdown = true;
-                /* </ZMIANY BIEGOW> */
+                if (keybState.IsKeyDown(Keys.Delete))
+                    Helper.SetScale(1.0f);
 
-                // Logika autobusu.
-                busLogic.Update(accelerate, brake, left, right, up, down, gameTime.ElapsedGameTime);
-
-                // Ustawienia mapy i klasy pomocniczej.
-                drawMap.SetPosition(busLogic.GetBusPosition());
-                Helper.mapPos = busLogic.GetBusPosition();
-
-                // Kolizje.
-                collisionsLogic.HandleCollisions(trafficLogic, busLogic);
+                trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
+                drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
             }
             else
             {
                 UpdatePos(keybState, gameTime);
 
-                drawMap.SetPosition(Helper.mapPos);
+                // obs³uga MAP PREVIEW:
+                if (keybState.IsKeyDown(Keys.M) && m_release) // w³¹cza/wy³¹cza podgl¹d mapy
+                {
+                    previewMode = !previewMode;
+                    m_release = false;
+                }
+                if (keybState.IsKeyUp(Keys.M))
+                    m_release = true;
+
+                // obs³uga skali podgl¹du mapy:
+                if (keybState.IsKeyDown(Keys.PageUp))
+                    previewScale += 0.05f;
+
+                if (keybState.IsKeyDown(Keys.PageDown))
+                    previewScale -= 0.05f;
+
+                if (keybState.IsKeyDown(Keys.Delete))
+                    previewScale = 7.0f;
+
+                if (previewScale < minPreviewScale)
+                    previewScale = minPreviewScale;
+                else if (previewScale > maxPreviewScale)
+                    previewScale = maxPreviewScale;
             }
 
-            trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-            drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
-
-            // obs³uga skali mapy:
-            if (keybState.IsKeyDown(Keys.PageUp))
-                Helper.SetScale(Helper.GetScale() + 0.01f);
-
-            if (keybState.IsKeyDown(Keys.PageDown))
-                Helper.SetScale(Helper.GetScale() - 0.01f);
-
-            if (keybState.IsKeyDown(Keys.Delete))
-                Helper.SetScale(1.0f);
+            if (keybState.IsKeyDown(Keys.Escape)) // wy³¹cza grê
+                Exit();
 
             base.Update(gameTime);
         }
@@ -253,7 +298,7 @@ namespace Testy_mapy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Green);
 
             spriteBatch.Begin();
 
@@ -261,43 +306,52 @@ namespace Testy_mapy
 
             // TODO: Add your drawing code here
 
-            drawMap.DrawTrack(spriteBatch, gameTime);
-            drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
-            drawMap.DrawPedestrians(spriteBatch, gameTime);
+            if (previewMode) // je¿eli rysujemy podgl¹d mapy
+            {
+                drawMap.DrawPreview(spriteBatch, previewScale);
 
-            // Traffic.
-            drawTraffic.Draw(trafficLogic, spriteBatch);
+                spriteBatch.DrawString(font, "Preview scale: " + Math.Round(previewScale, 3), new Vector2(0, 0), Color.White);
+            }
+            else
+            {
+                drawMap.DrawTrack(spriteBatch, gameTime);
+                drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
+                drawMap.DrawPedestrians(spriteBatch, gameTime);
 
-            // Bus.
-            drawBus.Draw(busLogic, spriteBatch);
+                // Traffic.
+                drawTraffic.Draw(trafficLogic, spriteBatch);
 
-            // Something very nice and useful - most likely map object wchich are supposed to be above the bus.
-            drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
+                // Bus.
+                drawBus.Draw(busLogic, spriteBatch);
 
-            // zmienne pomocnicze rysowane na ekranie:
-            DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
+                // Something very nice and useful - most likely map object wchich are supposed to be above the bus.
+                drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
 
-            DrawPoints(trafficLogic.GetPointsToDraw());
-            
-            DrawPoints(busLogic.GetPointsToDraw());
+                // zmienne pomocnicze rysowane na ekranie:
+                DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
 
-            DrawPoints(drawMap.GetCollisionPointsToDraw());
+                DrawPoints(trafficLogic.GetPointsToDraw());
 
-            // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
-            drawMap.DrawAreasChange(spriteBatch, gameTime);
+                DrawPoints(busLogic.GetPointsToDraw());
 
-            spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
-            spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
-            spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
-            spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);
-            spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);
+                DrawPoints(drawMap.GetCollisionPointsToDraw());
 
-            spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 180), Color.White);
+                // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
+                drawMap.DrawAreasChange(spriteBatch, gameTime);
 
-            spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
-            spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
+                spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
+                spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
+                spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
+                spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);
+                spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);
+
+                spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 180), Color.White);
+
+                spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
+                spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
+            }
 
             // licznik FPS
             time += gameTime.ElapsedGameTime.TotalMilliseconds;

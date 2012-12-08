@@ -20,6 +20,9 @@ namespace Testy_mapy
     class DrawMap
     {
         SpriteFont areaChangeFont; // czcionka u¿ywana do wyœwietlenia nazwy zmienianego obszaru
+        SpriteFont imHereFont; // czcionka u¿ywana do wyœwietlenia napisu: "jestem tutaj!"
+
+        Texture2D imHereTexture; // tekstura: "jestem tutaj!"
 
         Dictionary<string, Texture2D> textures;
         Dictionary<string, Texture2D> grass;
@@ -63,6 +66,48 @@ namespace Testy_mapy
             // TODO: Add your update code here
             pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
             areasLogic.Update(gameTime.ElapsedGameTime, ref trafficLogic);
+        }
+
+        public void DrawPreview(SpriteBatch spriteBatch, float previewScale)
+        {
+            List<Object> objectsToPrewiev = mapLogic.GetObjectsToPreview(previewScale);
+
+            foreach (Object o in objectsToPrewiev)
+            {
+                Rectangle destinationRect = Helper.CalculateScaleRectangle(o, previewScale);
+
+                if (textures.ContainsKey(o.name))
+                {
+                    spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
+                            o.original_origin, o.spriteEffects, 1);
+                }
+                else if (junctions.ContainsKey(o.name))
+                {
+                    spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
+                            o.original_origin, o.spriteEffects, 1);
+                }
+
+                // wyœwietlanie informacji o po³o¿eniu gracza:
+                ShowImHere(spriteBatch, previewScale);
+            }
+        }
+
+        private void ShowImHere(SpriteBatch spriteBatch, float previewScale)
+        {
+            Vector2 texturePos = Helper.MapPosToScreenPos(Helper.busPos);
+            Vector2 textureSize = new Vector2(imHereTexture.Width, imHereTexture.Height);
+            Vector2 textureOrigin = textureSize / 2;
+            texturePos = Helper.CalculateScalePoint(texturePos, previewScale);
+            spriteBatch.Draw(imHereTexture, texturePos, null, Color.White, 0.0f, textureOrigin, 1.0f, SpriteEffects.None, 1.0f);
+
+            Vector2 textPos = Helper.MapPosToScreenPos(Helper.busPos);
+            textPos = Helper.CalculateScalePoint(textPos, previewScale);
+            textPos.Y += textureSize.Y + textureOrigin.Y;
+            string text = "TU JESTES!";
+            Vector2 textSize = imHereFont.MeasureString(text);
+            Vector2 textOrigin = textSize / 2;
+
+            spriteBatch.DrawString(imHereFont, text, textPos, Color.OrangeRed, 0.0f, textOrigin, 1.0f, SpriteEffects.None, 1);
         }
 
         public void DrawAreasChange(SpriteBatch spriteBatch, GameTime gameTime)
@@ -179,8 +224,12 @@ namespace Testy_mapy
             // ladujemy informacje o obiektach
             mapLogic.LoadObjectsInformation("objects.if");
 
-            // ladujemy czcionke uzywana do wyswietlania zmienionych obszarow
+            // ladujemy czcionki:
             areaChangeFont = content.Load<SpriteFont>("fonts/areaChangeFont");
+            imHereFont = content.Load<SpriteFont>("fonts/imHereFont");
+
+            // ladujemy teksture: "jestem tutaj!"
+            imHereTexture = content.Load<Texture2D>("help/imHere");
 
             // ladowanie tekstur obiektow (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();
