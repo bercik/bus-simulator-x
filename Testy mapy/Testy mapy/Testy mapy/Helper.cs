@@ -88,6 +88,7 @@ namespace Testy_mapy
         public static Vector2 minWorkAreaSize { get; private set; } // minimalny rozmiar ekranu roboczego
 
         public static Vector2 mapPos; // pozycja mapy
+        public static Vector2 busPos; // pozycja autobusu
 
         // wywolac ZAWSZE po zmianie screenSize lub scale
         private static void CalculateWorkArea()
@@ -134,6 +135,11 @@ namespace Testy_mapy
         /// <returns></returns>
         public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size)
         {
+            return CalculateScaleRectangle(pos, size, scale);
+        }
+
+        public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size, float scale)
+        {
             Rectangle rect = new Rectangle();
 
             Vector2 v_mapPos = Helper.screenOrigin; // pozycja srodka mapy w wspolrzednych ekranowych (zawsze srodek)
@@ -147,6 +153,11 @@ namespace Testy_mapy
             rect.Height = (int)Math.Ceiling(size.Y / scale);
 
             return rect;
+        }
+
+        public static Rectangle CalculateScaleRectangle(Object o, float scale)
+        {
+            return CalculateScaleRectangle(o.pos, o.size, scale);
         }
 
         /// <summary>
@@ -164,7 +175,7 @@ namespace Testy_mapy
         /// </summary>
         /// <param name="position">Oryginalna pozycja w jednostkach ekranowych</param>
         /// <returns></returns>
-        public static Vector2 CalculateScalePoint(Vector2 position)
+        public static Vector2 CalculateScalePoint(Vector2 position, float scale)
         {
             Vector2 newPos = new Vector2();
 
@@ -173,6 +184,11 @@ namespace Testy_mapy
             newPos = v_mapPos + ((position - v_mapPos) / scale);
 
             return newPos;
+        }
+
+        public static Vector2 CalculateScalePoint(Vector2 position)
+        {
+            return CalculateScalePoint(position, scale);
         }
 
         /// <summary>

@@ -47,6 +47,54 @@ namespace Testy_mapy
             objectsOnBusInRange = new List<Object>();
         }
 
+        /// <summary>
+        /// Pobiera obiekty do wyświetlenia w podglądzie
+        /// </summary>
+        /// <param name="previewScale"></param>
+        /// <returns></returns>
+        public List<Object> GetObjectsToPreview(float previewScale)
+        {
+            Vector2 scaledSize = Helper.screenSize * previewScale;
+
+            // x i y kawałka na którym się znajdujemy
+            int a_x = (int)Helper.mapPos.X / chunkSize.Width;
+            int a_y = (int)Helper.mapPos.Y / chunkSize.Height;
+
+            // ilość kawałków jakie należy sprawdzić (nad, pod, w lewo i w prawo od aktualnego) - inaczej przesunięcie (Shift)
+            int s_x = (int)Math.Ceiling((scaledSize.X / 2) / chunkSize.Width);
+            int s_y = (int)Math.Ceiling((scaledSize.Y / 2) / chunkSize.Height);
+
+            // kawałek od którego będziemy zaczynać
+            int ch_x = a_x - s_x;
+            if (ch_x < 0)
+                ch_x = 0;
+
+            int ch_y = a_y - s_y;
+            if (ch_y < 0)
+                ch_y = 0;
+
+            List<Object> objectsToPreview = new List<Object>();
+
+            for (int x = ch_x; x <= a_x + s_x; ++x)
+            {
+                for (int y = ch_y; y <= a_y + s_y; ++y)
+                {
+                    if (x < numberOfChunks.X && y < numberOfChunks.Y)
+                        objectsToPreview.AddRange(chunks[x, y].GetAllObjects());
+                }
+            }
+
+            List<Object> objectsToShow = new List<Object>();
+            GetObjectsInRangeFromChunk(ref objectsToShow, objectsToPreview, Helper.mapPos, scaledSize);
+
+            for (int i = 0; i < objectsToShow.Count; ++i)
+            {
+                objectsToShow[i].pos = Helper.MapPosToScreenPos(objectsToShow[i].pos);
+            }
+
+            return objectsToShow;
+        }
+
         private void CreateChunks(int mapWidth, int mapHeight)
         {
             chunkSize.Width = (int)(Helper.maxWorkAreaSize.X + maxObjectSize.Width);
@@ -164,7 +212,7 @@ namespace Testy_mapy
             }
         }
 
-        private void GetObjectsInRangeFromChunk(ref List<Object> objects, List<Object> objectsToCheck, int x, int y, Vector2 mapPos)
+        private void GetObjectsInRangeFromChunk(ref List<Object> objects, List<Object> objectsToCheck, Vector2 mapPos, Vector2 areaSize)
         {
             foreach (Object o in objectsToCheck)
             {
@@ -179,24 +227,24 @@ namespace Testy_mapy
                 ComputePointsOnRotation(o, out x1, out x2, out y1, out y2);
 
                 // SPRAWDZANIE PUNKTOW
-                if (SmallWidth(Math.Abs(mapPos.X - x1)))
+                if (SmallWidth(mapPos.X - x1, areaSize))
                     b_x = true;
-                else if (SmallWidth(Math.Abs(mapPos.X - x2)))
+                else if (SmallWidth(mapPos.X - x2, areaSize))
                     b_x = true;
-                if (SmallHeight(mapPos.Y - y1))
+                if (SmallHeight(mapPos.Y - y1, areaSize))
                     b_y = true;
-                else if (SmallHeight(mapPos.Y - y2))
+                else if (SmallHeight(mapPos.Y - y2, areaSize))
                     b_y = true;
 
 
                 if (!b_x) // sprawdzamy czy współrzędne X obiektu nie znajdują się pomiędzy ekranem
                 {
-                    if (CheckCord(mapPos.X, x1, x2, (int)Helper.workAreaSize.X))
+                    if (CheckCord(mapPos.X, x1, x2, (int)areaSize.X))
                         b_x = true;
                 }
                 if (!b_y) // analogicznie jak wyżej dla współrzędnych Y
                 {
-                    if (CheckCord(mapPos.Y, y1, y2, (int)Helper.workAreaSize.Y))
+                    if (CheckCord(mapPos.Y, y1, y2, (int)areaSize.Y))
                         b_y = true;
                 }
 
@@ -230,14 +278,14 @@ namespace Testy_mapy
             return (p1 < mapPos - screenSize / 2 && p2 > mapPos + screenSize / 2);
         }
 
-        private bool SmallWidth(float a)
+        private bool SmallWidth(float a, Vector2 areaSize)
         {
-            return (Math.Abs(a) <= (int)Helper.workAreaSize.X / 2);
+            return (Math.Abs(a) <= (int)areaSize.X / 2);
         }
 
-        private bool SmallHeight(float a)
+        private bool SmallHeight(float a, Vector2 areaSize)
         {
-            return (Math.Abs(a) <= (int)Helper.workAreaSize.Y / 2);
+            return (Math.Abs(a) <= (int)areaSize.Y / 2);
         }
 
         private void ClearChunks()
@@ -398,9 +446,9 @@ namespace Testy_mapy
                     if (chunk_y < 0 || chunk_y >= numberOfChunks.Y)
                         continue;
 
-                    GetObjectsInRangeFromChunk(ref junctionsInRange, chunks[chunk_x, chunk_y].GetJunctions(), chunk_x, chunk_y, mapPos);
-                    GetObjectsInRangeFromChunk(ref objectsOnBusInRange, chunks[chunk_x, chunk_y].GetObjectsOnBus(), chunk_x, chunk_y, mapPos);
-                    GetObjectsInRangeFromChunk(ref objectsUnderBusInRange, chunks[chunk_x, chunk_y].GetObjectsUnderBus(), chunk_x, chunk_y, mapPos);
+                    GetObjectsInRangeFromChunk(ref junctionsInRange, chunks[chunk_x, chunk_y].GetJunctions(), mapPos, Helper.workAreaSize);
+                    GetObjectsInRangeFromChunk(ref objectsOnBusInRange, chunks[chunk_x, chunk_y].GetObjectsOnBus(), mapPos, Helper.workAreaSize);
+                    GetObjectsInRangeFromChunk(ref objectsUnderBusInRange, chunks[chunk_x, chunk_y].GetObjectsUnderBus(), mapPos, Helper.workAreaSize);
                 }
             }
         }
@@ -547,6 +595,17 @@ namespace Testy_mapy
             return objectsOnBus;
         }
 
+        public List<Object> GetAllObjects()
+        {
+            List<Object> allObjects = new List<Object>(junctions.Count + objectsOnBus.Count + objectsUnderBus.Count);
+            
+            allObjects.AddRange(junctions);
+            allObjects.AddRange(objectsUnderBus);
+            allObjects.AddRange(objectsOnBus);
+
+            return allObjects;
+        }
+
         public void Clear()
         {
             junctions.Clear();
@@ -562,6 +621,7 @@ namespace Testy_mapy
         public MyRectangle[] collisionRectangles; // prostokaty kolziji
         public SpriteEffects spriteEffects; // efekty przy wyświetlaniu
         public Vector2 pos;
+        public Vector2 originalSize { get; private set; } // oryginalny rozmiar obiektu
         public Vector2 origin { get; private set; }
         public Vector2 original_origin { get; set; } // uzywac przy wyswietlaniu
                                                     // (oryginalny srodek dla standartowych rozmiarow tekstury)
@@ -596,9 +656,15 @@ namespace Testy_mapy
             : this(name, pos, size, rotate, spriteEffects)
         {
             if (originalSize == Vector2.Zero)
+            {
                 this.scale = new Vector2(1, 1);
+                this.originalSize = size;
+            }
             else
+            {
                 this.scale = size / originalSize;
+                this.originalSize = originalSize;
+            }
 
             ComputeCollisionRectangles(collisionRectangles);
         }
@@ -619,9 +685,9 @@ namespace Testy_mapy
             {
                 this.collisionRectangles = new MyRectangle[1];
 
-                Rectangle rect = new Rectangle((int)(pos.X - origin.X), (int)(pos.Y - origin.Y), (int)size.X, (int)size.Y);
+                Rectangle collisionRectangle = new Rectangle((int)(pos.X - origin.X), (int)(pos.Y - origin.Y), (int)size.X, (int)size.Y);
 
-                this.collisionRectangles[0] = Helper.ComputeRectangleOnRotation(rect, pos, rotate);
+                this.collisionRectangles[0] = Helper.ComputeRectangleOnRotation(collisionRectangle, pos, rotate);
             }
             else
             {
@@ -629,14 +695,28 @@ namespace Testy_mapy
 
                 for (int i = 0; i < collisionRectangles.Count; ++i)
                 {
-                    Rectangle collisionRectangle = new Rectangle();
-                    collisionRectangle.X = (int)((collisionRectangles[i].X * scale.X) + (pos.X - origin.X));
-                    collisionRectangle.Y = (int)((collisionRectangles[i].Y * scale.Y) + (pos.Y - origin.Y));
-                    collisionRectangle.Width = (int)(collisionRectangles[i].Width * scale.X);
-                    collisionRectangle.Height = (int)(collisionRectangles[i].Height * scale.Y);
+                    Rectangle collisionRectangle = collisionRectangles[i];
+                    IncludeSpriteEffects(ref collisionRectangle);
+
+                    collisionRectangle.X = (int)((collisionRectangle.X * scale.X) + (pos.X - origin.X));
+                    collisionRectangle.Y = (int)((collisionRectangle.Y * scale.Y) + (pos.Y - origin.Y));
+                    collisionRectangle.Width = (int)(collisionRectangle.Width * scale.X);
+                    collisionRectangle.Height = (int)(collisionRectangle.Height * scale.Y);
 
                     this.collisionRectangles[i] = Helper.ComputeRectangleOnRotation(collisionRectangle, pos, rotate);
                 }
+            }
+        }
+
+        private void IncludeSpriteEffects(ref Rectangle collisionRectangle)
+        {
+            if (this.spriteEffects == SpriteEffects.FlipHorizontally)
+            {
+                collisionRectangle.X = (int)originalSize.X - collisionRectangle.X - collisionRectangle.Width;
+            }
+            else if (this.spriteEffects == SpriteEffects.FlipVertically)
+            {
+                collisionRectangle.Y = (int)originalSize.Y - collisionRectangle.Y - collisionRectangle.Height;
             }
         }
 
