@@ -160,13 +160,16 @@ namespace Testy_mapy
             public Vector2 moveSize;   // Pozwala przesuwać sprite.
             public Vector2 sizeOffset; // Pozwala modyfikować rozmiar, sprite'a.
 
-            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance, Vector2 moveSize, Vector2 sizeOffset) // Constructor.
+            public Vector2 tailLightsOffset; // Pozwala modyfikować przesunięcie świateł.
+
+            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance, Vector2 moveSize, Vector2 sizeOffset, Vector2 tailLightsOffset) // Constructor.
             {
                 this.size = size;
                 this.skin = skin;
                 this.likelihoodOfApperance = likelihoodOfApperance;
                 this.moveSize = moveSize;
                 this.sizeOffset = sizeOffset;
+                this.tailLightsOffset = tailLightsOffset;
             }
 
             public VehicleType()
@@ -189,6 +192,8 @@ namespace Testy_mapy
             public Vector2 moveSize;          // Pozwala przesuwać collision points.
             public Vector2 sizeOffset;        // Pozwala modyfikować wielkość pojazdu, na podstawie której są obliczne collision points.
 
+            public Vector2 tailLightsOffset;  // Pozwala modyfikować przesunięcie świateł.
+
             private float detectionPointsDistance = 60; // Odległość detection points od przodu samochodu.
             private float forwardDetectionPointsDistance = 100; // Odległość forward detection points od samochodu.
 
@@ -204,6 +209,7 @@ namespace Testy_mapy
 
             private float normalSpeed = 20;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
             private float fastSpeed = 30;      // Prędkość na długich, prostych odcinkach.
+            private float maxSpeed = 0;        // Aktualna maksymalna prędkość ustalana na podstawie drogi, pojazdów przed samochodem itp.
             private float minDistanceToFastSpeed = 150; // Odlagłość od końców drogi wymagana dla osiągnięcia tej prędkości.
             private float acceleration = 70;   // Standardowe przyspieszenie.
             private float lightAcceleration = 20;   // Małe przyspieszenie.
@@ -214,7 +220,7 @@ namespace Testy_mapy
             private float stopCounter = 0; // Licznik odpowiedzialny za długość postoju w razie zatrzymania się w celu uniknięcia kolizji.
             private float startAfter = 3;  // Po ilu sekundach od zatrzymania ma wystartować.
 
-            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset, Vector2 junctionCenter, Vector2 additionalOutpoint) // Constructor.
+            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset, Vector2 junctionCenter, Vector2 additionalOutpoint, Vector2 tailLightsOffset) // Constructor.
             {
                 this.road = new Road(start, destination, junctionCenter);
                 this.position = road.lane.start;
@@ -224,6 +230,7 @@ namespace Testy_mapy
                 this.moveSize = moveSize;
                 this.sizeOffset = sizeOffset;
                 this.lastEnd = additionalOutpoint;
+                this.tailLightsOffset = tailLightsOffset;
             }
 
             /// <summary>
@@ -231,20 +238,25 @@ namespace Testy_mapy
             /// </summary>
             public Vector2[] GetCollisionPoints()
             {
+                return GetCollisionPoints(new Vector2(0, 0));
+            }
+
+            public Vector2[] GetCollisionPoints(Vector2 offset)
+            {
                 Vector2 p1, p2, p3, p4; // Create 4 points.
 
                 // Calculate their positions.
-                p3.X = position.X + ((size.X * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2);
-                p3.Y = position.Y + ((size.X * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
+                p3.X = position.X + (((size.X + offset.X) * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2);
+                p3.Y = position.Y + (((size.X + offset.X) * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
 
-                p4.X = position.X - (size.X * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
-                p4.Y = position.Y - (size.X * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
+                p4.X = position.X - ((size.X + offset.X) * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
+                p4.Y = position.Y - ((size.X + offset.X) * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
 
-                p1.X = p4.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                p1.Y = p4.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                p1.X = p4.X + ((size.Y + offset.Y) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p1.Y = p4.Y - ((size.Y + offset.Y) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                p2.X = p3.X + (size.Y * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                p2.Y = p3.Y - (size.Y * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                p2.X = p3.X + ((size.Y + offset.Y) * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                p2.Y = p3.Y - ((size.Y + offset.Y) * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
                 // Create list and add points.
                 Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 };
@@ -452,6 +464,14 @@ namespace Testy_mapy
             }
 
             /// <summary>
+            /// Set MaxSpeed od the vehicle.
+            /// </summary>
+            public void SetMaxSpeed(float speed)
+            {
+                maxSpeed = speed;
+            }
+
+            /// <summary>
             /// Rewind position and direction in case of collision (avoid being stuck inside someting).
             /// </summary>
             public void RewindPositionAndDirection()
@@ -656,12 +676,16 @@ namespace Testy_mapy
 
             public void Update(DrawMap drawMap, float timeCoherenceMultiplier)
             {
-                float maxSpeed;
-                if (Helper.CalculateDistance(GetVehiclePosition(), road.lane.end) > minDistanceToFastSpeed && !IsRedirecting())
-                    maxSpeed = fastSpeed;
-                else
-                    maxSpeed = normalSpeed;
-                
+                if (maxSpeed == 0) // Jeśli maxSpeed nie został nadpisany przez funkcję wykrywającą czy należy zwolnić z powodu innego pojazdu.
+                {
+                    if (Helper.CalculateDistance(GetVehiclePosition(), road.lane.end) > minDistanceToFastSpeed && !IsRedirecting())
+                        maxSpeed = fastSpeed;
+                    else
+                        maxSpeed = normalSpeed;
+                }
+
+                maxSpeed = (float)Math.Round(maxSpeed, 0);
+
                 if (driving)
                 {
                     if (speed <= maxSpeed)
@@ -734,6 +758,8 @@ namespace Testy_mapy
                         position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
                     }
                 }
+
+                maxSpeed = 0; // Zresetuj maxSpeed - potem będzie można wykryć czy został nadpisany.
             }
         }
 
@@ -756,10 +782,10 @@ namespace Testy_mapy
 
         public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
         {
-            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(5, -18), new Vector2(14, 10));
-            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(-1, -7), new Vector2(5, 5));
-            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, -15), new Vector2(10, 5));
-            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(10, -30), new Vector2(0, 0));
+            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(5, -18), new Vector2(14, 10), new Vector2(0, 0));
+            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(-1, -7), new Vector2(5, 5), new Vector2(0, 0));
+            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, -15), new Vector2(10, 5), new Vector2(0, 0));
+            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(10, -30), new Vector2(0, 0), new Vector2(-10, -10));
 
             vehiclesTypes = new VehicleType[4] { vehicleType1, vehicleType2, vehicleType3, vehicleType4 };
 
@@ -832,9 +858,9 @@ namespace Testy_mapy
         /// <summary>
         /// Check if the car should match the speed of any other vehicle.
         /// </summary>
-        public bool MatchSpeeds(Vehicle vehicle, BusLogic busLogic)
+        public void MatchSpeeds(Vehicle vehicle, BusLogic busLogic)
         {
-            Vector2[] points = vehicle.GetDetectionPoints();
+            Vector2[] points = vehicle.GetForwardDetectionPoints();
             foreach (Vector2 point in points)
             {
                 Vector2[] collisionPoints;
@@ -845,7 +871,11 @@ namespace Testy_mapy
                     collisionPoints = busLogic.GetCollisionPoints(busLogic.GetRealPosition(), busLogic.GetDirection());
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
                     if (Helper.IsInside(point, rectangle))
-                        return false;
+                    {
+                        float direction = busLogic.GetCurrentDirection() - vehicle.GetVehicleDirection();
+                        float speed = busLogic.GetCurrentSpeed() * (float)Math.Cos(MathHelper.ToRadians(Math.Abs(direction)));
+                        vehicle.SetMaxSpeed(speed);
+                    }
                 }
 
                 foreach (Vehicle checkedVehicle in vehicles)
@@ -855,11 +885,14 @@ namespace Testy_mapy
                         collisionPoints = checkedVehicle.GetCollisionPoints();
                         rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
                         if (Helper.IsInside(point, rectangle))
-                            return false;
+                        {
+                            float direction = checkedVehicle.GetVehicleDirection() - vehicle.GetVehicleDirection();
+                            float speed = checkedVehicle.GetVehicleSpeed() * (float)Math.Cos(MathHelper.ToRadians(Math.Abs(direction)));
+                            vehicle.SetMaxSpeed(speed);
+                        }
                     }
                 }
             }
-            return true;
         }
 
         /// <summary>
@@ -940,7 +973,7 @@ namespace Testy_mapy
             {
                 if (vehicle.accident && vehicle.indicatorBlink)
                 {
-                    pointsArray = vehicle.GetCollisionPoints();
+                    pointsArray = vehicle.GetCollisionPoints(vehicle.tailLightsOffset);
                     foreach (Vector2 point in pointsArray)
                         list.Add(new Object("", point, indicatorTextureSize, 0));
                 }
@@ -961,7 +994,7 @@ namespace Testy_mapy
             {
                 if (vehicle.IsBreaking())
                 {
-                    pointsArray = vehicle.GetCollisionPoints();
+                    pointsArray = vehicle.GetCollisionPoints(vehicle.tailLightsOffset);
                     
                     list.Add(new Object("", pointsArray[2], tailLightTextureSize, 0));
                     list.Add(new Object("", pointsArray[3], tailLightTextureSize, 0));
@@ -1021,7 +1054,7 @@ namespace Testy_mapy
 
                 if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
-                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset, junctionCenter, additionalOutpoint);
+                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset, junctionCenter, additionalOutpoint, type.tailLightsOffset);
 
                     if (NoVehicleNearby(vehicle.GetVehiclePosition(), vehicle.GetVehicleSize()))
                     {
@@ -1056,6 +1089,8 @@ namespace Testy_mapy
             {
                 if (!vehicle.accident)
                 {
+                    MatchSpeeds(vehicle, busLogic); // ...dopasuj prędkość do pojazdów z przodu
+
                     if (IsRoadClear(vehicle, busLogic)) // ...sprawdź czy ma się zatrzymać
                         vehicle.Start(timeCoherenceMultiplier);
                     else
