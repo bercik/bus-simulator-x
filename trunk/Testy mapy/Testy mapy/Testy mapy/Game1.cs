@@ -344,12 +344,12 @@ namespace Testy_mapy
                 spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
                 spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
                 spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
-                spriteBatch.DrawString(font, "Acc: " + busLogic.GetCurrentAcceleration(), new Vector2(0, 120), Color.White);
-                spriteBatch.DrawString(font, "Side acc: " + busLogic.GetSideAcceleration(), new Vector2(0, 150), Color.White);
+                spriteBatch.DrawString(font, "Acc: " + Math.Round(busLogic.GetCurrentAcceleration(), 2), new Vector2(0, 120), Color.White);
+                spriteBatch.DrawString(font, "Side acc: " + Math.Round(busLogic.GetSideAcceleration(), 2), new Vector2(0, 150), Color.White);
 
                 spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 180), Color.White);
 
-                spriteBatch.DrawString(font, "Speed: " + busLogic.GetCurrentSpeed(), new Vector2(0, 400), Color.White);
+                spriteBatch.DrawString(font, "Speed: " + Math.Round(busLogic.GetCurrentSpeed(), 0), new Vector2(0, 400), Color.White);
                 spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
             }
 

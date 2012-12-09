@@ -427,11 +427,11 @@ namespace Testy_mapy
             position = oldPosition;
         }
 
-        private Vector2 CalculateNewPosition(float busSpeed, float busDirection)
+        private Vector2 CalculateNewPosition(float busSpeed, float busDirection, float timeCoherenceMultiplier)
         {
             Vector2 newPosition;
-            newPosition.X = position.X + (speedMultiplier * busSpeed * (float)Math.Sin(DegToRad(busDirection)));
-            newPosition.Y = position.Y - (speedMultiplier * busSpeed * (float)Math.Cos(DegToRad(busDirection)));
+            newPosition.X = position.X + (speedMultiplier * timeCoherenceMultiplier * busSpeed * (float)Math.Sin(DegToRad(busDirection)));
+            newPosition.Y = position.Y - (speedMultiplier * timeCoherenceMultiplier * busSpeed * (float)Math.Cos(DegToRad(busDirection)));
             return newPosition;
         }
 
@@ -499,7 +499,7 @@ namespace Testy_mapy
             oldPosition = position;
 
             direction += wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
-            position = CalculateNewPosition(speed * timeCoherenceMultiplier, direction);
+            position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
         }
 
         /// <summary>
