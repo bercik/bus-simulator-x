@@ -28,8 +28,6 @@ namespace Testy_mapy
         DrawTraffic drawTraffic;
         CollisionsLogic collisionsLogic;
 
-        Effect gradientEffect;
-
         bool left, right, brake, accelerate, up, down, prevup, prevdown; // Zmienne s³u¿¹ce do sterowana autobusem.
 
         // licznik FPS:
@@ -131,8 +129,6 @@ namespace Testy_mapy
             drawBus.LoadContent(this.Content);
             drawTraffic.LoadContent(this.Content);
             drawMap.LoadContent(this.Content);
-
-            gradientEffect = Content.Load<Effect>("effects/gradient");
 
             font = Content.Load<SpriteFont>("fonts/font1");
             point = Content.Load<Texture2D>("help/point");
@@ -345,7 +341,6 @@ namespace Testy_mapy
                 // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
-                gradientEffect.CurrentTechnique.Passes[0].Apply();
                 drawMap.DrawAreasChange(spriteBatch, gameTime);
                 spriteBatch.End();
                 spriteBatch.Begin();

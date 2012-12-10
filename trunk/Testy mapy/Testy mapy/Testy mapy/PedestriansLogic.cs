@@ -527,19 +527,13 @@ namespace Testy_mapy
         }
 
         // czy dany punkt znajduje sie w obszarze roboczym gry
-        private bool IsPointInWorkArea(Vector2 point)
+        private bool IsPointInWorkArea(Vector2 point, Vector2 leftUp, Vector2 rightDown)
         {
-            Vector2 leftUp, rightDown;
-            GetExtremePoints(out leftUp, out rightDown);
-
             return (point.X < rightDown.X && point.X > leftUp.X && point.Y < rightDown.Y && point.Y > leftUp.Y);
         }
 
-        private bool IsLineBeetweenWorkArea(Line line)
+        private bool IsLineBeetweenWorkArea(Line line, Vector2 leftUp, Vector2 rightDown)
         {
-            Vector2 leftUp, rightDown;
-            GetExtremePoints(out leftUp, out rightDown);
-
             if (line.start.X < leftUp.X && line.end.X > rightDown.X) // linia pozioma
             {
                 if (line.start.Y > leftUp.Y && line.start.Y < rightDown.Y)
@@ -591,11 +585,17 @@ namespace Testy_mapy
         {
             int numberOfPointsInWorkArea = 0; // liczba punktow w obszarze
 
+            Vector2 leftUp, rightDown;
+            GetExtremePoints(out leftUp, out rightDown);
+            // zwiekszamy troche obszar (0 10%) w ktorym sprawdzane sa chodniki:
+            leftUp -= leftUp * 0.1f;
+            rightDown += rightDown * 0.1f;
+
             Vector2[] points = GetSidewalkPoints(sidewalk);
 
             for (int i = 0; i < 4; ++i)
             {
-                if (IsPointInWorkArea(points[i]))
+                if (IsPointInWorkArea(points[i], leftUp, rightDown))
                     ++numberOfPointsInWorkArea;
             }
 
@@ -608,14 +608,14 @@ namespace Testy_mapy
                 // sprawdzamy czy chodnik nie znajduje sie pomiedzy obszarem roboczym
                 if (sidewalk.location == Location.horizontal)
                 {
-                    if (IsLineBeetweenWorkArea(new Line(points[0], points[1]))
-                            || IsLineBeetweenWorkArea(new Line(points[3], points[2])))
+                    if (IsLineBeetweenWorkArea(new Line(points[0], points[1]), leftUp, rightDown)
+                            || IsLineBeetweenWorkArea(new Line(points[3], points[2]), leftUp, rightDown))
                         return true;
                 }
                 else
                 {
-                    if (IsLineBeetweenWorkArea(new Line(points[0], points[3]))
-                            || IsLineBeetweenWorkArea(new Line(points[1], points[2])))
+                    if (IsLineBeetweenWorkArea(new Line(points[0], points[3]), leftUp, rightDown)
+                            || IsLineBeetweenWorkArea(new Line(points[1], points[2]), leftUp, rightDown))
                         return true;
                 }
             }
