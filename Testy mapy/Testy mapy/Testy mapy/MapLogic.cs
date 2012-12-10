@@ -73,19 +73,27 @@ namespace Testy_mapy
             if (ch_y < 0)
                 ch_y = 0;
 
-            List<Object> objectsToPreview = new List<Object>();
+            List<Object> objectsOnBusToPreview = new List<Object>();
+            List<Object> objectsUnderBusToPreview = new List<Object>();
+            List<Object> junctionsToPreview = new List<Object>();
 
             for (int x = ch_x; x <= a_x + s_x; ++x)
             {
                 for (int y = ch_y; y <= a_y + s_y; ++y)
                 {
                     if (x < numberOfChunks.X && y < numberOfChunks.Y)
-                        objectsToPreview.AddRange(chunks[x, y].GetAllObjects());
+                    {
+                        junctionsToPreview.AddRange(chunks[x, y].GetJunctions());
+                        objectsUnderBusToPreview.AddRange(chunks[x, y].GetObjectsUnderBus());
+                        objectsOnBusToPreview.AddRange(chunks[x, y].GetObjectsOnBus());
+                    }
                 }
             }
 
             List<Object> objectsToShow = new List<Object>();
-            GetObjectsInRangeFromChunk(ref objectsToShow, objectsToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFromChunk(ref objectsToShow, junctionsToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFromChunk(ref objectsToShow, objectsUnderBusToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFromChunk(ref objectsToShow, objectsOnBusToPreview, Helper.mapPos, scaledSize);
 
             for (int i = 0; i < objectsToShow.Count; ++i)
             {
@@ -593,17 +601,6 @@ namespace Testy_mapy
         public List<Object> GetObjectsOnBus()
         {
             return objectsOnBus;
-        }
-
-        public List<Object> GetAllObjects()
-        {
-            List<Object> allObjects = new List<Object>(junctions.Count + objectsOnBus.Count + objectsUnderBus.Count);
-            
-            allObjects.AddRange(junctions);
-            allObjects.AddRange(objectsUnderBus);
-            allObjects.AddRange(objectsOnBus);
-
-            return allObjects;
         }
 
         public void Clear()
