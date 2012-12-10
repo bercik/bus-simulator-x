@@ -19,12 +19,16 @@ namespace Testy_mapy
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
+
         DrawMap drawMap;
         DrawBus drawBus;
+        
         BusLogic busLogic;
         TrafficLogic trafficLogic;
         DrawTraffic drawTraffic;
         CollisionsLogic collisionsLogic;
+
+        Effect gradientEffect;
 
         bool left, right, brake, accelerate, up, down, prevup, prevdown; // Zmienne s³u¿¹ce do sterowana autobusem.
 
@@ -127,6 +131,8 @@ namespace Testy_mapy
             drawBus.LoadContent(this.Content);
             drawTraffic.LoadContent(this.Content);
             drawMap.LoadContent(this.Content);
+
+            gradientEffect = Content.Load<Effect>("effects/gradient");
 
             font = Content.Load<SpriteFont>("fonts/font1");
             point = Content.Load<Texture2D>("help/point");
@@ -338,8 +344,11 @@ namespace Testy_mapy
 
                 // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
+                gradientEffect.CurrentTechnique.Passes[0].Apply();
                 drawMap.DrawAreasChange(spriteBatch, gameTime);
+                spriteBatch.End();
+                spriteBatch.Begin();
 
                 spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
                 spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
