@@ -1,26 +1,22 @@
 sampler s0;
+float4 gradientColor;
 
 float4 PixelShaderFunction(float2 coords: TEXCOORD0) : COLOR0
 {
     // TODO: add your pixel shader code here.
-    float4 color = tex2D(s0, coords);  
-  
-	if (!any(color)) return color;  
-  
-	float step = 1.0/7;  
-  
-	if      (coords.x < (step * 1)) color = float4(1, 0, 0, 1);  
-	else if (coords.x < (step * 2)) color = float4(1, .5, 0, 1);  
-	else if (coords.x < (step * 3)) color = float4(1, 1, 0, 1);  
-	else if (coords.x < (step * 4)) color = float4(0, 1, 0, 1);  
-	else if (coords.x < (step * 5)) color = float4(0, 0, 1, 1);  
-	else if (coords.x < (step * 6)) color = float4(.3, 0, .8, 1);  
-	else                            color = float4(1, .8, 1, 1);  
-  
+    float4 color = tex2D(s0, coords);
+
+	if (!any(color)) return color;
+
+	color.a = gradientColor.a;
+
+	float halfStep = gradientColor.rgb * .2;
+	color.rgb = gradientColor.rgb - halfStep + (halfStep * 2 * coords.x);
+
 	return color;
 }
 
-technique Technique1
+technique Gradient
 {
     pass Pass1
     {

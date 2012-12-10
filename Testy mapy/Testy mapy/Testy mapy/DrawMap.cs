@@ -24,6 +24,10 @@ namespace Testy_mapy
 
         Texture2D imHereTexture; // tekstura: "jestem tutaj!"
 
+        // efekt gradientu na napisie:
+        Effect gradientEffect;
+        EffectParameter gradientColor;
+
         Dictionary<string, Texture2D> textures;
         Dictionary<string, Texture2D> grass;
         Dictionary<string, Texture2D> junctions;
@@ -123,8 +127,13 @@ namespace Testy_mapy
                 Vector2 textSize = areaChangeFont.MeasureString(text);
                 Vector2 position = new Vector2(Helper.screenOrigin.X - (textSize.X / 2), 0);
 
+                // w³¹czanie efektu:
+                gradientEffect.CurrentTechnique = gradientEffect.Techniques["Gradient"];
+                gradientEffect.CurrentTechnique.Passes[0].Apply();
+                gradientColor.SetValue(color.ToVector4());
+
                 // wyœwietlanie napisu na ekranie
-                spriteBatch.DrawString(areaChangeFont, text, position, color);
+                spriteBatch.DrawString(areaChangeFont, text, position, Color.White);
             }
         }
 
@@ -221,6 +230,10 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
+            // ladujemy efekt:
+            gradientEffect = content.Load<Effect>("effects/gradient");
+            gradientColor = gradientEffect.Parameters["gradientColor"];
+
             // ladujemy informacje o obiektach
             mapLogic.LoadObjectsInformation("objects.if");
 
