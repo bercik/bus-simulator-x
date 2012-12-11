@@ -121,6 +121,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="TrackLogic.cs" />
+    <Compile Include="TrafficLightsLogic.cs" />
     <Compile Include="TrafficLogic.cs">
       <SubType>Code</SubType>
     </Compile>

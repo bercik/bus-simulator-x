@@ -57,6 +57,7 @@ namespace Testy_mapy
         private Vector2 size;
         private Direction[] directions; // kierunki wychodzenia tras
         private Vector2[] standartExitsPoint; // standartowe 4 punkty wychodzenia tras względem środka
+        private TrafficLightBasicPair trafficLightsBasicPairs; // standartowe pary swiatel dla danego skrzyzowania
 
         protected JunctionType()
         {
@@ -68,7 +69,19 @@ namespace Testy_mapy
             return directions;
         }
 
-        public JunctionType(Vector2 size, Direction[] directions, int id)
+        public Direction[] GetDirectionsAfterRotation(int shift)
+        {
+            Direction[] directionsAfterRotation = new Direction[directions.Length];
+
+            for (int i = 0; i < directions.Length; ++i)
+            {
+                directionsAfterRotation[i] = (Direction)((int)(directions[i] + shift) % 4);
+            }
+
+            return directionsAfterRotation;
+        }
+
+        public JunctionType(Vector2 size, Direction[] directions, int id, Vector2 trafficLightSize)
         {
             this.size = size;
             this.origin = size / 2;
@@ -80,6 +93,8 @@ namespace Testy_mapy
             standartExitsPoint[1] = new Vector2(origin.X, 0); // PRAWO
             standartExitsPoint[2] = new Vector2(0, origin.Y); // DOL
             standartExitsPoint[3] = new Vector2(-origin.X, 0); // LEWO
+
+            trafficLightsBasicPairs = new TrafficLightBasicPair(directions, size, trafficLightSize);
         }
 
         private Connection[] ComputeConnections(Rotation rotation)
@@ -232,9 +247,9 @@ namespace Testy_mapy
         List<Connection> connections;
         Vector2 streetSize;
         Vector2 streetOrigin;
-        readonly float streetWidth = 100.0f; // szerokosc ulicy
         Vector2 sidewalkSize;
         Vector2 sidewalkOrigin;
+        Vector2 trafficLightSize;
         int amountOfStreets;
         Random rand;
 
@@ -313,7 +328,7 @@ namespace Testy_mapy
             Vector2 size = new Vector2(sidewalkSize.X, (location == Location.horizontal) ? differenceDistance.X : differenceDistance.Y);
             
             Vector2 pos1, pos2; // pozycje chodnikow
-            float differentPos = streetWidth + sidewalkOrigin.X;
+            float differentPos = GameParams.streetWidth + sidewalkOrigin.X;
 
             if (location == Location.horizontal)
             {
@@ -441,74 +456,67 @@ namespace Testy_mapy
          jezeli takiego polaczenia nie ma zwraca puste polaczenie */
         private Connection GetConnectionFromPosition(Junction junction, Position position, out int connectionIndex)
         {
-            Direction[] directions = junctionTypes[junction.id].GetDirections(); // kierunki bez rotacji
-
             int shift = (int)junction.rotation / 90; // przesuniecie kierunkow
+            Direction[] directions = junctionTypes[junction.id].GetDirectionsAfterRotation(shift); // kierunki po rotacji
 
             for (int i = 0; i < directions.Length; ++i)
             {
-                // obliczamy kierunki wychodzenia tras z skrzyzowania po rotacji
-                Direction newDirection = directions[i] + shift;
-
-                if ((int)newDirection > 3)
-                    newDirection -= 4;
-
                 connectionIndex = -1;
 
                 // sprawdzamy czy skrzyzowanie posiada trase wychodzaca w kierunku ekranu
                 switch (position)
                 {
                     case Position.down:
-                        if (newDirection == Direction.Up)
+                        if (directions[i] == Direction.Up)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.up:
-                        if (newDirection == Direction.Down)
+                        if (directions[i] == Direction.Down)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.left:
-                        if (newDirection == Direction.Right)
+                        if (directions[i] == Direction.Right)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.right:
-                        if (newDirection == Direction.Left)
+                        if (directions[i] == Direction.Left)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.upLeft:
-                        if (newDirection == Direction.Right || newDirection == Direction.Down)
+                        if (directions[i] == Direction.Right || directions[i] == Direction.Down)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.upRight:
-                        if (newDirection == Direction.Left || newDirection == Direction.Down)
+                        if (directions[i] == Direction.Left || directions[i] == Direction.Down)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.downRight:
-                        if (newDirection == Direction.Left || newDirection == Direction.Up)
+                        if (directions[i] == Direction.Left || directions[i] == Direction.Up)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
                         }
                         break;
                     case Position.downLeft:
-                        if (newDirection == Direction.Right || newDirection == Direction.Up)
+                        if (directions[i] == Direction.Right || directions[i] == Direction.Up)
                         {
                             connectionIndex = i;
                             return junction.connections[i];
@@ -635,7 +643,7 @@ namespace Testy_mapy
 
         public void AddJunctionType(Vector2 size, Direction[] directions)
         {
-            junctionTypes.Add(new JunctionType(size, directions, junctionTypes.Count));
+            junctionTypes.Add(new JunctionType(size, directions, junctionTypes.Count, trafficLightSize));
         }
 
         // zwraca liste obiektow (skrzyzowan i ulic) do dodania do obiektow mapy (w celu pozniejszego wyswietlania)
@@ -678,6 +686,12 @@ namespace Testy_mapy
         public List<Sidewalk> GetSidewalks()
         {
             return sidewalks;
+        }
+
+        // wywolac ZAWSZE po wczytaniu tekstur swiatel ulicznych
+        public void SetTrafficLightSize(Vector2 trafficLightSize)
+        {
+            this.trafficLightSize = trafficLightSize;
         }
 
         // laduje trase z pliku
