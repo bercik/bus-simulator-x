@@ -57,7 +57,7 @@ namespace Testy_mapy
         public AreasLogic()
         {
             areas = new List<Area>();
-            textColors = new Color[]{ Color.Green, Color.Yellow, Color.Red };
+            textColors = new Color[]{ Color.YellowGreen, Color.Yellow, Color.IndianRed };
         }
 
         /// <summary>

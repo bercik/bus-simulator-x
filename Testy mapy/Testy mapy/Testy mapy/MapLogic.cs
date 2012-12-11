@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Testy_mapy
 {
+    enum ObjectType { underBus, onBus, junction, trafficLight } // typ obiektu (pod autobusem, nad autobusem, skrzyżowanie, światło uliczne)
+
     class MapLogic
     {
         Chunk[,] chunks;
@@ -33,6 +35,7 @@ namespace Testy_mapy
         List<Object> junctionsInRange;
         List<Object> objectsUnderBusInRange;
         List<Object> objectsOnBusInRange;
+        List<Object> trafficLightsInRange;
 
         Size maxObjectSize = new Size(300, 300); // maksymalny możliwy rozmiar obiektu
                                                          // uwzględnij rotację o 45 stopni
@@ -45,6 +48,7 @@ namespace Testy_mapy
             junctionsInRange = new List<Object>();
             objectsUnderBusInRange = new List<Object>();
             objectsOnBusInRange = new List<Object>();
+            trafficLightsInRange = new List<Object>();
         }
 
         /// <summary>
@@ -76,6 +80,7 @@ namespace Testy_mapy
             List<Object> objectsOnBusToPreview = new List<Object>();
             List<Object> objectsUnderBusToPreview = new List<Object>();
             List<Object> junctionsToPreview = new List<Object>();
+            List<Object> trafficLightsToPreview = new List<Object>();
 
             for (int x = ch_x; x <= a_x + s_x; ++x)
             {
@@ -86,14 +91,16 @@ namespace Testy_mapy
                         junctionsToPreview.AddRange(chunks[x, y].GetJunctions());
                         objectsUnderBusToPreview.AddRange(chunks[x, y].GetObjectsUnderBus());
                         objectsOnBusToPreview.AddRange(chunks[x, y].GetObjectsOnBus());
+                        trafficLightsToPreview.AddRange(chunks[x, y].GetTrafficLights());
                     }
                 }
             }
 
             List<Object> objectsToShow = new List<Object>();
-            GetObjectsInRangeFromChunk(ref objectsToShow, junctionsToPreview, Helper.mapPos, scaledSize);
-            GetObjectsInRangeFromChunk(ref objectsToShow, objectsUnderBusToPreview, Helper.mapPos, scaledSize);
-            GetObjectsInRangeFromChunk(ref objectsToShow, objectsOnBusToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFrom(ref objectsToShow, junctionsToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFrom(ref objectsToShow, objectsUnderBusToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFrom(ref objectsToShow, objectsOnBusToPreview, Helper.mapPos, scaledSize);
+            GetObjectsInRangeFrom(ref objectsToShow, trafficLightsToPreview, Helper.mapPos, scaledSize);
 
             for (int i = 0; i < objectsToShow.Count; ++i)
             {
@@ -130,13 +137,13 @@ namespace Testy_mapy
             Vector2 size = new Vector2(Int32.Parse(split[3]), Int32.Parse(split[4]));
             float rotate = float.Parse(split[5]);
             SpriteEffects spriteEffects = (SpriteEffects)Int32.Parse(split[6]);
-            bool underBus = objectsInformation[name].underBus;
+            ObjectType objectType = objectsInformation[name].underBus ? ObjectType.underBus : ObjectType.onBus;
             
-            AddObjectToChunk(name, pos, size, rotate, underBus, spriteEffects);
+            AddObjectToChunk(name, pos, size, rotate, objectType, spriteEffects);
         }
 
-        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, bool underBus,
-                SpriteEffects spriteEffects = SpriteEffects.None, bool junction = false)
+        private void AddObjectToChunk(string name, Vector2 pos, Vector2 size, float rotate, ObjectType objectType,
+                SpriteEffects spriteEffects = SpriteEffects.None)
         {
             if (size.X == 0)
                 size.X = standart_size[name].X;
@@ -152,10 +159,15 @@ namespace Testy_mapy
                 o = new Object(name, pos, size, rotate, spriteEffects,
                     (objectsInformation.ContainsKey(name) ? objectsInformation[name].collisionRectangles : null));
 
-            int x = (int)pos.X / chunkSize.Width;
-            int y = (int)pos.Y / chunkSize.Height;
-            
-            chunks[x, y].AddObject(o, junction, underBus);
+            AddObjectToChunk(o, objectType);
+        }
+
+        public void AddObjectToChunk(Object o, ObjectType objectType)
+        {
+            int x = (int)o.pos.X / chunkSize.Width;
+            int y = (int)o.pos.Y / chunkSize.Height;
+
+            chunks[x, y].AddObject(o, objectType);
 
             // dla obiektow wiekszych niz zakladane
             bool b_x = false, b_y = false; // czy obiekt jest wiekszy od zakladanej wielkosci (na szerokosc i dlugosc)
@@ -165,18 +177,18 @@ namespace Testy_mapy
                 b_x = true;
 
                 if (x + 1 < numberOfChunks.X)
-                    chunks[x + 1, y].AddObject(o, junction, underBus);
+                    chunks[x + 1, y].AddObject(o, objectType);
                 if (x - 1 > 0)
-                    chunks[x - 1, y].AddObject(o, junction, underBus);
+                    chunks[x - 1, y].AddObject(o, objectType);
             }
             if (o.size.Y > maxObjectSize.Height)
             {
                 b_y = true;
 
                 if (y + 1 < numberOfChunks.Y)
-                    chunks[x, y + 1].AddObject(o, junction, underBus);
+                    chunks[x, y + 1].AddObject(o, objectType);
                 if (y - 1 > 0)
-                    chunks[x, y - 1].AddObject(o, junction, underBus);
+                    chunks[x, y - 1].AddObject(o, objectType);
             }
 
             if (b_x || b_y)
@@ -220,7 +232,7 @@ namespace Testy_mapy
             }
         }
 
-        private void GetObjectsInRangeFromChunk(ref List<Object> objects, List<Object> objectsToCheck, Vector2 mapPos, Vector2 areaSize)
+        private void GetObjectsInRangeFrom(ref List<Object> objects, List<Object> objectsToCheck, Vector2 mapPos, Vector2 areaSize)
         {
             foreach (Object o in objectsToCheck)
             {
@@ -258,7 +270,7 @@ namespace Testy_mapy
 
                 if (b_x && b_y)
                 {
-                    Object oToAdd = new Object(o.name, o.pos, o.size, o.rotate, o.spriteEffects);
+                    Object oToAdd = o;
                     oToAdd.collisionRectangles = o.collisionRectangles;
 
                     if (standart_size.ContainsKey(o.name))
@@ -350,15 +362,10 @@ namespace Testy_mapy
             objectsInformation.Add(name, objectInformation);
         }
 
-        public void AddObjectToChunk(Object o, bool junction)
-        {
-            AddObjectToChunk(o.name, o.pos, o.size, o.rotate, true, o.spriteEffects, junction);
-        }
-
         public void AddJunctionsToChunks(List<Object> junctions)
         {
             foreach (Object o in junctions)
-                AddObjectToChunk(o, true);
+                AddObjectToChunk(o, ObjectType.junction);
         }
 
         public void ClearStandartObjectsSize()
@@ -426,6 +433,7 @@ namespace Testy_mapy
             junctionsInRange.Clear();
             objectsOnBusInRange.Clear();
             objectsUnderBusInRange.Clear();
+            trafficLightsInRange.Clear();
 
             // przypisujemy aktualna pozycje mapy
             this.mapPos = mapPos;
@@ -454,9 +462,10 @@ namespace Testy_mapy
                     if (chunk_y < 0 || chunk_y >= numberOfChunks.Y)
                         continue;
 
-                    GetObjectsInRangeFromChunk(ref junctionsInRange, chunks[chunk_x, chunk_y].GetJunctions(), mapPos, Helper.workAreaSize);
-                    GetObjectsInRangeFromChunk(ref objectsOnBusInRange, chunks[chunk_x, chunk_y].GetObjectsOnBus(), mapPos, Helper.workAreaSize);
-                    GetObjectsInRangeFromChunk(ref objectsUnderBusInRange, chunks[chunk_x, chunk_y].GetObjectsUnderBus(), mapPos, Helper.workAreaSize);
+                    GetObjectsInRangeFrom(ref junctionsInRange, chunks[chunk_x, chunk_y].GetJunctions(), mapPos, Helper.workAreaSize);
+                    GetObjectsInRangeFrom(ref objectsOnBusInRange, chunks[chunk_x, chunk_y].GetObjectsOnBus(), mapPos, Helper.workAreaSize);
+                    GetObjectsInRangeFrom(ref objectsUnderBusInRange, chunks[chunk_x, chunk_y].GetObjectsUnderBus(), mapPos, Helper.workAreaSize);
+                    GetObjectsInRangeFrom(ref trafficLightsInRange, chunks[chunk_x, chunk_y].GetTrafficLights(), mapPos, Helper.workAreaSize);
                 }
             }
         }
@@ -499,6 +508,19 @@ namespace Testy_mapy
             }
 
             return objectsUnderBusToShow;
+        }
+
+        public List<TrafficLightObject> GetTrafficLightsToShow()
+        {
+            List<TrafficLightObject> trafficLightsToShow = new List<TrafficLightObject>(trafficLightsInRange.Count);
+
+            for (int i = 0; i < trafficLightsInRange.Count; ++i)
+            {
+                trafficLightsToShow.Add((TrafficLightObject)trafficLightsInRange[i].Clone());
+                trafficLightsToShow[i].pos = Helper.MapPosToScreenPos(trafficLightsToShow[i].pos);
+            }
+
+            return trafficLightsToShow;
         }
 
         // pobiera liste obiektow w zasiegu w wspolrzednych ekranowych
@@ -570,22 +592,33 @@ namespace Testy_mapy
         List<Object> junctions;
         List<Object> objectsUnderBus;
         List<Object> objectsOnBus;
+        List<TrafficLightObject> trafficLights;
 
         public Chunk()
         {
             junctions = new List<Object>();
             objectsUnderBus = new List<Object>();
             objectsOnBus = new List<Object>();
+            trafficLights = new List<TrafficLightObject>();
         }
 
-        public void AddObject(Object o, bool junction = false, bool underBus = false)
+        public void AddObject(Object o, ObjectType objectType)
         {
-            if (junction)
-                junctions.Add(o);
-            else if (underBus)
-                objectsUnderBus.Add(o);
-            else
-                objectsOnBus.Add(o);
+            switch (objectType)
+            {
+                case ObjectType.underBus:
+                    objectsUnderBus.Add(o);
+                    break;
+                case ObjectType.onBus:
+                    objectsOnBus.Add(o);
+                    break;
+                case ObjectType.junction:
+                    junctions.Add(o);
+                    break;
+                case ObjectType.trafficLight:
+                    trafficLights.Add((TrafficLightObject)o);
+                    break;
+            }
         }
 
         public List<Object> GetJunctions()
@@ -603,11 +636,17 @@ namespace Testy_mapy
             return objectsOnBus;
         }
 
+        public List<Object> GetTrafficLights()
+        {
+            return new List<Object>(trafficLights.Cast<Object>());
+        }
+
         public void Clear()
         {
             junctions.Clear();
             objectsUnderBus.Clear();
             objectsOnBus.Clear();
+            trafficLights.Clear();
         }
     }
 
@@ -623,7 +662,7 @@ namespace Testy_mapy
         public Vector2 original_origin { get; set; } // uzywac przy wyswietlaniu
                                                     // (oryginalny srodek dla standartowych rozmiarow tekstury)
 
-        private Vector2 v_size;
+        protected Vector2 v_size;
         public Vector2 size
         {
             get
@@ -637,7 +676,12 @@ namespace Testy_mapy
             }
         }
 
-        private Vector2 scale; // skala obiektu (wzgledem standartowego rozmiaru)
+        protected Vector2 scale; // skala obiektu (wzgledem standartowego rozmiaru)
+
+        protected Object()
+        {
+
+        }
 
         protected Object(string name, Vector2 pos, Vector2 size, float rotate, SpriteEffects spriteEffects)
         {
@@ -705,7 +749,7 @@ namespace Testy_mapy
             }
         }
 
-        private void IncludeSpriteEffects(ref Rectangle collisionRectangle)
+        protected void IncludeSpriteEffects(ref Rectangle collisionRectangle)
         {
             if (this.spriteEffects == SpriteEffects.FlipHorizontally)
             {
@@ -722,6 +766,22 @@ namespace Testy_mapy
             Object other = (Object)this.MemberwiseClone();
 
             return other;
+        }
+    }
+
+    class TrafficLightObject : Object
+    {
+        public int junctionIndex { get; private set; } // indeks skrzyżowania z jakim powiązane jest dane światło
+        public int pairIndex { get; private set; } // indeks pary świateł w danym skrzyżowaniu z jakimi powiązane jest dane światło
+
+        public TrafficLightObject(string name, Vector2 pos, Vector2 size, float rotate, int junctionIndex, int pairIndex)
+        {
+            this.name = name;
+            this.pos = pos;
+            this.rotate = rotate;
+            this.size = size;
+            this.junctionIndex = junctionIndex;
+            this.pairIndex = pairIndex;
         }
     }
 

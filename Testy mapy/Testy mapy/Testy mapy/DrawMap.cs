@@ -32,6 +32,7 @@ namespace Testy_mapy
         Dictionary<string, Texture2D> grass;
         Dictionary<string, Texture2D> junctions;
         Dictionary<string, Texture2D> pedestrians;
+        Dictionary<string, Texture2D> trafficLights;
 
         MapLogic mapLogic;
         BackgroundLogic backgroundLogic;
@@ -230,6 +231,9 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
+            // zmienna pomocnicza:
+            Vector2 size;
+
             // ladujemy efekt:
             gradientEffect = content.Load<Effect>("effects/gradient");
             gradientColor = gradientEffect.Parameters["gradientColor"];
@@ -261,17 +265,27 @@ namespace Testy_mapy
             grass.Add("trawa1", content.Load<Texture2D>("grass/trawa1"));
             grass.Add("trawa2", content.Load<Texture2D>("grass/trawa2"));
 
-            Vector2 grassSize = new Vector2(grass[grass.Keys.ToList()[0]].Width, grass[grass.Keys.ToList()[0]].Width); // wielkosc tekstury trawy (MUSI byc jednakowa dla wszystkich tekstur trawy)
-            backgroundLogic.SetProperties(grassSize, grass.Count);
+            size = new Vector2(grass[grass.Keys.ToList()[0]].Width, grass[grass.Keys.ToList()[0]].Height); // wielkosc tekstury trawy (MUSI byc jednakowa dla wszystkich tekstur trawy)
+            backgroundLogic.SetProperties(size, grass.Count);
+
+            // ladowanie tekstur swiatel
+            trafficLights = new Dictionary<string, Texture2D>();
+
+            trafficLights.Add("light", content.Load<Texture2D>("traffic_lights/light"));
+            trafficLights.Add("light0", content.Load<Texture2D>("traffic_lights/light0"));
+            trafficLights.Add("light1", content.Load<Texture2D>("traffic_lights/light1"));
+            trafficLights.Add("light2", content.Load<Texture2D>("traffic_lights/light2"));
+            trafficLights.Add("light3", content.Load<Texture2D>("traffic_lights/light3"));
+
+            size = new Vector2(trafficLights[trafficLights.Keys.ToList()[0]].Width, trafficLights[trafficLights.Keys.ToList()[0]].Height);
+            trackLogic.SetTrafficLightSize(size);
 
             // ladowanie tekstur i typow skrzyzowan
-            Vector2 size;
             Direction[] directions;
 
             junctions = new Dictionary<string, Texture2D>();
 
             // kierunki dodawaæ w kolejnoœci: GÓRA, PRAWO, DÓ£, LEWO
-
             junctions.Add("junction0", content.Load<Texture2D>("junctions/junction0"));
             directions = new Direction[] { Direction.Up, Direction.Right, Direction.Down, Direction.Left };
             size = new Vector2(junctions["junction0"].Width, junctions["junction0"].Height);
@@ -358,6 +372,7 @@ namespace Testy_mapy
                 pedestriansLogic.SetSidewalks(trackLogic.GetSidewalks()); // ustawiamy skrzyzowania w klasie pedestriansLogic
 
                 load = true;
+
                 return true;
             }
             else
