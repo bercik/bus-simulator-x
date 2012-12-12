@@ -76,12 +76,13 @@ namespace Testy_mapy
     static class GameParams
     {
         // ogólne:
-        public static readonly float streetWidth = 100.0f; // szerokosc ulicy
+        public static readonly float streetWidth = 100.0f; // szerokosc jednego pasa ulicy
 
         // dla TrafficLights:
         public static readonly int redLightRectangleHeight = 100; // zakres wysokosci prostokata do wykrywania czerwonego swiatla
         public static readonly int additionalWidthForBusRedLightRectangle = 50; // dodatkowy zakres szerokosci do wykrywania czerwonego swiatla dla autobusu
         public static readonly float lightDistanceFromStreet = 25.0f; // odległość światła od ulicy
+        public static readonly int standartRedLightInterval = 10; // standartowy interwał trwania czerwonego światła
     }
 
     static class Helper

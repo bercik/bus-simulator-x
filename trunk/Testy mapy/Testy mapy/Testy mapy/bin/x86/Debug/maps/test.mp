@@ -57,7 +57,7 @@ skwer;1950;1960;0;0;0,0;0
 drzewa;1650;1960;0;0;0,0;0
 drzewa;1920;1650;0;0;0,0;1
 *junctions*
-//id;pozycja x;pozycja y(srodka);rotacja(0-3);czy maj¹ byæ œwiat³a uliczne(1-tak, 0-nie);czas trwania czerwonego œwiat³a (w sek.): 1 pary(pierwszy napotkany wlot licz¹c od góry i id¹c w prawo po rotacji skrzy¿owania); 2 pary
+//id;pozycja x;pozycja y(srodka);rotacja(0-3);czy maj¹ byæ œwiat³a uliczne(1-tak, 0-nie);czas trwania czerwonego œwiat³a (w sek.; 0-domyœlna wartoœæ): 1 pary(pierwszy napotkany wlot licz¹c od góry i id¹c w prawo po rotacji skrzy¿owania); 2 pary
 1;150;150;0;0
 1;450;150;1;0
 1;450;450;3;0
@@ -97,7 +97,7 @@ drzewa;1920;1650;0;0;0,0;1
 0;2850;2250;0;0
 1;3750;2250;2;0
 1;2250;2850;3;0
-4;2850;2850;1;0
+4;2850;2850;1;1;10;15
 3;2850;3750;2;0
 *connections*
 //x;y(1 skrzyzowania);x;y(2 skrzyzowania);id chodnika('-1'=bez)
