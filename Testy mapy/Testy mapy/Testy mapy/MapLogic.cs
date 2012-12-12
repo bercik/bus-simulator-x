@@ -406,7 +406,7 @@ namespace Testy_mapy
 
             string s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
 
-            while ((s_object = sr.ReadLine()) != "*junctions*")
+            while ((s_object = sr.ReadLine()) != null && s_object[0] != '*')
             {
                 AddObjectToChunk(s_object);
             }
