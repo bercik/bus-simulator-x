@@ -114,6 +114,9 @@
     <Compile Include="DrawBus.cs" />
     <Compile Include="DrawMap.cs" />
     <Compile Include="DrawTraffic.cs" />
+    <Compile Include="GameplayLogic.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MapLogic.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="PedestriansLogic.cs" />

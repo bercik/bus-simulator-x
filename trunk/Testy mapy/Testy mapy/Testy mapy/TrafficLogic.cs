@@ -782,17 +782,16 @@ namespace Testy_mapy
 
         public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
         {
-            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(5, -18), new Vector2(14, 10), new Vector2(0, 0));
-            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(-1, -7), new Vector2(5, 5), new Vector2(0, 0));
-            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, -15), new Vector2(10, 5), new Vector2(0, 0));
-            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(10, -30), new Vector2(0, 0), new Vector2(-10, -10));
+            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(5, -18), new Vector2(14, 10), new Vector2(0, 0));    // Czerwony.
+            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(-1, -7), new Vector2(5, 5), new Vector2(0, 0));      // Niebieski.
+            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, -15), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
+            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(10, -30), new Vector2(0, 0), new Vector2(-10, -10)); // Srebrny.
+            VehicleType vehicleType5 = new VehicleType(new Vector2(40, 100), 4, 2, new Vector2(10, -30), new Vector2(0, 0), new Vector2(-10, -10)); // Taxi.
 
-            vehiclesTypes = new VehicleType[4] { vehicleType1, vehicleType2, vehicleType3, vehicleType4 };
+            vehiclesTypes = new VehicleType[5] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5 };
 
             foreach (VehicleType vehicleType in vehiclesTypes)
-            {
                 maxRandom += vehicleType.likelihoodOfApperance;
-            }
         }
 
         /// <summary>
