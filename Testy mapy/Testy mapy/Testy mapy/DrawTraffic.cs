@@ -14,7 +14,8 @@ namespace Testy_mapy
 {
     class DrawTraffic
     {
-        Texture2D vehicleTexture, vehicleTexture0, vehicleTexture1, vehicleTexture2, vehicleTexture3, point, indicatorTexture, tailLightTexture;
+        Texture2D point, indicatorTexture, tailLightTexture;
+        Texture2D[] vehicleTexture = new Texture2D[5];
 
         // Constructor.
         public DrawTraffic()
@@ -26,10 +27,11 @@ namespace Testy_mapy
         /// </summary>
         public void LoadContent(ContentManager content)
         {
-            vehicleTexture0 = content.Load<Texture2D>("vehicle0");
-            vehicleTexture1 = content.Load<Texture2D>("vehicle1");
-            vehicleTexture2 = content.Load<Texture2D>("vehicle2");
-            vehicleTexture3 = content.Load<Texture2D>("vehicle3");
+            vehicleTexture[0] = content.Load<Texture2D>("vehicle0");
+            vehicleTexture[1] = content.Load<Texture2D>("vehicle1");
+            vehicleTexture[2] = content.Load<Texture2D>("vehicle2");
+            vehicleTexture[3] = content.Load<Texture2D>("vehicle3");
+            vehicleTexture[4] = content.Load<Texture2D>("vehicle4");
             indicatorTexture = content.Load<Texture2D>("vehicle_indicator");
             tailLightTexture = content.Load<Texture2D>("vehicle_taillight");
             point = content.Load<Texture2D>("help/point");
@@ -61,19 +63,7 @@ namespace Testy_mapy
             Vector2 position = Helper.MapPosToScreenPos(vehicle.pos);
             Rectangle rect = Helper.CalculateScaleRectangle(position, vehicle.size);
 
-            if (vehicle.name == "0")
-                vehicleTexture = vehicleTexture0;
-
-            if (vehicle.name == "1")
-                vehicleTexture = vehicleTexture1;
-
-            if (vehicle.name == "2")
-                vehicleTexture = vehicleTexture2;
-
-            if (vehicle.name == "3")
-                vehicleTexture = vehicleTexture3;
-
-            spriteBatch.Draw(vehicleTexture, rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicle.origin, SpriteEffects.None, 1);
+            spriteBatch.Draw(vehicleTexture[Int32.Parse(vehicle.name)], rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicle.origin, SpriteEffects.None, 1);
         }
 
         /// <summary>
