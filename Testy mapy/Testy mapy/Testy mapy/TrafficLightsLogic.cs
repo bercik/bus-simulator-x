@@ -9,21 +9,108 @@ namespace Testy_mapy
 {
     enum TrafficLightState { green = 0, yellow = 1, red = 2, redYellow = 3 } // stan swiatel (zielony, zolty, czerwony, zolty i czerwony)
 
-    class TrafficLightBasicObjectInformation
+    class TrafficLightObjectInformation
     {
-        Vector2 position; // pozycja światla
-        float rotation; // rotacja
-        Rectangle redLightForBusRectangle; // prostokat do wykrywania czerwonego swiatla dla autobusu
-        Rectangle redLightForCarRectangle; // prostokat do wykrywania czerwonego swiatla dla aut
+        public Vector2 position { get; private set; } // pozycja światla
+        public float rotation { get; private set; } // rotacja
+        protected Rectangle redLightForBusRectangle; // prostokat do wykrywania czerwonego swiatla dla autobusu
+        protected Rectangle redLightForCarRectangle; // prostokat do wykrywania czerwonego swiatla dla aut
 
-        protected TrafficLightBasicObjectInformation()
+        protected TrafficLightObjectInformation()
         {
 
         }
 
-        public TrafficLightBasicObjectInformation(Direction direction, Vector2 junctionSize, Vector2 trafficLightSize)
+        public TrafficLightObjectInformation(Vector2 position, float rotation, Rectangle redLightForBusRectangle, Rectangle redLightForCarRectangle)
+        {
+            this.position = position;
+            this.rotation = rotation;
+            this.redLightForBusRectangle = redLightForBusRectangle;
+            this.redLightForCarRectangle = redLightForCarRectangle;
+        }
+
+        // wywoływać do obliczenia parametrów przy dodawaniu nowego typu skrzyżowań
+        public TrafficLightObjectInformation(Direction direction, Vector2 junctionSize, Vector2 trafficLightSize)
         {
             ComputeParameters(direction, junctionSize, trafficLightSize);
+        }
+
+        public Rectangle getRedLightForBusRectangle()
+        {
+            return redLightForBusRectangle;
+        }
+
+        public Rectangle getRedLightForCarRectangle()
+        {
+            return redLightForCarRectangle;
+        }
+
+        // obraca współrzędne o zadany kąt i przesuwa o dany wektor
+        protected void RotateAndMove(float rotation, Vector2 shift)
+        {
+            // zmienne pomocnicze:
+            Vector2 pos;
+            int width, height;
+
+            // pozycja światła
+            position = Helper.ComputeRotation(position, new Vector2(0, 0), rotation);
+            position += shift;
+
+            // pozycja prostokątu do wykrywania czerwonego światła dla autobusu
+            pos = new Vector2((int)redLightForBusRectangle.X, (int)redLightForBusRectangle.Y);
+            pos = Helper.ComputeRotation(pos, new Vector2(0, 0), rotation);
+            pos += shift;
+
+            if ((rotation / 90) % 2 != 0) // jezeli przy rotacji zmieniamy kierunek z poziomego na pionowy lub odwrotnie
+            {
+                width = redLightForBusRectangle.Height;
+                height = redLightForBusRectangle.Width;
+            }
+            else // jezeli nie zmieniamy kierunku
+            {
+                width = redLightForBusRectangle.Width;
+                height = redLightForBusRectangle.Height;
+            }
+
+            pos.Y -= height / 2;
+            pos.X -= width / 2;
+            redLightForBusRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
+
+            // pozycja prostokątu do wykrywania czerwonego światła dla aut
+            pos = new Vector2((int)redLightForCarRectangle.X, (int)redLightForCarRectangle.Y);
+            pos = Helper.ComputeRotation(pos, new Vector2(0, 0), rotation);
+            pos += shift;
+
+            if ((rotation / 90) % 2 != 0) // jezeli przy rotacji zmieniamy kierunek z poziomego na pionowy lub odwrotnie
+            {
+                width = redLightForCarRectangle.Height;
+                height = redLightForCarRectangle.Width;
+            }
+            else // jezeli nie zmieniamy kierunku
+            {
+                width = redLightForCarRectangle.Width;
+                height = redLightForCarRectangle.Height;
+            }
+
+            pos.Y -= height / 2;
+            pos.X -= width / 2;
+            redLightForCarRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
+
+            this.rotation = ((this.rotation + rotation) / 90) * 90;
+        }
+
+        /// <summary>
+        /// Tworzy nowy obiekt TrafficLightObjectInformation po rotacji obecnego
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public TrafficLightObjectInformation CreateNewObjectAfterRotationAndMove(float rotation, Vector2 shift)
+        {
+            TrafficLightObjectInformation trafficLightObjectInformation = new TrafficLightObjectInformation(this.position, this.rotation, this.redLightForBusRectangle, this.redLightForCarRectangle);
+
+            trafficLightObjectInformation.RotateAndMove(rotation, shift);
+
+            return trafficLightObjectInformation;
         }
 
         /// <summary>
@@ -31,7 +118,7 @@ namespace Testy_mapy
         /// </summary>
         /// <param name="direction">wlot skrzyzowania</param>
         /// <param name="junctionSize">wielkosc skrzyzowania</param>
-        private void ComputeParameters(Direction direction, Vector2 junctionSize, Vector2 trafficLightSize)
+        protected void ComputeParameters(Direction direction, Vector2 junctionSize, Vector2 trafficLightSize)
         {
             // zmienne pomocnicze:
             float x, y;
@@ -44,7 +131,7 @@ namespace Testy_mapy
             // obliczamy pozycje srodka swiatla
             Vector2 junctionOrigin = junctionSize / 2;
 
-            x = -GameParams.streetWidth / 2 - GameParams.lightDistanceFromStreet - trafficLightSize.X / 2;
+            x = -GameParams.streetWidth - GameParams.lightDistanceFromStreet - trafficLightSize.X / 2;
             y = -junctionOrigin.Y - trafficLightSize.Y / 2;
             position = Helper.ComputeRotation(new Vector2(x, y), new Vector2(0, 0), rotation);
 
@@ -54,21 +141,13 @@ namespace Testy_mapy
             x = -width / 2;
             y = -junctionOrigin.Y;
             pos = Helper.ComputeRotation(new Vector2(x, y), new Vector2(0, 0), rotation);
-
-            if ((int)direction % 2 == 0) // jezeli kierunek to gora lub dol
+            if ((int)direction % 2 != 0)
             {
-                pos.X -= width / 2;
-                pos.Y -= height / 2;
-
-                redLightForCarRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
+                int temp = width;
+                width = height;
+                height = temp;
             }
-            else // inaczej jzezeli kierunek to prawo lub lewo zamieniamy wysokosc z szerokoscia
-            {
-                pos.Y -= width / 2;
-                pos.X -= height / 2;
-
-                redLightForCarRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), height, width);
-            }
+            redLightForCarRectangle = new Rectangle((int)pos.X, (int)pos.Y, width, height);
 
             // obliczamy pozycje prostokata dla autobusu
             width = (int)(GameParams.streetWidth + GameParams.additionalWidthForBusRedLightRectangle);
@@ -76,28 +155,20 @@ namespace Testy_mapy
             x = 0;
             y = -junctionOrigin.Y;
             pos = Helper.ComputeRotation(new Vector2(x, y), new Vector2(0, 0), rotation);
-
-            if ((int)direction % 2 == 0) // jezeli kierunek to gora lub dol
+            if ((int)direction % 2 != 0)
             {
-                pos.X -= width / 2;
-                pos.Y -= height / 2;
-
-                redLightForBusRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
+                int temp = width;
+                width = height;
+                height = temp;
             }
-            else // inaczej jzezeli kierunek to prawo lub lewo zamieniamy wysokosc z szerokoscia
-            {
-                pos.Y -= width / 2;
-                pos.X -= height / 2;
-
-                redLightForBusRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), height, width);
-            }
+            redLightForBusRectangle = new Rectangle((int)pos.X, (int)pos.Y, width, height);
         }
     }
 
     class TrafficLightBasicPair
     {
-        TrafficLightBasicObjectInformation[] pair1; // pierwsza para swiatel (pierwsze napotkane wyjscie liczac od gory w prawo)
-        TrafficLightBasicObjectInformation[] pair2; // druga para swiatel
+        public TrafficLightObjectInformation[] pair1 { get; private set; } // pierwsza para swiatel (pierwsze napotkane wyjscie liczac od gory w prawo)
+        public TrafficLightObjectInformation[] pair2 { get; private set; } // druga para swiatel
 
         protected TrafficLightBasicPair()
         {
@@ -129,9 +200,9 @@ namespace Testy_mapy
             {
                 if (directions[i] == search)
                 {
-                    pair1 = new TrafficLightBasicObjectInformation[2];
-                    pair1[0] = new TrafficLightBasicObjectInformation(directions[0], junctionSize, trafficLightSize);
-                    pair1[1] = new TrafficLightBasicObjectInformation(directions[i], junctionSize, trafficLightSize);
+                    pair1 = new TrafficLightObjectInformation[2];
+                    pair1[0] = new TrafficLightObjectInformation(directions[0], junctionSize, trafficLightSize);
+                    pair1[1] = new TrafficLightObjectInformation(directions[i], junctionSize, trafficLightSize);
                     searchIndex = i;
                     break;
                 }
@@ -139,8 +210,8 @@ namespace Testy_mapy
 
             if (searchIndex == -1)
             {
-                pair1 = new TrafficLightBasicObjectInformation[1];
-                pair1[0] = new TrafficLightBasicObjectInformation(directions[0], junctionSize, trafficLightSize);
+                pair1 = new TrafficLightObjectInformation[1];
+                pair1[0] = new TrafficLightObjectInformation(directions[0], junctionSize, trafficLightSize);
             }
 
             // znajdujemy drugą parę świateł
@@ -153,29 +224,44 @@ namespace Testy_mapy
                 }
             }
 
-            pair2 = new TrafficLightBasicObjectInformation[pair2Index.Count];
-            pair2[0] = new TrafficLightBasicObjectInformation(directions[pair2Index[0]], junctionSize, trafficLightSize);
+            pair2 = new TrafficLightObjectInformation[pair2Index.Count];
+            pair2[0] = new TrafficLightObjectInformation(directions[pair2Index[0]], junctionSize, trafficLightSize);
             if (pair2Index.Count > 1)
-                pair2[1] = new TrafficLightBasicObjectInformation(directions[pair2Index[1]], junctionSize, trafficLightSize);
+                pair2[1] = new TrafficLightObjectInformation(directions[pair2Index[1]], junctionSize, trafficLightSize);
         }
-    }
-
-    class TrafficLightObjectInformation
-    {
-        Rectangle redLightForBusRectangle; // prostokat do wykrywania czerwonego swiatla dla autobusu
-        Rectangle redLightForCarRectangle; // prostokat do wykrywania czerwonego swiatla dla aut
     }
 
     class TrafficLightPair
     {
-        TrafficLightState trafficLightState; // stan swiatel
-        TrafficLightObjectInformation[] trafficLightObjects; // 1 lub 2 obiekty swiatel przechowujace prostokaty do wykrywania czerwonego swiatla
-        float redInterval; // czas trwania czerwonego swiatla
+        public TrafficLightState trafficLightState { get; private set; } // stan swiatel
+        public TrafficLightObjectInformation[] trafficLightObjects { get; private set; } // 1 lub 2 obiekty swiatel przechowujace prostokaty do wykrywania czerwonego swiatla
+        public float redInterval { get; private set; } // czas trwania czerwonego swiatla
+
+        public TrafficLightPair(float redInterval, TrafficLightObjectInformation[] trafficLightObjects, TrafficLightState trafficLightState)
+        {
+            this.redInterval = redInterval;
+            this.trafficLightObjects = trafficLightObjects;
+            this.trafficLightState = trafficLightState;
+        }
+
+        /// <summary>
+        /// włącza następny stan świateł
+        /// </summary>
+        public void NextLightState()
+        {
+            trafficLightState = (TrafficLightState)((int)(trafficLightState + 1) % 4);
+        }
     }
 
-    class TrafficLights
+    class TrafficLight
     {
-        TrafficLightPair pair1; // 1 para świateł
-        TrafficLightPair pair2; // 2 para świateł
+        public TrafficLightPair pair1 { get; private set; } // 1 para świateł
+        public TrafficLightPair pair2 { get; private set; } // 2 para świateł
+
+        public TrafficLight(TrafficLightPair pair1, TrafficLightPair pair2)
+        {
+            this.pair1 = pair1;
+            this.pair2 = pair2;
+        }
     }
 }

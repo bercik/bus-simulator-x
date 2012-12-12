@@ -104,6 +104,7 @@ namespace Testy_mapy
 
             for (int i = 0; i < objectsToShow.Count; ++i)
             {
+                objectsToShow[i] = (Object)objectsToShow[i].Clone();
                 objectsToShow[i].pos = Helper.MapPosToScreenPos(objectsToShow[i].pos);
             }
 
@@ -366,6 +367,12 @@ namespace Testy_mapy
         {
             foreach (Object o in junctions)
                 AddObjectToChunk(o, ObjectType.junction);
+        }
+
+        public void AddTrafficLightsToChunks(List<TrafficLightObject> trafficLights)
+        {
+            foreach (TrafficLightObject tlo in trafficLights)
+                AddObjectToChunk(tlo, ObjectType.trafficLight);
         }
 
         public void ClearStandartObjectsSize()

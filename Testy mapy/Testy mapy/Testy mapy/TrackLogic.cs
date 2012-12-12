@@ -121,6 +121,30 @@ namespace Testy_mapy
             // raport pelikana film obejrzeć
             return new Junction(id, this.name, pos, this.origin, this.size, (int)rotation * 90, ComputeConnections(rotation));
         }
+
+        public TrafficLightJunction CreateTrafficLight(Vector2 pos, Rotation rotation, int id, int redLightIntervalPair1, int redLightIntervalPair2)
+        {
+            float f_rotation = (int)rotation * 90;
+
+            TrafficLightObjectInformation[] trafficLightObjectsPair1 = new TrafficLightObjectInformation[trafficLightsBasicPairs.pair1.Length];
+            for (int i = 0; i < trafficLightsBasicPairs.pair1.Length; ++i)
+            {
+                trafficLightObjectsPair1[i] = trafficLightsBasicPairs.pair1[i].CreateNewObjectAfterRotationAndMove(f_rotation, pos);
+            }
+
+            TrafficLightObjectInformation[] trafficLightObjectsPair2 = new TrafficLightObjectInformation[trafficLightsBasicPairs.pair2.Length];
+            for (int i = 0; i < trafficLightsBasicPairs.pair2.Length; ++i)
+            {
+                trafficLightObjectsPair2[i] = trafficLightsBasicPairs.pair2[i].CreateNewObjectAfterRotationAndMove(f_rotation, pos);
+            }
+
+            TrafficLightPair trafficLightPair1 = new TrafficLightPair(redLightIntervalPair1, trafficLightObjectsPair1, TrafficLightState.green);
+            TrafficLightPair trafficLightPair2 = new TrafficLightPair(redLightIntervalPair2, trafficLightObjectsPair2, TrafficLightState.red);
+
+            TrafficLight trafficLight = new TrafficLight(trafficLightPair1, trafficLightPair2);
+
+            return new TrafficLightJunction(id, this.name, pos, this.origin, this.size, f_rotation, ComputeConnections(rotation), trafficLight);
+        }
     }
 
     class Junction
@@ -156,6 +180,17 @@ namespace Testy_mapy
                 if (connections[i].point1 == point1)
                     connections[i].point2 = point2;
             }
+        }
+    }
+
+    class TrafficLightJunction : Junction
+    {
+        public readonly TrafficLight trafficLight; // obiekt swiatel ulicznych
+
+        public TrafficLightJunction(int id, string name, Vector2 pos, Vector2 origin, Vector2 size, float rotation, Connection[] connections, TrafficLight trafficLight)
+            : base(id, name, pos, origin, size, rotation, connections)
+        {
+            this.trafficLight = trafficLight;
         }
     }
 
@@ -242,6 +277,7 @@ namespace Testy_mapy
     {
         List<JunctionType> junctionTypes;
         List<Junction> junctions;
+        List<TrafficLightJunction> trafficLightJunctions;
         List<Street> streets;
         List<Sidewalk> sidewalks;
         List<Connection> connections;
@@ -256,6 +292,7 @@ namespace Testy_mapy
         public TrackLogic()
         {
             junctions = new List<Junction>();
+            trafficLightJunctions = new List<TrafficLightJunction>();
             junctionTypes = new List<JunctionType>();
             streets = new List<Street>();
             sidewalks = new List<Sidewalk>();
@@ -271,8 +308,24 @@ namespace Testy_mapy
             int id = Int32.Parse(split[0]);
             Vector2 pos = new Vector2(float.Parse(split[1]), float.Parse(split[2]));
             Rotation rotation = (Rotation)Int32.Parse(split[3]);
+            bool trafficLights = Convert.ToBoolean(Int32.Parse(split[4]));
 
-            AddJunction(id, pos, rotation);
+            if (trafficLights) // jezeli skrzyzowanie zawiera swiatla uliczne
+            {
+                int redLightIntervalPair1 = Int32.Parse(split[5]);
+                if (redLightIntervalPair1 == 0)
+                    redLightIntervalPair1 = GameParams.standartRedLightInterval;
+
+                int redLightIntervalPair2 = Int32.Parse(split[6]);
+                if (redLightIntervalPair2 == 0)
+                    redLightIntervalPair2 = GameParams.standartRedLightInterval;
+
+                AddTrafficLightJunction(id, pos, rotation, redLightIntervalPair1, redLightIntervalPair2);
+            }
+            else // inaczej
+            {
+                AddJunction(id, pos, rotation);
+            }
         }
 
         private void GenerateStreet(Connection connection)
@@ -641,6 +694,14 @@ namespace Testy_mapy
             junctions.Add(junction);
         }
 
+        public void AddTrafficLightJunction(int id, Vector2 pos, Rotation rotation, int redLightIntervalPair1, int redLightIntervalPair2)
+        {
+            TrafficLightJunction trafficLightJunction = junctionTypes[id].CreateTrafficLight(pos, rotation, id, redLightIntervalPair1, redLightIntervalPair2);
+
+            junctions.Add(trafficLightJunction);
+            trafficLightJunctions.Add(trafficLightJunction);
+        }
+
         public void AddJunctionType(Vector2 size, Direction[] directions)
         {
             junctionTypes.Add(new JunctionType(size, directions, junctionTypes.Count, trafficLightSize));
@@ -665,6 +726,32 @@ namespace Testy_mapy
             }
 
             return objects;
+        }
+
+        /// <summary>
+        /// Zwraca liste swiatel ulicznych do dodania do obiektow mapy (w celu pozniejszego wyswietlenia)
+        /// </summary>
+        /// <returns></returns>
+        public List<TrafficLightObject> GetTrafficLights()
+        {
+            List<TrafficLightObject> trafficLightObjects = new List<TrafficLightObject>();
+
+            for (int i = 0; i < trafficLightJunctions.Count; ++i)
+            {
+                TrafficLight trafficLight = trafficLightJunctions[i].trafficLight;
+
+                foreach (TrafficLightObjectInformation tlo in trafficLight.pair1.trafficLightObjects)
+                {
+                    trafficLightObjects.Add(new TrafficLightObject("light", tlo.position, trafficLightSize, tlo.rotation, i, 1));
+                }
+
+                foreach (TrafficLightObjectInformation tlo in trafficLight.pair2.trafficLightObjects)
+                {
+                    trafficLightObjects.Add(new TrafficLightObject("light", tlo.position, trafficLightSize, tlo.rotation, i, 2));
+                }
+            }
+
+            return trafficLightObjects;
         }
 
         // nalezy wywolac ZAWSZE po wczytaniu tekstur ulic
@@ -698,6 +785,7 @@ namespace Testy_mapy
         public void LoadTrack(ref StreamReader sr)
         {
             junctions.Clear();
+            trafficLightJunctions.Clear();
             streets.Clear();
             sidewalks.Clear();
             connections.Clear();

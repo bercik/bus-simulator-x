@@ -91,6 +91,11 @@ namespace Testy_mapy
                     spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
                             o.original_origin, o.spriteEffects, 1);
                 }
+                else if (trafficLights.ContainsKey(o.name))
+                {
+                    spriteBatch.Draw(trafficLights[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
+                            o.original_origin, o.spriteEffects, 1);
+                }
 
                 // wyœwietlanie informacji o po³o¿eniu gracza:
                 ShowImHere(spriteBatch, previewScale);
@@ -369,6 +374,7 @@ namespace Testy_mapy
                 trackLogic.LoadTrack(ref sr);
                 areasLogic.LoadAreas(ref sr);
                 mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania, drogi i chodniki jako obiekty do wyswietlenia
+                mapLogic.AddTrafficLightsToChunks(trackLogic.GetTrafficLights()); // dodajemy swiatla jako obiekty do wyswietlenia
                 pedestriansLogic.SetSidewalks(trackLogic.GetSidewalks()); // ustawiamy skrzyzowania w klasie pedestriansLogic
 
                 load = true;

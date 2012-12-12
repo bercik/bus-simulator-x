@@ -97,6 +97,15 @@ namespace Testy_mapy
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
             collisionsLogic = new CollisionsLogic();
+
+            // TEST
+            List<Junction> junctions = new List<Junction>();
+            List<Junction> junctions2 = new List<Junction>();
+            Junction junc = new Junction(1, "n", new Vector2(0, 0), new Vector2(50, 50), new Vector2(500, 500), 0, new Connection[]{new Connection(new Vector2(0, 0)), new Connection(new Vector2(200, 200))});
+            junctions.Add(junc);
+            junctions2.Add(junc);
+            junctions[0].AddConnection(new Vector2(0, 0), new Vector2(100, 100));
+            junctions2[0].AddConnection(new Vector2(200, 200), new Vector2(1000, 1000));
         }
 
         /// <summary>
