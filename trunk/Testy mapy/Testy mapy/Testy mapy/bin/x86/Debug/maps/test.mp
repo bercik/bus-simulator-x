@@ -4,6 +4,7 @@
 //nazwa;pozycja x;pozycja y(srodka);szerokosc;wysokosc(domyslne-0);rotacja(0-360);efekty(0-bez,1-odwroc poziomo,2-odwroc pionowo)
 budynek0;750;1420;350;350;0,0;0
 budynek0;600;720;300;300;90,0;0
+budynek0;3350;1095;300;300;90,0;0
 budynek1;1650;4185;250;400;0,0;0
 budynek2;2550;1950;0;0;0,0;0
 przystanek;880;1680;0;0;0;0
@@ -27,10 +28,16 @@ drzewo;1200;1200;0;0;150,0;0
 kwiatek_bordowy;342;565;0;0;0,0;0
 kwiatek_bordowy;369;615;0;0;0,0;0
 kwiatek_czerwony;385;565;0;0;0,0;0
+kwiatek_czerwony;3050;1090;0;0;0,0;0
+kwiatek_czerwony;3125;1120;0;0;0,0;0
 kwiatek_rozowy;345;695;0;0;0,0;0
 kwiatek_rozowy;375;655;0;0;0,0;0
+kwiatek_rozowy;3100;940;0;0;0,0;0
+kwiatek_rozowy;3125;1010;0;0;0,0;0
 kwiatek_pomaranczowy;410;710;0;0;0,0;0
 kwiatek_pomaranczowy;344;740;0;0;0,0;0
+kwiatek_pomaranczowy;3090;1005;0;0;0,0;0
+kwiatek_pomaranczowy;3050;1015;0;0;0,0;0
 beczka;600;1195;0;0;0,0;0
 beczka;650;1190;0;0;0,0;0
 beczka;700;1200;0;0;0,0;0
@@ -54,8 +61,19 @@ barierka_mala;285;1185;0;0;0,0;0
 barierka_duza;775;1910;0;0;180,0;0
 barierka_duza;439;1910;0;0;270,0;0
 skwer;1950;1960;0;0;0,0;0
+skwer;1950;1025;0;0;0,0;0
 drzewa;1650;1960;0;0;0,0;0
 drzewa;1920;1650;0;0;0,0;1
+drzewa;1840;1320;0;0;0,0;2
+pole;3360;1350;0;0;0,0;0
+pole;3410;1350;0;0;0,0;0
+pole;3460;1350;0;0;0,0;0
+pole;3510;1350;0;0;0,0;0
+pole;3360;1430;0;0;0,0;0
+pole;3410;1430;0;0;0,0;0
+pole;3460;1430;0;0;0,0;0
+pole;3510;1430;0;0;0,0;0
+oczko_wodne;780;3675;0;0;0,0;0
 *junctions*
 //id;pozycja x;pozycja y(srodka);rotacja(0-3);czy maj¹ byæ œwiat³a uliczne(1-tak, 0-nie);czas trwania czerwonego œwiat³a (w sek.; 0-domyœlna wartoœæ): 1 pary(pierwszy napotkany wlot licz¹c od góry i id¹c w prawo po rotacji skrzy¿owania); 2 pary
 1;150;150;0;0
@@ -71,7 +89,7 @@ drzewa;1920;1650;0;0;0,0;1
 1;1350;1650;2;0
 1;1350;1050;1;0
 3;150;2250;3;0
-5;1050;2250;0;0
+5;1050;2250;0;1;15;15
 4;1050;3150;2;0
 3;150;3150;0;0
 3;150;4950;3;0
@@ -86,11 +104,11 @@ drzewa;1920;1650;0;0;0,0;1
 0;2250;2250;0;1;10;15
 0;2250;750;0;0
 1;2250;150;0;0
-2;2250;1350;3;0
+2;2250;1350;3;1;10;20
 1;3750;150;1;0
 2;3750;750;1;0
 2;2850;750;0;0
-0;2850;1350;0;0
+0;2850;1350;0;1;15;15
 1;3150;1350;1;0
 1;3150;1650;3;0
 2;3750;1650;1;0

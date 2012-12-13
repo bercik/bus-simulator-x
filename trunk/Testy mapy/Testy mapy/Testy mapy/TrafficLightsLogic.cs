@@ -9,11 +9,108 @@ namespace Testy_mapy
 {
     enum TrafficLightState { green = 0, yellow = 1, red = 2, redYellow = 3 } // stan swiatel (zielony, zolty, czerwony, zolty i czerwony)
 
+    class TrafficLightsLogic
+    {
+        public List<TrafficLightJunction> trafficLightJunctions { get; private set; }
+        public Vector2 trafficLightSize { get; private set; }
+
+        public TrafficLightsLogic()
+        {
+            trafficLightJunctions = new List<TrafficLightJunction>();
+        }
+
+        public void SetTrafficLightSize(Vector2 trafficLightSize)
+        {
+            this.trafficLightSize = trafficLightSize;
+        }
+
+        public void AddTrafficLightJunction(TrafficLightJunction trafficLightJunction)
+        {
+            trafficLightJunctions.Add(trafficLightJunction);
+        }
+
+        public void ClearTrafficLightJunctions()
+        {
+            trafficLightJunctions.Clear();
+        }
+
+        public List<TrafficLightObject> GetTrafficLights()
+        {
+            List<TrafficLightObject> trafficLightObjects = new List<TrafficLightObject>();
+
+            for (int i = 0; i < trafficLightJunctions.Count; ++i)
+            {
+                TrafficLight trafficLight = trafficLightJunctions[i].trafficLight;
+
+                foreach (TrafficLightObjectInformation tlo in trafficLight.pair1.trafficLightObjects)
+                {
+                    trafficLightObjects.Add(new TrafficLightObject("light", tlo.position, trafficLightSize, tlo.rotation, i, 1));
+                }
+
+                foreach (TrafficLightObjectInformation tlo in trafficLight.pair2.trafficLightObjects)
+                {
+                    trafficLightObjects.Add(new TrafficLightObject("light", tlo.position, trafficLightSize, tlo.rotation, i, 2));
+                }
+            }
+
+            return trafficLightObjects;
+        }
+
+        public bool IsTrafficLightJunctionInRange(TrafficLightJunction trafficLightJunction)
+        {
+            Vector2 distance = trafficLightJunction.pos - Helper.busPos;
+
+            if ((Math.Abs(distance.X) <= GameParams.trafficDistanceToDelete)
+                 && (Math.Abs(distance.Y) <= GameParams.trafficDistanceToDelete))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public List<TrafficLightJunction> GetTrafficLightJunctionsInRange()
+        {
+            List<TrafficLightJunction> trafficLightJunctionsInRange = new List<TrafficLightJunction>();
+
+            foreach (TrafficLightJunction trafficLightJunction in trafficLightJunctions)
+            {
+                if (IsTrafficLightJunctionInRange(trafficLightJunction))
+                    trafficLightJunctionsInRange.Add(trafficLightJunction);
+            }
+
+            return trafficLightJunctionsInRange;
+        }
+
+        public void Update(TimeSpan framesInterval)
+        {
+            List<TrafficLightJunction> trafficLightJunctionsInRange = GetTrafficLightJunctionsInRange();
+
+            foreach (TrafficLightJunction trafficLightJunction in trafficLightJunctionsInRange)
+            {
+                trafficLightJunction.trafficLight.Update(framesInterval);
+            }
+        }
+
+        public TrafficLightState GetTrafficLightPairState(int junctionIndex, int pairIndex)
+        {
+            return trafficLightJunctions[junctionIndex].trafficLight.GetTrafficLightPairState(pairIndex);
+        }
+    }
+
+    struct TrafficLightRectangle
+    {
+        public Rectangle redLightRectangle; // prostokat do wykrywania czerwonego swiatla
+        public Direction direction; // po ktorej stronie skrzyzowania znajduje sie dany prostokat
+    }
+
     class TrafficLightObjectInformation
     {
         public Vector2 position { get; private set; } // pozycja światla
         public float rotation { get; private set; } // rotacja
-        protected Rectangle redLightForBusRectangle; // prostokat do wykrywania czerwonego swiatla dla autobusu
+        protected TrafficLightRectangle redLightForBusRectangle; // prostokat do wykrywania czerwonego swiatla dla autobusu
         protected Rectangle redLightForCarRectangle; // prostokat do wykrywania czerwonego swiatla dla aut
 
         protected TrafficLightObjectInformation()
@@ -21,7 +118,7 @@ namespace Testy_mapy
 
         }
 
-        public TrafficLightObjectInformation(Vector2 position, float rotation, Rectangle redLightForBusRectangle, Rectangle redLightForCarRectangle)
+        public TrafficLightObjectInformation(Vector2 position, float rotation, TrafficLightRectangle redLightForBusRectangle, Rectangle redLightForCarRectangle)
         {
             this.position = position;
             this.rotation = rotation;
@@ -35,7 +132,7 @@ namespace Testy_mapy
             ComputeParameters(direction, junctionSize, trafficLightSize);
         }
 
-        public Rectangle getRedLightForBusRectangle()
+        public TrafficLightRectangle getRedLightForBusRectangle()
         {
             return redLightForBusRectangle;
         }
@@ -57,24 +154,25 @@ namespace Testy_mapy
             position += shift;
 
             // pozycja prostokątu do wykrywania czerwonego światła dla autobusu
-            pos = new Vector2((int)redLightForBusRectangle.X, (int)redLightForBusRectangle.Y);
+            pos = new Vector2((int)redLightForBusRectangle.redLightRectangle.X, (int)redLightForBusRectangle.redLightRectangle.Y);
             pos = Helper.ComputeRotation(pos, new Vector2(0, 0), rotation);
             pos += shift;
 
             if ((rotation / 90) % 2 != 0) // jezeli przy rotacji zmieniamy kierunek z poziomego na pionowy lub odwrotnie
             {
-                width = redLightForBusRectangle.Height;
-                height = redLightForBusRectangle.Width;
+                width = redLightForBusRectangle.redLightRectangle.Height;
+                height = redLightForBusRectangle.redLightRectangle.Width;
             }
             else // jezeli nie zmieniamy kierunku
             {
-                width = redLightForBusRectangle.Width;
-                height = redLightForBusRectangle.Height;
+                width = redLightForBusRectangle.redLightRectangle.Width;
+                height = redLightForBusRectangle.redLightRectangle.Height;
             }
 
             pos.Y -= height / 2;
             pos.X -= width / 2;
-            redLightForBusRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
+            redLightForBusRectangle.redLightRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
+            redLightForBusRectangle.direction = (Direction)(((int)redLightForBusRectangle.direction + (int)(rotation / 90)) % 4);
 
             // pozycja prostokątu do wykrywania czerwonego światła dla aut
             pos = new Vector2((int)redLightForCarRectangle.X, (int)redLightForCarRectangle.Y);
@@ -96,7 +194,7 @@ namespace Testy_mapy
             pos.X -= width / 2;
             redLightForCarRectangle = new Rectangle((int)Math.Round(pos.X), (int)Math.Round(pos.Y), width, height);
 
-            this.rotation = ((this.rotation + rotation) / 90) * 90;
+            this.rotation = ((this.rotation + rotation + 180) / 90) * 90;
         }
 
         /// <summary>
@@ -161,7 +259,8 @@ namespace Testy_mapy
                 width = height;
                 height = temp;
             }
-            redLightForBusRectangle = new Rectangle((int)pos.X, (int)pos.Y, width, height);
+            redLightForBusRectangle.redLightRectangle = new Rectangle((int)pos.X, (int)pos.Y, width, height);
+            redLightForBusRectangle.direction = direction;
         }
     }
 
@@ -233,7 +332,7 @@ namespace Testy_mapy
 
     class TrafficLightPair
     {
-        public TrafficLightState trafficLightState { get; private set; } // stan swiatel
+        public TrafficLightState trafficLightState { get; set; } // stan swiatel
         public TrafficLightObjectInformation[] trafficLightObjects { get; private set; } // 1 lub 2 obiekty swiatel przechowujace prostokaty do wykrywania czerwonego swiatla
         public float redInterval { get; private set; } // czas trwania czerwonego swiatla
 
@@ -257,11 +356,104 @@ namespace Testy_mapy
     {
         public TrafficLightPair pair1 { get; private set; } // 1 para świateł
         public TrafficLightPair pair2 { get; private set; } // 2 para świateł
+        public float trafficLightIntervalBeforeRedYellowStart { get; private set; } // interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
 
-        public TrafficLight(TrafficLightPair pair1, TrafficLightPair pair2)
+        // zmienne pomocnicze
+        double actualInterval; // pozostaly czas do zmiany stanu swiatel
+        bool nextPair1; // czy nastepna para swiatel zmieniona na zielona ma byc para 1
+
+        public TrafficLight(TrafficLightPair pair1, TrafficLightPair pair2, float trafficLightIntervalBeforeRedYellowStart)
         {
+            Random rand = new Random();
+
             this.pair1 = pair1;
             this.pair2 = pair2;
+            this.trafficLightIntervalBeforeRedYellowStart = trafficLightIntervalBeforeRedYellowStart;
+
+            // losujemy ktorej pary swiatel stan ma byc pierwszy jako czerwony, a ktorej jako zielony
+            if (rand.Next(1) == 0)
+            {
+                this.pair1.trafficLightState = TrafficLightState.green;
+                this.pair2.trafficLightState = TrafficLightState.red;
+                actualInterval = this.pair2.redInterval;
+            }
+            else
+            {
+                this.pair1.trafficLightState = TrafficLightState.red;
+                this.pair2.trafficLightState = TrafficLightState.green;
+                actualInterval = this.pair1.redInterval;
+            }
+        }
+
+        public void Update(TimeSpan framesInterval)
+        {
+            actualInterval -= framesInterval.TotalSeconds; // zmniejszamy aktualny interwał o czas jaki upłynął
+
+            if (actualInterval < 0) // jezeli jest mniejszy od 0 to zmieniamy aktualny stan
+            {
+                ChangeLightState();
+            }
+        }
+
+        public TrafficLightState GetTrafficLightPairState(int pairIndex)
+        {
+            if (pairIndex == 1)
+            {
+                return pair1.trafficLightState;
+            }
+            else
+            {
+                return pair2.trafficLightState;
+            }
+        }
+
+        public void ChangeLightState()
+        {
+            if (pair1.trafficLightState == TrafficLightState.redYellow)
+            {
+                pair1.NextLightState();
+                actualInterval = pair2.redInterval;
+            }
+            else if (pair1.trafficLightState == TrafficLightState.green)
+            {
+                pair1.NextLightState();
+                actualInterval = GameParams.trafficLightYellowInterval;
+            }
+            else if (pair1.trafficLightState == TrafficLightState.yellow)
+            {
+                pair1.NextLightState();
+                nextPair1 = false;
+                actualInterval = trafficLightIntervalBeforeRedYellowStart;
+            }
+            else if (pair1.trafficLightState == TrafficLightState.red && pair2.trafficLightState == TrafficLightState.red)
+            {
+                if (nextPair1)
+                {
+                    pair1.NextLightState();
+                    actualInterval = GameParams.trafficLightYellowInterval;
+                }
+                else
+                {
+                    pair2.NextLightState();
+                    actualInterval = GameParams.trafficLightYellowInterval;
+                }
+            }
+            else if (pair2.trafficLightState == TrafficLightState.redYellow)
+            {
+                pair2.NextLightState();
+                actualInterval = pair1.redInterval;
+            }
+            else if (pair2.trafficLightState == TrafficLightState.green)
+            {
+                pair2.NextLightState();
+                actualInterval = GameParams.trafficLightYellowInterval;
+            }
+            else if (pair2.trafficLightState == TrafficLightState.yellow)
+            {
+                pair2.NextLightState();
+                nextPair1 = true;
+                actualInterval = trafficLightIntervalBeforeRedYellowStart;
+            }
         }
     }
 }

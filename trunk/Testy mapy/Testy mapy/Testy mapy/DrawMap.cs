@@ -71,6 +71,7 @@ namespace Testy_mapy
             // TODO: Add your update code here
             pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
             areasLogic.Update(gameTime.ElapsedGameTime, ref trafficLogic);
+            trackLogic.Update(gameTime.ElapsedGameTime);
         }
 
         public void DrawPreview(SpriteBatch spriteBatch, float previewScale)
@@ -224,6 +225,25 @@ namespace Testy_mapy
 
                     spriteBatch.Draw(pedestrians[p.name], destinationRect, null, Color.White, MathHelper.ToRadians(p.rotate),
                             p.origin, p.spriteEffects, 1);
+                }
+            }
+        }
+
+        public void DrawTrafficLights(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            List<TrafficLightObject> trafficLightObjects = mapLogic.GetTrafficLightsToShow();
+
+            foreach (TrafficLightObject tlo in trafficLightObjects)
+            {
+                TrafficLightState trafficLightState = trackLogic.GetTrafficLightPairState(tlo.junctionIndex, tlo.pairIndex);
+                string name = tlo.name + ((int)trafficLightState).ToString();
+
+                Rectangle destinationRect = Helper.CalculateScaleRectangle(tlo);
+
+                if (trafficLights.ContainsKey(name))
+                {
+                    spriteBatch.Draw(trafficLights[name], destinationRect, null, Color.White, MathHelper.ToRadians(tlo.rotate),
+                            tlo.original_origin, tlo.spriteEffects, 1);
                 }
             }
         }
