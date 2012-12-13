@@ -9,37 +9,47 @@ namespace Testy_mapy
 {
     class GameplayLogic
     {
+        /// <summary>
+        /// This is the bus stop.
+        /// </summary>
         protected class BusStop
         {
-            public BusStop(int id, Vector2 busArea, Vector2 waitingArea, Vector2 sign)
+            public BusStop(int id, Vector2 stopArea, Vector2 waitingArea, Vector2 sign)
             {
                 this.id = id;
-                this.busArea = busArea;
+                this.stopArea = stopArea;
                 this.waitingArea = waitingArea;
                 this.sign = sign;
             }
 
             public int id;
-            public Vector2 busArea;
+            public Vector2 stopArea;
             public Vector2 waitingArea;
             public Vector2 sign;
         }
 
         protected List<BusStop> busStops = new List<BusStop>();
+        protected List<Int32> busStopsOrder;
         protected SettingsHandling settingsHandling = new SettingsHandling();
 
-        public bool LoadMapFile(string fileName)
+        /// <summary>
+        /// Load map file.
+        /// </summary>
+        public void LoadMapFile(string fileName)
         {
-            return settingsHandling.LoadMap(fileName);
+            busStops = settingsHandling.LoadMap(fileName);
+        }
+
+        /// <summary>
+        /// Load bus stops order file.
+        /// </summary>
+        public void LoadOrderFile(string fileName)
+        {
+            busStopsOrder = settingsHandling.LoadOrder(fileName);
         }
 
         protected class SettingsHandling
         {
-            public void Save(string file, List<BusStop> busStops)
-            {
-             
-            }
-
             /// <summary>
             /// Check if the text is a comment (begins with //).
             /// </summary>
@@ -51,9 +61,13 @@ namespace Testy_mapy
                     return false;
             }
 
-            public bool LoadMap(string filePath)
+            /// <summary>
+            /// Load bus stops.
+            /// </summary>
+            public List<BusStop> LoadMap(string filePath)
             {
                 filePath = "maps/" + filePath;
+                List<BusStop> tempBusStops = new List<BusStop>();
 
                 if (File.Exists(filePath))
                 {
@@ -61,7 +75,7 @@ namespace Testy_mapy
                     FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                     Encoding encoding = Encoding.GetEncoding("Windows-1250");
                     StreamReader streamReader = new StreamReader(fileStream, encoding);
-                    
+
                     // Zmienna pozwalająca na ustalenie czy czas rozpocząć odczytywanie.
                     bool beginningEncountered = false;
 
@@ -90,22 +104,49 @@ namespace Testy_mapy
                                 string[] split = line.Split(new char[] { ';' });
                                 BusStop busStop = new BusStop(int.Parse(split[0]), new Vector2(float.Parse(split[1]), float.Parse(split[2])), new Vector2(float.Parse(split[3]), float.Parse(split[4])), new Vector2(float.Parse(split[5]), float.Parse(split[6])));
 
-                                //busStops.Add(busStop);
+                                tempBusStops.Add(busStop);
                             }
                         }
 
-                        if (line == "*busStops*")
+                        if (line == "*busstops*")
                         {
                             beginningEncountered = true;
                         }
                     }
+                }
 
-                    return true;
-                }
-                else
+                return tempBusStops;
+            }
+
+            /// <summary>
+            /// Load the order of the bus stops.
+            /// </summary>
+            public List<Int32> LoadOrder(string filePath)
+            {
+                filePath = "maps/" + filePath;
+                List<Int32> tempOrder = new List<Int32>();
+
+                if (File.Exists(filePath))
                 {
-                    return false;
+                    // Przygotuj StreamReader.
+                    FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    Encoding encoding = Encoding.GetEncoding("Windows-1250");
+                    StreamReader streamReader = new StreamReader(fileStream, encoding);
+
+                    string line;
+
+                    // Przeliteruj przez wszystkie linie przypisując je do line.
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        // Jeśli odczytano tekst niebędący komentarzem.
+                        if (!TextIsComment(line))
+                        {
+                            tempOrder.Add(Int32.Parse(line));
+                        }
+                    }
                 }
+
+                return tempOrder;
             }
         }
 

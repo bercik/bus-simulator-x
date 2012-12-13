@@ -143,6 +143,8 @@ namespace Testy_mapy
             busLogic.SetPosition(busPosition);
             drawMap.CreateGrass(busLogic.GetBusPosition());
 
+            gameplaylogic.LoadMapFile("busstops_test.mp");
+
             startPos = busLogic.GetRealPosition(); // !!! do EW. USUNIECIA !!!
             Helper.mapPos = startPos; // !!! TO TEZ
         }
