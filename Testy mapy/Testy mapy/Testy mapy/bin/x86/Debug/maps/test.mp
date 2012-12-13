@@ -177,3 +177,9 @@ oczko_wodne;780;3675;0;0;0,0;0
 CENTRUM;3;1;1500;0;2700;2400
 PRZEDMIEŒCIA;2;2;0;0;1500;1200;900;1200;600;1000
 WIEŒ;1;3;0;1200;900;1000;0;2400;3300;1800;0;2700;2100;4300
+*bus_stops*
+//id;[stopArea];[waitingArea];[sign]
+//id;stopAreaX;stopAreaY;waitingAreaX;waitingAreaY;signX;signY
+0;1;2;3;4;5;6
+11;12;13;14;15;16;17
+*somethingelse*
