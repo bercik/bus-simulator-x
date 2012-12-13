@@ -90,6 +90,7 @@ namespace Testy_mapy
                                 string[] split = line.Split(new char[] { ';' });
                                 BusStop busStop = new BusStop(int.Parse(split[0]), new Vector2(float.Parse(split[1]), float.Parse(split[2])), new Vector2(float.Parse(split[3]), float.Parse(split[4])), new Vector2(float.Parse(split[5]), float.Parse(split[6])));
 
+                                //busStops.Add(busStop);
                             }
                         }
 

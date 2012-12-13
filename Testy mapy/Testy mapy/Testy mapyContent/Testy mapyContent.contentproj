@@ -62,12 +62,12 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="vehicle1.png">
+    <Compile Include="vehicles\vehicle1.png">
       <Name>vehicle1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="vehicle2.png">
+    <Compile Include="vehicles\vehicle2.png">
       <Name>vehicle2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -122,7 +122,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="bus.png">
+    <Compile Include="vehicles\bus.png">
       <Name>bus</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -186,14 +186,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="vehicle0.png">
+    <Compile Include="vehicles\vehicle0.png">
       <Name>vehicle0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="vehicle_indicator.png">
+    <Compile Include="vehicles\vehicle_indicator.png">
       <Name>vehicle_indicator</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -304,14 +304,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="vehicle_taillight.png">
+    <Compile Include="vehicles\vehicle_taillight.png">
       <Name>vehicle_taillight</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="vehicle3.png">
+    <Compile Include="vehicles\vehicle3.png">
       <Name>vehicle3</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -400,7 +400,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="vehicle4.png">
+    <Compile Include="vehicles\vehicle4.png">
       <Name>vehicle4</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>

@@ -78,6 +78,11 @@ namespace Testy_mapy
         // ogólne:
         public static readonly float streetWidth = 100.0f; // szerokosc jednego pasa ulicy
 
+        // dla TrafficLogic:
+        public static readonly Vector2 trafficSpawnDistance = new Vector2(2000, 2000); // Maksymalna odleglość spawowania od autobusu.
+        public static readonly float trafficDistanceToDelete = 2000;                   // Samochody będace dalej niż podany dystans zostaną usunięte.
+        public static readonly float trafficDistanceToDeleteWhenAccident = 500;        // Samochody, które uległy wypadkowi będace dalej niż podany dystans zostaną usunięte.
+
         // dla TrafficLights:
         public static readonly int redLightRectangleHeight = 100; // zakres wysokosci prostokata do wykrywania czerwonego swiatla
         public static readonly int additionalWidthForBusRedLightRectangle = 50; // dodatkowy zakres szerokosci do wykrywania czerwonego swiatla dla autobusu
