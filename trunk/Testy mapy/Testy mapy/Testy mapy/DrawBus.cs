@@ -23,8 +23,8 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
-            busTexture = content.Load<Texture2D>("bus");
-            tailLightTexture = content.Load<Texture2D>("vehicle_taillight");
+            busTexture = content.Load<Texture2D>("vehicles/bus");
+            tailLightTexture = content.Load<Texture2D>("vehicles/vehicle_taillight");
         }
 
         public void Draw(BusLogic busLogic, SpriteBatch spriteBatch)

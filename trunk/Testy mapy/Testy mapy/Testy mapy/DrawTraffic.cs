@@ -27,13 +27,13 @@ namespace Testy_mapy
         /// </summary>
         public void LoadContent(ContentManager content)
         {
-            vehicleTexture[0] = content.Load<Texture2D>("vehicle0");
-            vehicleTexture[1] = content.Load<Texture2D>("vehicle1");
-            vehicleTexture[2] = content.Load<Texture2D>("vehicle2");
-            vehicleTexture[3] = content.Load<Texture2D>("vehicle3");
-            vehicleTexture[4] = content.Load<Texture2D>("vehicle4");
-            indicatorTexture = content.Load<Texture2D>("vehicle_indicator");
-            tailLightTexture = content.Load<Texture2D>("vehicle_taillight");
+            vehicleTexture[0] = content.Load<Texture2D>("vehicles/vehicle0");
+            vehicleTexture[1] = content.Load<Texture2D>("vehicles/vehicle1");
+            vehicleTexture[2] = content.Load<Texture2D>("vehicles/vehicle2");
+            vehicleTexture[3] = content.Load<Texture2D>("vehicles/vehicle3");
+            vehicleTexture[4] = content.Load<Texture2D>("vehicles/vehicle4");
+            indicatorTexture = content.Load<Texture2D>("vehicles/vehicle_indicator");
+            tailLightTexture = content.Load<Texture2D>("vehicles/vehicle_taillight");
             point = content.Load<Texture2D>("help/point");
         }
 

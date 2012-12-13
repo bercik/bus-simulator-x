@@ -763,22 +763,17 @@ namespace Testy_mapy
             }
         }
 
-        public List<Vehicle> vehicles = new List<Vehicle>();
-        private int maxVehicles = 10;    // Maksymalna liczba pojazdów
-        private float spawnInterval = 5; // Co ile spawnować nowe pojazdy [s]
-        private float lastSpawn = 0;     // Ostatni spawn [s]
-        private Vector2 spawnDistance = new Vector2(2000, 2000); // Maksymalna odleglość spawowania od autobusu.
         private float minVehicleSpawnDistance = 100; // Minimalna odleglość od innego samochodu aby zespanowac.
-        private float distanceToDelete = 2000; // Samochody będace dalej niż podany dystans zostaną usunięte.
-        private float distanceToDeleteWhenAccident = 500; // Samochody, które uległy wypadkowi będace dalej niż podany dystans zostaną usunięte.
-
         Vector2 indicatorTextureSize = new Vector2(50, 50); // Rozmiar tekstury migacza.
         Vector2 tailLightTextureSize = new Vector2(50, 50); // Rozmiar tekstury tylnych świateł.
         float indicatorBlinkInterval = 1; // Jak czesto mają migać migacze.
 
-        private int maxRandom = 0;
-
+        public List<Vehicle> vehicles = new List<Vehicle>();
         private VehicleType[] vehiclesTypes;
+        private int maxVehicles = 10;    // Maksymalna liczba pojazdów
+        private float spawnInterval = 5; // Co ile spawnować nowe pojazdy [s]
+        private int maxRandom = 0;
+        private float lastSpawn = 0;     // Ostatni spawn [s]
 
         public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
         {
@@ -1046,7 +1041,7 @@ namespace Testy_mapy
                 Vector2 junctionCenter, additionalOutpoint;
                 Connection getNewRoad;
 
-                drawMap.CreateTrack(spawnDistance, type.size.Y, out getNewRoad, out junctionCenter, out additionalOutpoint);
+                drawMap.CreateTrack(GameParams.trafficSpawnDistance, type.size.Y, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
                 //if (!(getNewRoad.point1.X == 600 && getNewRoad.point1.Y == 450))
                   //  return;
@@ -1077,7 +1072,7 @@ namespace Testy_mapy
             vehicles.RemoveAll(delegate(Vehicle vehicle) // Usuńmy pojazdy będące za daleko.
             {
                 float distance = Helper.CalculateDistance(busLogic.GetBusPosition(), vehicle.GetVehiclePosition());
-                if (distance > distanceToDelete || (distance > distanceToDeleteWhenAccident && vehicle.accident))
+                if (distance > GameParams.trafficDistanceToDelete || (distance > GameParams.trafficDistanceToDeleteWhenAccident && vehicle.accident))
                     return true;
                 else
                     return false;
