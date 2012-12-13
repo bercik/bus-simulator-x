@@ -88,6 +88,9 @@ namespace Testy_mapy
         public static readonly int additionalWidthForBusRedLightRectangle = 50; // dodatkowy zakres szerokosci do wykrywania czerwonego swiatla dla autobusu
         public static readonly float lightDistanceFromStreet = 25.0f; // odległość światła od ulicy
         public static readonly int standartRedLightInterval = 10; // standartowy interwał trwania czerwonego światła
+        public static readonly float trafficLightIntervalBeforeRedYellowStart1 = 2.0f; // (dla małych skrzyżowań) interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
+        public static readonly float trafficLightIntervalBeforeRedYellowStart2 = 4.0f; // (dla dużych skrzyżowań) interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
+        public static readonly float trafficLightYellowInterval = 2.0f; // czas trwania zoltego i czerwono-zoltego swiatla
     }
 
     static class Helper

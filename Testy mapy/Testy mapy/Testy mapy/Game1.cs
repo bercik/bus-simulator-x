@@ -319,6 +319,7 @@ namespace Testy_mapy
             }
             else
             {
+                // track, objects under bus, pedestrians
                 drawMap.DrawTrack(spriteBatch, gameTime);
                 drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
                 drawMap.DrawPedestrians(spriteBatch, gameTime);
@@ -331,6 +332,9 @@ namespace Testy_mapy
 
                 // Something very nice and useful - most likely map object wchich are supposed to be above the bus.
                 drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
+
+                // traffic lights
+                drawMap.DrawTrafficLights(spriteBatch, gameTime);
 
                 // zmienne pomocnicze rysowane na ekranie:
                 DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
