@@ -121,6 +121,9 @@ namespace Testy_mapy
         /// </summary>
         protected override void LoadContent()
         {
+            // ³adowanie dŸwiêków
+            Sound.LoadContent(this.Content);
+
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             Helper.SetScale(2.0f);
@@ -147,6 +150,8 @@ namespace Testy_mapy
 
             startPos = busLogic.GetRealPosition(); // !!! do EW. USUNIECIA !!!
             Helper.mapPos = startPos; // !!! TO TEZ
+
+            Sound.PlayBackgroundSong();
         }
 
         /// <summary>

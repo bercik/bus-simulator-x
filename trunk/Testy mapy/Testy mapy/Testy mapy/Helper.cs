@@ -165,9 +165,9 @@ namespace Testy_mapy
             Vector2 v_mapPos = Helper.screenOrigin; // pozycja srodka mapy w wspolrzednych ekranowych (zawsze srodek)
 
             double x = ((pos.X - v_mapPos.X) / scale);
-            rect.X = (int)Math.Round(v_mapPos.X + x);
+            rect.X = (int)Math.Ceiling(v_mapPos.X + x);
             double y = ((pos.Y - v_mapPos.Y) / scale);
-            rect.Y = (int)Math.Round(v_mapPos.Y + y);
+            rect.Y = (int)Math.Ceiling(v_mapPos.Y + y);
 
             rect.Width = (int)Math.Ceiling(size.X / scale);
             rect.Height = (int)Math.Ceiling(size.Y / scale);
