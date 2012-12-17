@@ -117,6 +117,7 @@
     <Compile Include="GameplayLogic.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HUD.cs" />
     <Compile Include="MapLogic.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="PedestriansLogic.cs" />

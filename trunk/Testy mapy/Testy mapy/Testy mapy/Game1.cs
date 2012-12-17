@@ -20,6 +20,8 @@ namespace Testy_mapy
         SpriteBatch spriteBatch;
         SpriteFont font;
 
+        HUD hud;
+
         DrawMap drawMap;
         DrawBus drawBus;
         
@@ -86,11 +88,13 @@ namespace Testy_mapy
             Content.RootDirectory = "Content";
 
             //graphics.IsFullScreen = true;
-            //graphics.PreferredBackBufferHeight = 768;
-            //graphics.PreferredBackBufferWidth = 1024;
+            graphics.PreferredBackBufferHeight = 768;
+            graphics.PreferredBackBufferWidth = 1024;
 
             // inicjujemy klasê Helper
             Helper.mapPos = startPos;
+
+            hud = new HUD();
 
             drawMap = new DrawMap();
             drawBus = new DrawBus();
@@ -126,12 +130,17 @@ namespace Testy_mapy
 
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            Helper.SetScale(2.0f);
+            Helper.SetScale(1.5f);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+
+            // ³adowanie interfejsu u¿ytkownika:
+            hud.LoadContent(this.Content);
+
+            // ³adowanie klas rysuj¹cych
             drawBus.LoadContent(this.Content);
             drawTraffic.LoadContent(this.Content);
             drawMap.LoadContent(this.Content);
@@ -359,6 +368,8 @@ namespace Testy_mapy
                 spriteBatch.End();
                 spriteBatch.Begin();
 
+                DrawHud(spriteBatch);
+
                 spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
                 spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
                 spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
@@ -385,6 +396,16 @@ namespace Testy_mapy
             }
 
             spriteBatch.End();
+        }
+
+        protected void DrawHud(SpriteBatch spriteBatch)
+        {
+            InformationForHud infoForHud = new InformationForHud();
+            infoForHud.busSpeed = busLogic.GetCurrentSpeed();
+            infoForHud.busRpm = busLogic.GetCurrentAcceleration();
+            infoForHud.busGear = busLogic.GetCurrentGear();
+
+            hud.Draw(spriteBatch, infoForHud);
         }
     }
 }
