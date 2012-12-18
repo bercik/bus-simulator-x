@@ -13,6 +13,8 @@ namespace Testy_mapy
         private float speed;
         private Vector2 size;
 
+        private bool doorsOpen = false; // Czy drzwi są otwarte.
+
         private bool breaking = false; // Used for displaying tail lights.
 
         // Used for moving back the bus in case of the collision.
@@ -41,6 +43,14 @@ namespace Testy_mapy
         public bool IsBreaking()
         {
             return breaking;
+        }
+
+        /// <summary>
+        /// Check if the doors are open.
+        /// </summary>
+        public bool DoorsAreOpen()
+        {
+            return doorsOpen;
         }
 
         /// <summary>
@@ -444,62 +454,74 @@ namespace Testy_mapy
         /// <summary>
         /// Main logic.
         /// </summary>
-        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, TimeSpan framesInterval)
+        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, bool triggerDoors, TimeSpan framesInterval)
         {
             float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000;
 
-            if (accelerate)
+            if (speed == 0)
             {
-                speed += gearBox.GetAcceleration(speed) * timeCoherenceMultiplier;
+                if (!doorsOpen && triggerDoors)
+                    doorsOpen = true;
+                else if (doorsOpen && triggerDoors)
+                    doorsOpen = false;
             }
 
-            if (brake)
+            if (!doorsOpen)
             {
-                breaking = true;
+
+                if (accelerate)
+                {
+                    speed += gearBox.GetAcceleration(speed) * timeCoherenceMultiplier;
+                }
+
+                if (brake)
+                {
+                    breaking = true;
+                    if (speed > 0)
+                    {
+                        speed -= brakeAcc * timeCoherenceMultiplier;
+                        if (speed < 0)
+                            speed = 0;
+                    }
+
+                    if (speed < 0)
+                    {
+                        speed += brakeAcc * timeCoherenceMultiplier;
+                        if (speed > 0)
+                            speed = 0;
+                    }
+                }
+                else
+                {
+                    breaking = false;
+                }
+
+                if (gearUp)
+                    gearBox.GearUp();
+
+                if (gearDown)
+                    gearBox.GearDown();
+
                 if (speed > 0)
                 {
-                    speed -= brakeAcc * timeCoherenceMultiplier;
+                    speed = speed - speedDecay * timeCoherenceMultiplier;
                     if (speed < 0)
                         speed = 0;
                 }
 
                 if (speed < 0)
                 {
-                    speed += brakeAcc * timeCoherenceMultiplier;
+                    speed = speed + speedDecay * timeCoherenceMultiplier;
                     if (speed > 0)
                         speed = 0;
                 }
+
+                oldDirection = direction;
+                oldPosition = position;
+
+                direction += wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
+                position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
             }
-            else
-            {
-                breaking = false;
-            }
-
-            if (gearUp)
-                gearBox.GearUp();
-
-            if (gearDown)
-                gearBox.GearDown();
-
-            if (speed > 0)
-            {
-                speed = speed - speedDecay * timeCoherenceMultiplier;
-                if (speed < 0)
-                    speed = 0;
-            }
-
-            if (speed < 0)
-            {
-                speed = speed + speedDecay * timeCoherenceMultiplier;
-                if (speed > 0)
-                    speed = 0;
-            }
-
-            oldDirection = direction;
-            oldPosition = position;
-
-            direction += wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
-            position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
         }
 
         /// <summary>

@@ -207,8 +207,8 @@ namespace Testy_mapy
 
             public Vector2 lastEnd = new Vector2(0, 0); // Koniec ostatniej drogi podawane do ChangeTrack podczas prośby o podanie nowej drogi.
 
-            private float normalSpeed = 20;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
-            private float fastSpeed = 30;      // Prędkość na długich, prostych odcinkach.
+            private float normalSpeed = 30;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
+            private float fastSpeed = 40;      // Prędkość na długich, prostych odcinkach.
             private float maxSpeed = 0;        // Aktualna maksymalna prędkość ustalana na podstawie drogi, pojazdów przed samochodem itp.
             private float minDistanceToFastSpeed = 150; // Odlagłość od końców drogi wymagana dla osiągnięcia tej prędkości.
             private float acceleration = 70;   // Standardowe przyspieszenie.
@@ -777,11 +777,11 @@ namespace Testy_mapy
 
         public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
         {
-            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(5, -18), new Vector2(14, 10), new Vector2(0, 0));    // Czerwony.
-            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(-1, -7), new Vector2(5, 5), new Vector2(0, 0));      // Niebieski.
-            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, -15), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
-            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(10, -30), new Vector2(0, 0), new Vector2(-10, -10)); // Srebrny.
-            VehicleType vehicleType5 = new VehicleType(new Vector2(40, 100), 4, 2, new Vector2(10, -30), new Vector2(0, 0), new Vector2(-10, -10)); // Taxi.
+            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(0, 0), new Vector2(12, 0), new Vector2(0, 0));    // Czerwony.
+            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0));      // Niebieski.
+            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
+            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(-10, -10)); // Srebrny.
+            VehicleType vehicleType5 = new VehicleType(new Vector2(40, 100), 4, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10)); // Taxi.
 
             vehiclesTypes = new VehicleType[5] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5 };
 
