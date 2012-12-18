@@ -25,6 +25,7 @@ namespace Testy_mapy
         Vector2 last_change_pos; // ostatnio zmieniona pozycja w jednostkach mapy (przy przesunięciu trawy tzw. "skoku")
         Vector2 last_pos;
         Vector2 grassSize; // rozmiar trawy
+        Vector2 grassOrigin; // srodek trawy
         Point numberOfGrass; // ilość bloków trawy w pionie i poziomie
         Grass[,] grass; // tablica trawy
         int amountOfGrass; // ilość typów trawy
@@ -52,6 +53,11 @@ namespace Testy_mapy
                     RandomGrass(i, j);
                 }
             }
+        }
+
+        public Vector2 getGrassOrigin()
+        {
+            return grassOrigin;
         }
 
         public Vector2 getGrassSize()
@@ -257,6 +263,7 @@ namespace Testy_mapy
         {
             this.amountOfGrass = amountOfGrass;
             this.grassSize = grassSize;
+            this.grassOrigin = grassSize / 2;
             numberOfGrass.X = (int)((Helper.maxWorkAreaSize.X / (int)grassSize.X) + 3);
             numberOfGrass.Y = (int)((Helper.maxWorkAreaSize.Y / (int)grassSize.Y) + 3);
         }
