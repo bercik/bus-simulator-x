@@ -25,6 +25,7 @@ namespace Testy_mapy
         float speedometerScale = 1.0f; // skala predkosciomierza (rozmiar tekstury jest mnozony przez skale)
         float tachometerScale = 1.0f; // skala obrotomierza (rozmiar tekstury jest mnozony przez skale)
         float tipScaleForSpeedometer = 0.65f; // skala wskazówki dla predkosciomierza
+        float gearFrameScale = 1.0f; // skala ramki dla biegow
         Vector2 tipPosForSpeedometer = new Vector2(75, 75); // pozycja wzgledna wskazowki na predkosciomierzu
 
         // speedometer:
@@ -40,6 +41,11 @@ namespace Testy_mapy
         Texture2D tipTexture;
         Rectangle tipRectForSpeedometer;
         Vector2 tipOrigin = new Vector2(8, 99);
+
+        // gearFrame:
+        Texture2D gearFrameTexture;
+        Rectangle gearFrameRect;
+        SpriteFont gearFont;
 
         public HUD()
         {
@@ -70,9 +76,20 @@ namespace Testy_mapy
             speedometerRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
             actualPosX += size.Width;
 
+            tipPosForSpeedometer *= speedometerScale;
             tipPosForSpeedometer += new Vector2(point.X, point.Y);
+            tipScaleForSpeedometer *= speedometerScale;
             size = new Size((int)(tipTexture.Width * tipScaleForSpeedometer), (int)(tipTexture.Height * tipScaleForSpeedometer));
             tipRectForSpeedometer = new Rectangle((int)tipPosForSpeedometer.X, (int)tipPosForSpeedometer.Y, size.Width, size.Height);
+
+            // ramka dla biegów:
+            gearFont = content.Load<SpriteFont>("fonts/gearFont");
+
+            gearFrameTexture = content.Load<Texture2D>("HUD/gear_frame");
+            size = new Size((int)(gearFrameTexture.Width * gearFrameScale), (int)(gearFrameTexture.Height * gearFrameScale));
+            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
+            gearFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+            actualPosX += size.Width;
         }
 
         public void Draw(SpriteBatch spriteBatch, InformationForHud infoForHud)
@@ -85,9 +102,15 @@ namespace Testy_mapy
 
             float rotation = GetSpeedometerTipRotation(infoForHud.busSpeed);
             spriteBatch.Draw(tipTexture, tipRectForSpeedometer, null, Color.White, MathHelper.ToRadians(rotation), tipOrigin, SpriteEffects.None, 1.0f);
+
+            // gear frame:
+            spriteBatch.Draw(gearFrameTexture, gearFrameRect, Color.White);
+            string gearName = GetGearName(infoForHud.busGear);
+            Vector2 gearPos = GetGearPos(gearName);
+            spriteBatch.DrawString(gearFont, gearName, gearPos, Color.White);
         }
 
-        public float GetSpeedometerTipRotation(float busSpeed)
+        protected float GetSpeedometerTipRotation(float busSpeed)
         {
             busSpeed = Math.Abs(busSpeed);
 
@@ -106,21 +129,25 @@ namespace Testy_mapy
                 }
             }
 
-            /*
-            multipler = 2.77f + (((busSpeed > 5.0f) ? 5.0f : busSpeed) * 0.009f);
-
-            if (busSpeed - 5.0f > 0.0f)
-            {
-                multipler += (((busSpeed - 5.0f > 5.0f) ? 5.0f : busSpeed - 5.0f) * -0.1f);
-            }
-            if (busSpeed - 10.0f > 0.0f)
-            {
-                multipler += (((busSpeed - 10.0f > 5.0f) ? 5.0f : busSpeed - 10.0f) * 0.08f);
-            }*/
-
-
-
             return 180.0f + (busSpeed * multipler);
+        }
+
+        protected string GetGearName(int gear)
+        {
+            if (gear == 0)
+                return "R";
+            else
+                return gear.ToString();
+        }
+
+        protected Vector2 GetGearPos(string gear)
+        {
+            Vector2 gearSize = gearFont.MeasureString(gear);
+
+            float x = gearFrameRect.X + ((gearFrameRect.Width / 2) - (gearSize.X / 2));
+            float y = gearFrameRect.Y + ((gearFrameRect.Height / 2) - (gearSize.Y / 2));
+
+            return new Vector2(x, y);
         }
     }
 }

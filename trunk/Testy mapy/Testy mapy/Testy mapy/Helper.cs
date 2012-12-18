@@ -90,7 +90,9 @@ namespace Testy_mapy
         public static readonly int standartRedLightInterval = 10; // standartowy interwał trwania czerwonego światła
         public static readonly float trafficLightIntervalBeforeRedYellowStart1 = 2.0f; // (dla małych skrzyżowań) interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
         public static readonly float trafficLightIntervalBeforeRedYellowStart2 = 4.0f; // (dla dużych skrzyżowań) interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
-        public static readonly float trafficLightYellowInterval = 2.0f; // czas trwania zoltego i czerwono-zoltego swiatla
+        public static readonly float trafficLightYellowInterval = 2.0f; // czas trwania zoltego swiatla
+        public static readonly float trafficLightRedYellowInterval = 0.8f; // czas trwania czerwono-zoltego swiatla
+
     }
 
     static class Helper
@@ -101,6 +103,7 @@ namespace Testy_mapy
         public static Vector2 workAreaSize { get; private set; } // wielkosc robocza (wielkosc ekranu * skalowanie)
         public static Vector2 workAreaOrigin { get; private set; } // srodek roboczego ekranu
         private static float scale; // skalowanie
+        private static Vector2 v_scale; // skala jako wektor
 
         private readonly static float maxScale = 1.5f; // maksymalna skala mapy (nie dawać zbyt dużej wartości, bo może spowolnić szybkość działania gry)
         private readonly static float minScale = 0.5f; // minimalna skala mapy
@@ -122,6 +125,7 @@ namespace Testy_mapy
             if (f_scale >= minScale && f_scale <= maxScale)
             {
                 scale = (float)Math.Round(f_scale, 3);
+                v_scale = new Vector2(1 / scale, 1 / scale);
 
                 CalculateWorkArea();
             }
@@ -130,6 +134,11 @@ namespace Testy_mapy
         public static float GetScale()
         {
             return scale;
+        }
+
+        public static Vector2 GetVectorScale()
+        {
+            return v_scale;
         }
 
         public static void SetScreenSize(float width, float height)
@@ -156,6 +165,25 @@ namespace Testy_mapy
         public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size)
         {
             return CalculateScaleRectangle(pos, size, scale);
+        }
+
+        public static Vector2 CalculateScalePosition(Vector2 pos)
+        {
+            return CalculateScalePosition(pos, scale);
+        }
+
+        public static Vector2 CalculateScalePosition(Vector2 pos, float scale)
+        {
+            Vector2 scalePos = new Vector2();
+
+            Vector2 v_mapPos = Helper.screenOrigin; // pozycja srodka mapy w wspolrzednych ekranowych (zawsze srodek)
+
+            double x = ((pos.X - v_mapPos.X) / scale);
+            scalePos.X = (float)(v_mapPos.X + x);
+            double y = ((pos.Y - v_mapPos.Y) / scale);
+            scalePos.Y = (float)(v_mapPos.Y + y);
+
+            return scalePos;
         }
 
         public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size, float scale)

@@ -80,22 +80,23 @@ namespace Testy_mapy
 
             foreach (Object o in objectsToPrewiev)
             {
-                Rectangle destinationRect = Helper.CalculateScaleRectangle(o, previewScale);
+                Vector2 destinationPos = Helper.CalculateScalePosition(o.pos, previewScale);
+                Vector2 v_previewScale = new Vector2(1 / previewScale, 1 / previewScale);
 
                 if (textures.ContainsKey(o.name))
                 {
-                    spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, o.spriteEffects, 1);
+                    spriteBatch.Draw(textures[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
+                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
                 }
                 else if (junctions.ContainsKey(o.name))
                 {
-                    spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, o.spriteEffects, 1);
+                    spriteBatch.Draw(junctions[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
+                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
                 }
                 else if (trafficLights.ContainsKey(o.name))
                 {
-                    spriteBatch.Draw(trafficLights[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, o.spriteEffects, 1);
+                    spriteBatch.Draw(trafficLights[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
+                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
                 }
 
                 // wyœwietlanie informacji o po³o¿eniu gracza:
@@ -153,12 +154,12 @@ namespace Testy_mapy
 
                 foreach (Object o in objectsToShow)
                 {
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o);
+                    Vector2 destinationPos = Helper.CalculateScalePosition(o.pos);
 
                     if (textures.ContainsKey(o.name))
                     {
-                        spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, o.spriteEffects, 1);
+                        spriteBatch.Draw(textures[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
+                                o.original_origin, Helper.GetVectorScale(), o.spriteEffects, 1.0f);
                     }
                 }
             }
@@ -173,12 +174,12 @@ namespace Testy_mapy
 
                 foreach (Object o in objectsToShow)
                 {
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o);
+                    Vector2 destinationPos = Helper.CalculateScalePosition(o.pos);
 
                     if (textures.ContainsKey(o.name))
                     {
-                        spriteBatch.Draw(textures[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, o.spriteEffects, 1);
+                        spriteBatch.Draw(textures[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate), 
+                                o.original_origin, Helper.GetVectorScale(), o.spriteEffects, 1.0f);
                     }
                 }
             }
@@ -202,12 +203,12 @@ namespace Testy_mapy
                 }
                 foreach (Object o in junctionsToShow)
                 {
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(o);
+                    Vector2 destinationPos = Helper.CalculateScalePosition(o.pos);
 
                     if (junctions.ContainsKey(o.name))
                     {
-                        spriteBatch.Draw(junctions[o.name], destinationRect, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, o.spriteEffects, 1);
+                        spriteBatch.Draw(junctions[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate), 
+                                o.original_origin, Helper.GetVectorScale(), o.spriteEffects, 1.0f);
                     }
                 }
             }
@@ -221,10 +222,11 @@ namespace Testy_mapy
 
                 foreach (Object p in pedestriansToShow)
                 {
-                    Rectangle destinationRect = Helper.CalculateScaleRectangle(p);
+                    Vector2 destinationPos = Helper.CalculateScalePosition(p.pos);
 
-                    spriteBatch.Draw(pedestrians[p.name], destinationRect, null, Color.White, MathHelper.ToRadians(p.rotate),
-                            p.origin, p.spriteEffects, 1);
+                    spriteBatch.Draw(pedestrians[p.name], destinationPos, null, Color.White, MathHelper.ToRadians(p.rotate), 
+                            p.origin, Helper.GetVectorScale(), p.spriteEffects, 1.0f);
+
                 }
             }
         }
@@ -238,12 +240,12 @@ namespace Testy_mapy
                 TrafficLightState trafficLightState = trackLogic.GetTrafficLightPairState(tlo.junctionIndex, tlo.pairIndex);
                 string name = tlo.name + ((int)trafficLightState).ToString();
 
-                Rectangle destinationRect = Helper.CalculateScaleRectangle(tlo);
+                Vector2 destinationPos = Helper.CalculateScalePosition(tlo.pos);
 
                 if (trafficLights.ContainsKey(name))
                 {
-                    spriteBatch.Draw(trafficLights[name], destinationRect, null, Color.White, MathHelper.ToRadians(tlo.rotate),
-                            tlo.original_origin, tlo.spriteEffects, 1);
+                    spriteBatch.Draw(trafficLights[name], destinationPos, null, Color.White, MathHelper.ToRadians(tlo.rotate),
+                            tlo.original_origin, Helper.GetVectorScale(), tlo.spriteEffects, 1.0f);
                 }
             }
         }
