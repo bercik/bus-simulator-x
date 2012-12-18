@@ -14,8 +14,11 @@ namespace Testy_mapy
 {
     class DrawTraffic
     {
-        Texture2D point, indicatorTexture, tailLightTexture;
-        Texture2D[] vehicleTexture = new Texture2D[5];
+        const int numberOfCars = 5;
+        Texture2D indicatorTexture, tailLightTexture;
+        Vector2 indicatorTextureOrigin, tailLightTextureOrigin;
+        Texture2D[] vehicleTexture = new Texture2D[numberOfCars];
+        Vector2[] vehicleTextureOrigin = new Vector2[numberOfCars];
 
         // Constructor.
         public DrawTraffic()
@@ -27,14 +30,16 @@ namespace Testy_mapy
         /// </summary>
         public void LoadContent(ContentManager content)
         {
-            vehicleTexture[0] = content.Load<Texture2D>("vehicles/vehicle0");
-            vehicleTexture[1] = content.Load<Texture2D>("vehicles/vehicle1");
-            vehicleTexture[2] = content.Load<Texture2D>("vehicles/vehicle2");
-            vehicleTexture[3] = content.Load<Texture2D>("vehicles/vehicle3");
-            vehicleTexture[4] = content.Load<Texture2D>("vehicles/vehicle4");
+            for (int i=0; i<numberOfCars; i++)
+            {
+                vehicleTexture[i] = content.Load<Texture2D>("vehicles/vehicle" + i.ToString());
+                vehicleTextureOrigin[i] = new Vector2(vehicleTexture[i].Width / 2, vehicleTexture[i].Height / 2);
+            }
+
             indicatorTexture = content.Load<Texture2D>("vehicles/vehicle_indicator");
+            indicatorTextureOrigin = new Vector2(indicatorTexture.Width / 2, indicatorTexture.Height / 2);
             tailLightTexture = content.Load<Texture2D>("vehicles/vehicle_taillight");
-            point = content.Load<Texture2D>("help/point");
+            tailLightTextureOrigin = new Vector2(tailLightTexture.Width / 2, tailLightTexture.Height / 2);
         }
 
         /// <summary>
@@ -63,7 +68,7 @@ namespace Testy_mapy
             Vector2 position = Helper.MapPosToScreenPos(vehicle.pos);
             Rectangle rect = Helper.CalculateScaleRectangle(position, vehicle.size);
 
-            spriteBatch.Draw(vehicleTexture[Int32.Parse(vehicle.name)], rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicle.origin, SpriteEffects.None, 1);
+            spriteBatch.Draw(vehicleTexture[Int32.Parse(vehicle.name)], rect, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicleTextureOrigin[Int32.Parse(vehicle.name)], SpriteEffects.None, 1);
         }
 
         /// <summary>
@@ -74,7 +79,7 @@ namespace Testy_mapy
             Vector2 position = Helper.MapPosToScreenPos(indicator.pos);
             Rectangle rect = Helper.CalculateScaleRectangle(position, indicator.size);
 
-            spriteBatch.Draw(indicatorTexture, rect, null, Color.White, MathHelper.ToRadians(indicator.rotate), indicator.origin, SpriteEffects.None, 1);
+            spriteBatch.Draw(indicatorTexture, rect, null, Color.White, MathHelper.ToRadians(indicator.rotate), indicatorTextureOrigin, SpriteEffects.None, 1);
         }
 
         /// <summary>
@@ -85,7 +90,7 @@ namespace Testy_mapy
             Vector2 position = Helper.MapPosToScreenPos(tailLight.pos);
             Rectangle rect = Helper.CalculateScaleRectangle(position, tailLight.size);
 
-            spriteBatch.Draw(tailLightTexture, rect, null, Color.White, MathHelper.ToRadians(tailLight.rotate), tailLight.origin, SpriteEffects.None, 1);
+            spriteBatch.Draw(tailLightTexture, rect, null, Color.White, MathHelper.ToRadians(tailLight.rotate), tailLightTextureOrigin, SpriteEffects.None, 1);
         }
     }
 }

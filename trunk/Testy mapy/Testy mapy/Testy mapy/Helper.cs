@@ -113,6 +113,8 @@ namespace Testy_mapy
         public static Vector2 mapPos; // pozycja mapy
         public static Vector2 busPos; // pozycja autobusu
 
+        public static Random random = new Random();
+
         // wywolac ZAWSZE po zmianie screenSize lub scale
         private static void CalculateWorkArea()
         {
