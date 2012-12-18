@@ -430,12 +430,12 @@ namespace Testy_mapy
                 if (nextPair1)
                 {
                     pair1.NextLightState();
-                    actualInterval = GameParams.trafficLightYellowInterval;
+                    actualInterval = GameParams.trafficLightRedYellowInterval;
                 }
                 else
                 {
                     pair2.NextLightState();
-                    actualInterval = GameParams.trafficLightYellowInterval;
+                    actualInterval = GameParams.trafficLightRedYellowInterval;
                 }
             }
             else if (pair2.trafficLightState == TrafficLightState.redYellow)
