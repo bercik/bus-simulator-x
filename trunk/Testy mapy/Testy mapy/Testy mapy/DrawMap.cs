@@ -86,17 +86,17 @@ namespace Testy_mapy
                 if (textures.ContainsKey(o.name))
                 {
                     spriteBatch.Draw(textures[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
+                            o.original_origin, v_previewScale * o.scale, o.spriteEffects, 1.0f);
                 }
                 else if (junctions.ContainsKey(o.name))
                 {
                     spriteBatch.Draw(junctions[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
+                            o.original_origin, v_previewScale * o.scale, o.spriteEffects, 1.0f);
                 }
                 else if (trafficLights.ContainsKey(o.name))
                 {
                     spriteBatch.Draw(trafficLights[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
+                            o.original_origin, v_previewScale * o.scale, o.spriteEffects, 1.0f);
                 }
 
                 // wyœwietlanie informacji o po³o¿eniu gracza:
@@ -159,7 +159,7 @@ namespace Testy_mapy
                     if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
-                                o.original_origin, Helper.GetVectorScale(), o.spriteEffects, 1.0f);
+                                o.original_origin, Helper.GetVectorScale() * o.scale, o.spriteEffects, 1.0f);
                     }
                 }
             }
@@ -179,7 +179,7 @@ namespace Testy_mapy
                     if (textures.ContainsKey(o.name))
                     {
                         spriteBatch.Draw(textures[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate), 
-                                o.original_origin, Helper.GetVectorScale(), o.spriteEffects, 1.0f);
+                                o.original_origin, Helper.GetVectorScale() * o.scale, o.spriteEffects, 1.0f);
                     }
                 }
             }
@@ -199,7 +199,7 @@ namespace Testy_mapy
                 {
                     Vector2 destinationPos = Helper.CalculateScalePosition(g.pos);
                     
-                    spriteBatch.Draw(grass[g.name], destinationPos, null, Color.White, 0, 
+                    spriteBatch.Draw(grass[g.name], destinationPos, null, Color.White, 0,
                             backgroundLogic.getGrassOrigin(), Helper.GetVectorScale(), SpriteEffects.None, 1.0f);
                 }
                 foreach (Object o in junctionsToShow)
@@ -208,8 +208,8 @@ namespace Testy_mapy
 
                     if (junctions.ContainsKey(o.name))
                     {
-                        spriteBatch.Draw(junctions[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate), 
-                                o.original_origin, Helper.GetVectorScale(), o.spriteEffects, 1.0f);
+                        spriteBatch.Draw(junctions[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
+                                o.original_origin, Helper.GetVectorScale() * o.scale, o.spriteEffects, 1.0f);
                     }
                 }
             }
@@ -225,8 +225,8 @@ namespace Testy_mapy
                 {
                     Vector2 destinationPos = Helper.CalculateScalePosition(p.pos);
 
-                    spriteBatch.Draw(pedestrians[p.name], destinationPos, null, Color.White, MathHelper.ToRadians(p.rotate), 
-                            p.origin, Helper.GetVectorScale(), p.spriteEffects, 1.0f);
+                    spriteBatch.Draw(pedestrians[p.name], destinationPos, null, Color.White, MathHelper.ToRadians(p.rotate),
+                            p.origin, Helper.GetVectorScale() * p.scale, p.spriteEffects, 1.0f);
 
                 }
             }
@@ -246,7 +246,7 @@ namespace Testy_mapy
                 if (trafficLights.ContainsKey(name))
                 {
                     spriteBatch.Draw(trafficLights[name], destinationPos, null, Color.White, MathHelper.ToRadians(tlo.rotate),
-                            tlo.original_origin, Helper.GetVectorScale(), tlo.spriteEffects, 1.0f);
+                            tlo.original_origin, Helper.GetVectorScale() * tlo.scale, tlo.spriteEffects, 1.0f);
                 }
             }
         }

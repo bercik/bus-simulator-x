@@ -171,11 +171,11 @@ namespace Testy_mapy
             chunks[x, y].AddObject(o, objectType);
 
             // dla obiektow wiekszych niz zakladane
-            bool b_x = false, b_y = false; // czy obiekt jest wiekszy od zakladanej wielkosci (na szerokosc i dlugosc)
+            //bool b_x = false, b_y = false; // czy obiekt jest wiekszy od zakladanej wielkosci (na szerokosc i dlugosc)
 
             if (o.size.X > maxObjectSize.Width)
             {
-                b_x = true;
+                //b_x = true;
 
                 if (x + 1 < numberOfChunks.X)
                     chunks[x + 1, y].AddObject(o, objectType);
@@ -184,7 +184,7 @@ namespace Testy_mapy
             }
             if (o.size.Y > maxObjectSize.Height)
             {
-                b_y = true;
+                //b_y = true;
 
                 if (y + 1 < numberOfChunks.Y)
                     chunks[x, y + 1].AddObject(o, objectType);
@@ -192,11 +192,12 @@ namespace Testy_mapy
                     chunks[x, y - 1].AddObject(o, objectType);
             }
 
+            /* !!!DO EW. USUNIECIA!!! jezeli wyswietlanie obiektow wiekszych od maksymalnego zakladanego bedzie dzialac
             if (b_x || b_y)
             {
-                //if (x + 1 < numberOfChunks.X && y + 1 < numberOfChunks.Y)
-                //chunks[x + 1, y + 1].AddObject(o, atTheBeginning); // !!!DO EW. USUNIECIA!!! jezeli wyswietlanie obiektow wiekszych od maksymalnego zakladanego bedzie dzialac
-            }
+                if (x + 1 < numberOfChunks.X && y + 1 < numberOfChunks.Y)
+                    chunks[x + 1, y + 1].AddObject(o, objectType);
+            }*/
         }
 
         private void ComputePointsOnRotation(Object o, out float x1, out float x2, out float y1, out float y2)
@@ -683,7 +684,7 @@ namespace Testy_mapy
             }
         }
 
-        protected Vector2 scale; // skala obiektu (wzgledem standartowego rozmiaru)
+        public Vector2 scale { get; private set; } // skala obiektu (wzgledem standartowego rozmiaru)
 
         protected Object()
         {
