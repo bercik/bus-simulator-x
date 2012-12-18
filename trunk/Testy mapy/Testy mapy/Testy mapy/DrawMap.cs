@@ -197,9 +197,10 @@ namespace Testy_mapy
 
                 foreach (Grass g in grassToShow)
                 {
-                    Rectangle destinationRectangle = Helper.CalculateScaleRectangle(g.pos, backgroundLogic.getGrassSize());
-
-                    spriteBatch.Draw(grass[g.name], destinationRectangle, Color.White);
+                    Vector2 destinationPos = Helper.CalculateScalePosition(g.pos);
+                    
+                    spriteBatch.Draw(grass[g.name], destinationPos, null, Color.White, 0, 
+                            backgroundLogic.getGrassOrigin(), Helper.GetVectorScale(), SpriteEffects.None, 1.0f);
                 }
                 foreach (Object o in junctionsToShow)
                 {
