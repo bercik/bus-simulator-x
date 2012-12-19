@@ -207,8 +207,8 @@ namespace Testy_mapy
 
             public Vector2 lastEnd = new Vector2(0, 0); // Koniec ostatniej drogi podawane do ChangeTrack podczas prośby o podanie nowej drogi.
 
-            private float normalSpeed = 30;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
-            private float fastSpeed = 40;      // Prędkość na długich, prostych odcinkach.
+            private float normalSpeed = 25;    // Prędkość standardowa przyjmowana podczas normalnego poruszania się.
+            private float fastSpeed = 35;      // Prędkość na długich, prostych odcinkach.
             private float maxSpeed = 0;        // Aktualna maksymalna prędkość ustalana na podstawie drogi, pojazdów przed samochodem itp.
             private float minDistanceToFastSpeed = 150; // Odlagłość od końców drogi wymagana dla osiągnięcia tej prędkości.
             private float acceleration = 70;   // Standardowe przyspieszenie.

@@ -32,7 +32,6 @@ namespace Testy_mapy
                 // Constructor.
                 public Pedestrian(Vector2 waitingArea, Vector2 waitingAreaSize, float waitingAreaDirection)
                 {
-                    //Random random = new Random();
                     Vector2 position = new Vector2(Helper.random.Next(0, (int)waitingAreaSize.X + 1), Helper.random.Next(0, (int)waitingAreaSize.Y + 1));
 
                     switch ((int)waitingAreaDirection)
@@ -57,6 +56,38 @@ namespace Testy_mapy
 
                     this.position = this.waitingPosition;
                     this.direction = GetRandomDirection();
+                    this.skin = Helper.random.Next(0, 3);
+                }
+
+                /// <summary>
+                /// This constructor is used for spawning pedestrians getting off the bus.
+                /// </summary>
+                public Pedestrian(Vector2 waitingArea, Vector2 waitingAreaSize, float waitingAreaDirection, Vector2 startPosition)
+                {
+                    Vector2 position = new Vector2(Helper.random.Next(0, (int)waitingAreaSize.X + 1), Helper.random.Next(0, (int)waitingAreaSize.Y + 1));
+
+                    switch ((int)waitingAreaDirection)
+                    {
+                        case 0:
+                            this.waitingPosition.X = waitingArea.X - (waitingAreaSize.X / 2) + position.X;
+                            this.waitingPosition.Y = waitingArea.Y - (waitingAreaSize.Y / 2) + position.Y;
+                            break;
+                        case 90:
+                            this.waitingPosition.X = waitingArea.X - (waitingAreaSize.Y / 2) + position.Y;
+                            this.waitingPosition.Y = waitingArea.Y - (waitingAreaSize.X / 2) + position.X;
+                            break;
+                        case 180:
+                            this.waitingPosition.X = waitingArea.X - (waitingAreaSize.X / 2) + position.X;
+                            this.waitingPosition.Y = waitingArea.Y - (waitingAreaSize.Y / 2) + position.Y;
+                            break;
+                        case 270:
+                            this.waitingPosition.X = waitingArea.X - (waitingAreaSize.Y / 2) + position.Y;
+                            this.waitingPosition.Y = waitingArea.Y - (waitingAreaSize.X / 2) + position.X;
+                            break;
+                    }
+
+                    this.position = startPosition;
+                    this.direction = Helper.CalculateDirection(this.position, this.waitingPosition);
                     this.skin = Helper.random.Next(0, 3);
                 }
 
@@ -85,6 +116,45 @@ namespace Testy_mapy
                     return skin;
                 }
 
+                /// <summary>
+                /// Get collision points.
+                /// </summary>
+                public Vector2[] GetCollisionPoints()
+                {
+                    Vector2 p1, p2, p3, p4; // Create 4 points.
+                    /*
+                     * |p1 p2|
+                     * |p4 p3|
+                     */
+
+                    p3.X = position.X + ((size.X * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2); // Calculate their positions.
+                    p3.Y = position.Y + ((size.X * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
+
+                    p4.X = position.X - (size.X * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
+                    p4.Y = position.Y - (size.X * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
+
+                    p1.X = p4.X + (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p1.Y = p4.Y - (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                    p2.X = p3.X + (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p2.Y = p3.Y - (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                    p3.X = p3.X - (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p3.Y = p3.Y + (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+                    p4.X = p4.X - (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p4.Y = p4.Y + (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+
+
+
+                    Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; // Create list and add points.
+
+                    return pointsArray;
+                }
+
+                /// <summary>
+                /// Check if the pedestrian is idle.
+                /// </summary>
                 public bool Idle()
                 {
                     return (waitingPosition == position);
@@ -110,6 +180,30 @@ namespace Testy_mapy
                     return rotateLeft;
                 }
 
+                private void RotateToDirection(float desiredDirection, float timeCoherenceMultiplier)
+                {
+                    if (ShouldRotateLeft(direction, desiredDirection))
+                    {
+                        direction -= directionChange * timeCoherenceMultiplier;
+
+                        // Nie pozwól na ujemny direction.
+                        if (direction < 0)
+                        {
+                            direction += 360;
+                        }
+                    }
+                    else
+                    {
+                        direction += directionChange * timeCoherenceMultiplier;
+
+                        // Nie pozwól na direction powyżej 360.
+                        if (direction > 360)
+                        {
+                            direction -= 360;
+                        }
+                    }
+                }
+
                 public void HandleIdle(float waitingAreaDirection, float timeCoherenceMultiplier)
                 {
                     // Kierunek w którym mają patrzec pieszy ma być prostopadły do kierunku podanego i połozony z lewej.
@@ -121,28 +215,10 @@ namespace Testy_mapy
                         waitingAreaDirection += 360;
                     }
 
+                    // Jeśli miną czas bezruchu obracaj się lub zmniejsz licznik w przeciwnym wypadku.
                     if (stayIdleFor < 0)
                     {
-                        if (ShouldRotateLeft(direction, idleDirection))
-                        {
-                            direction -= directionChange * timeCoherenceMultiplier;
-
-                            // Nie pozwól na ujemny direction.
-                            if (direction < 0)
-                            {
-                                direction += 360;
-                            }
-                        }
-                        else
-                        {
-                            direction += directionChange * timeCoherenceMultiplier;
-
-                            // Nie pozwól na direction powyżej 360.
-                            if (direction > 360)
-                            {
-                                direction -= 360;
-                            }
-                        }
+                        RotateToDirection(idleDirection, timeCoherenceMultiplier);
                     }
                     else
                     {
@@ -157,18 +233,122 @@ namespace Testy_mapy
                     }
                 }
 
-                Vector2 waitingPosition;    // Pozycja oczekiwania na autobus na przystanku.
-                Vector2 position;           // Aktualna pozycja.
-                float direction;            // Aktualny kierunek.
+                /// <summary>
+                /// Handles the movement of the pedestrians who got off the bus.
+                /// </summary>
+                public void HandleGetOff(float timeCoherenceMultiplier)
+                {
+                    if (position != waitingPosition)
+                    {
+                        float idleDirection = Helper.CalculateDirection(position, waitingPosition);
 
-                float idleDirection;        // Kierunek do którego będzie dążył pieszy aby symulować losowe, anturalne ruchy rozglądania się.
-                float directionChange = 50; // Szybkość obrotu.
-                float stayIdleFor = 0;      // Jak długo nie ma wykonywać kolejnego obrotu.
-                int idleMin = 2;            // Minimalny czas oczekiwania na następny obrót.
-                int idleMax = 5;            // Maksymany czas oczekiwania na następny obrót.
+                        // Obracaj się do odpowiedniego kierunku lub idź w kierunku przystanku.
+                        if (Math.Abs(idleDirection - direction) > 5)
+                        {
+                            RotateToDirection(idleDirection, timeCoherenceMultiplier);
+                        }
+                        else
+                        {
+                            ChangePosition(speed, direction, timeCoherenceMultiplier);
+                        }
 
-                int skin;                           // Wygląd.
-                Vector2 size = new Vector2(20, 20); // Rozmiar.
+                        if (Helper.CalculateDistance(position, waitingPosition) < 2)
+                        {
+                            position = waitingPosition;
+                        }
+                    }
+                }
+
+                private Vector2 CalculateNewPosition(float speed, float direction, float timeCoherenceMultiplier)
+                {
+                    Vector2 newPosition;
+                    newPosition.X = position.X + (speedMultiplier * timeCoherenceMultiplier * speed * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    newPosition.Y = position.Y - (speedMultiplier * timeCoherenceMultiplier * speed * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                    return newPosition;
+                }
+
+                private void ChangePosition(float speed, float direction, float timeCoherenceMultiplier)
+                {
+                    position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
+                }
+
+                public void Delete()
+                {
+                    delete = true;
+                }
+
+                /// <summary>
+                /// Handles going in the direction of the bus.
+                /// </summary>
+                public void GoToTheBus(BusLogic busLogic, float timeCoherenceMultiplier)
+                {
+                    float idleDirection = Helper.CalculateDirection(position, busLogic.GetBusPosition());
+
+                    // Obracaj się do odpowiedniego kierunku lub idź w kierunku autobusu.
+                    if (Math.Abs(idleDirection - direction) > 5)
+                    {
+                        RotateToDirection(idleDirection, timeCoherenceMultiplier);
+                    }
+                    else
+                    {
+                        ChangePosition(speed, direction, timeCoherenceMultiplier);
+                    }
+                }
+
+                /// <summary>
+                /// Handles going back to the bus stop.
+                /// </summary>
+                /// <param name="timeCoherenceMultiplier"></param>
+                public void GoToTheWaitingArea(float timeCoherenceMultiplier)
+                {
+                    if (position != waitingPosition)
+                    {
+                        float idleDirection = Helper.CalculateDirection(position, waitingPosition);
+
+                        // Obracaj się do odpowiedniego kierunku lub idź w kierunku autobusu.
+                        if (Math.Abs(idleDirection - direction) > 5)
+                        {
+                            RotateToDirection(idleDirection, timeCoherenceMultiplier);
+                        }
+                        else
+                        {
+                            ChangePosition(speed, direction, timeCoherenceMultiplier);
+                        }
+
+                        if (Helper.CalculateDistance(position, waitingPosition) < 2)
+                        {
+                            position = waitingPosition;
+                        }
+                    }
+                }
+
+                public bool BusReached(BusLogic busLogic)
+                {
+                    if (Helper.CalculateDistance(position, busLogic.GetBusPosition()) < size.Y / 2)
+                        return true;
+                    else
+                        return false;
+                }
+
+                public Vector2 waitingPosition;    // Pozycja oczekiwania na autobus na przystanku.
+                public Vector2 position;           // Aktualna pozycja.
+                public float direction;            // Aktualny kierunek.
+
+                public bool collisionActive = true;
+
+                protected float idleDirection;        // Kierunek do którego będzie dążył pieszy aby symulować losowe, anturalne ruchy rozglądania się.
+                protected float directionChange = 50; // Szybkość obrotu.
+                protected float stayIdleFor = 0;      // Jak długo nie ma wykonywać kolejnego obrotu.
+                protected int idleMin = 2;            // Minimalny czas oczekiwania na następny obrót.
+                protected int idleMax = 5;            // Maksymany czas oczekiwania na następny obrót.
+
+                public bool delete = false;           // Should be deleted?
+
+                protected int speed = 10;
+                protected float speedMultiplier = 4;
+
+                public int skin;                           // Wygląd.
+                public Vector2 size = new Vector2(20, 20); // Rozmiar.
             }
 
             public int id;
@@ -185,11 +365,11 @@ namespace Testy_mapy
             public float signDirection;
             public Vector2 signSize = new Vector2(20, 20);
 
-            public List<Pedestrian> pedestrians = new List<Pedestrian>();
+            public List<Pedestrian> pedestrians = new List<Pedestrian>();           // Piesi którzy mają wsiąść do autobusu.
+            public List<Pedestrian> pedestriansWhoGotOff = new List<Pedestrian>();  // Piesi którzy wysiedli na tym przystanku.
 
             protected int minPedestrians = 1;
             protected int maxPedestrians = 5;
-
 
             /// <summary>
             /// Get collision points.
@@ -270,27 +450,104 @@ namespace Testy_mapy
                     pedestrians.Add(pedestrian);
                 }
             }
-
-
-
-            public void Update(bool GoToTheBus, BusLogic busLogic, float timeCoherenceMultiplier)
+            
+            /// <summary>
+            /// Get the amount of pedestrians waiting for the bus.
+            /// </summary>
+            public int NumberOfPedestriansWaiting()
             {
+                return pedestrians.Count();
+            }
+
+            /// <summary>
+            /// Get the amount of pedestrians who got off the bus.
+            /// </summary>
+            public int NumberOfPedestriansWhoGotOff()
+            {
+                return pedestriansWhoGotOff.Count();
+            }
+
+            public int Update(bool GoToTheBus, BusLogic busLogic, float timeCoherenceMultiplier)
+            {
+                int pedestriansWhoReachedTheBus = 0;
+
                 foreach (Pedestrian pedestrian in pedestrians)
                 {
+                    // Powinniśmy iść do autobusu czy kierować się na miejsce wyjściowe?
                     if (GoToTheBus)
                     {
+                        // Włącz kolizję.
+                        pedestrian.collisionActive = false;
 
+                        pedestrian.GoToTheBus(busLogic, timeCoherenceMultiplier);
+
+                        if (pedestrian.BusReached(busLogic))
+                        {
+                            pedestriansWhoReachedTheBus++;
+                            pedestrian.Delete();
+                        }
                     }
                     else
                     {
+                        if (!pedestrian.collisionActive)
+                        {
+                            // Sprawdź czy należy ponownie włączyć kolizje (aktualnie nie ma kolizji).
+                            bool isCollision = false;
 
+                            Vector2[] pedestrianCollisionPoints = pedestrian.GetCollisionPoints();
+                            MyRectangle pedestrianRectangle = new MyRectangle(pedestrianCollisionPoints[3], pedestrianCollisionPoints[2], pedestrianCollisionPoints[1], pedestrianCollisionPoints[0]);
+
+                            Vector2[] busCollisionPoints = busLogic.GetCollisionPoints();
+                            MyRectangle busRectangle = new MyRectangle(busCollisionPoints[3], busCollisionPoints[2], busCollisionPoints[1], busCollisionPoints[0]);
+
+                            foreach (Vector2 point in pedestrianCollisionPoints)
+                            {
+                                if (Helper.IsInside(point, busRectangle))
+                                {
+                                    isCollision = true;
+                                    break;
+                                }
+                            }
+
+                            foreach (Vector2 point in busCollisionPoints)
+                            {
+                                if (Helper.IsInside(point, pedestrianRectangle))
+                                {
+                                    isCollision = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isCollision)
+                            {
+                                pedestrian.collisionActive = true;
+                            }
+                        }
+
+                        pedestrian.GoToTheWaitingArea(timeCoherenceMultiplier);
                     }
 
+                    // Jeśli pieszy stoi na pozycji wyjściowej symuluj losowe obroty.
                     if (pedestrian.Idle())
                     {
                         pedestrian.HandleIdle(waitingAreaDirection, timeCoherenceMultiplier);
                     }
                 }
+
+                foreach (Pedestrian pedestrian in pedestriansWhoGotOff)
+                {
+                    // Powinniśmy iść do autobusu czy kierować się na miejsce wyjściowe?
+                    pedestrian.GoToTheWaitingArea(timeCoherenceMultiplier);
+
+                    // Jeśli pieszy stoi na pozycji wyjściowej symuluj losowe obroty.
+                    if (pedestrian.Idle())
+                    {
+                        pedestrian.HandleIdle(waitingAreaDirection, timeCoherenceMultiplier);
+                    }
+                }
+
+                // Zwracamy ilość pieszych którzy zdołali dotrzeć do autobusu.
+                return pedestriansWhoReachedTheBus;
             }
         }
 
@@ -301,7 +558,34 @@ namespace Testy_mapy
         protected int currentBusStop = 0;
         protected int peopleInTheBus = 0;
 
+        // Heh. :) He he he he... He... Yeah.
+        protected int peopleGettingOff = 0;
+        protected float getOffCounter = 0;
+        protected float getOffInterval = 2; // Seconds.
+
+        protected int minGettingOff = 1;
+        protected int maxGettingOff = 5;
+
         protected bool BusOnTheBusStop = false;
+
+        private void NextBusStop()
+        {
+            if (currentBusStop + 1 >= busStopsOrder.Count)
+                currentBusStop = 0;
+            else
+                currentBusStop += 1;
+
+            if (busStops[busStopsOrder[currentBusStop]].pedestrians.Count == 0)
+            {
+                busStops[busStopsOrder[currentBusStop]].SpawnNewPedestrians();
+            }
+
+            peopleGettingOff = Helper.random.Next(minGettingOff, maxGettingOff + 1);
+            if (peopleGettingOff > peopleInTheBus)
+            {
+                peopleGettingOff = peopleInTheBus;
+            }
+        }
 
         /// <summary>
         /// Load map file.
@@ -351,6 +635,9 @@ namespace Testy_mapy
             {
                 foreach (BusStop.Pedestrian pedestrian in busStop.pedestrians)
                     list.Add(new Object(pedestrian.GetSkin().ToString(), pedestrian.GetPosition(), pedestrian.GetSize(), pedestrian.GetDirection()));
+
+                foreach (BusStop.Pedestrian pedestrian in busStop.pedestriansWhoGotOff)
+                    list.Add(new Object(pedestrian.GetSkin().ToString(), pedestrian.GetPosition(), pedestrian.GetSize(), pedestrian.GetDirection()));
             }
 
             return list;
@@ -387,10 +674,25 @@ namespace Testy_mapy
                 list.Add(Helper.MapPosToScreenPos(busStop.GetSignPosition()));
 
                 foreach (BusStop.Pedestrian pedestrian in busStop.pedestrians)
+                {
                     list.Add(Helper.MapPosToScreenPos(pedestrian.GetPosition()));
+
+                    pointsArray = pedestrian.GetCollisionPoints();
+
+                    foreach (Vector2 point in pointsArray)
+                        list.Add(Helper.MapPosToScreenPos(point));
+                }
             }
 
             return list.ToArray();
+        }
+
+        /// <summary>
+        /// Get the number of passangers.
+        /// </summary>
+        public int NumberOfPedestriansInTheBus()
+        {
+            return peopleInTheBus;
         }
 
         protected class SettingsHandling
@@ -501,15 +803,15 @@ namespace Testy_mapy
 
             for (int i = 0; i < busStops.Count; i++)
             {
-                bool OnTheBusStop = false;
-
                 if (i == busStopsOrder[currentBusStop])
                 {
                     // Sprawdź czy autobus stoi na przystanku i czy ma otwarte drzwi.
+                    // 1. Przygotuj punkty kolizji itp.
                     Vector2[] busCollisionPoints = busLogic.GetCollisionPoints();
                     Vector2[] busStopCollisionPoints = busStops[i].GetStopAreaCollisionPoints();
                     MyRectangle busStopRectangle = new MyRectangle(busStopCollisionPoints[3], busStopCollisionPoints[2], busStopCollisionPoints[1], busStopCollisionPoints[0]);
 
+                    // 2. Sprawdź czy autobus stoi na przystanku (przyjmij true i zmień na false jeśli któryś punkt nie znajduje się w prostokącie).
                     BusOnTheBusStop = true;
                     foreach (Vector2 point in busCollisionPoints)
                     {
@@ -517,17 +819,55 @@ namespace Testy_mapy
                             BusOnTheBusStop = false;
                     }
 
+                    // Przyjmij, że pomimo dobrego ustawienia nie należy iść do autobusu.
                     bool goToTheBus = false;
 
+                    // Jeśli autobus jest dobrze ustawiony i drzwi są otwarte.
                     if (BusOnTheBusStop && busLogic.DoorsAreOpen())
+                    {
+                        // Idź do autobusu.
                         goToTheBus = true;
 
-                    busStops[i].Update(goToTheBus, busLogic, timeCoherenceMultiplier);
+                        // Jeśli są pasażerowie którzy mieliby potencjalnie wysiadać
+                        if (peopleGettingOff > 0)
+                        {
+                            // Zmniejsz interwał od ostatniego wyjścia z autobusu.
+                            getOffCounter -= timeCoherenceMultiplier;
+
+                            // Jeśli interwał jest dostatecznie mały podejmij działania.
+                            if (getOffCounter < 0)
+                            {
+                                // Wysadzamy ludzi.
+                                busStops[i].pedestriansWhoGotOff.Add(new BusStop.Pedestrian(busStops[i].waitingArea, busStops[i].waitingAreaSize, busStops[i].waitingAreaDirection, busLogic.GetBusPosition()));
+                                peopleGettingOff -= 1;
+                                peopleInTheBus -= 1;
+
+                                // Zresetuj licznik.
+                                getOffCounter = getOffInterval;
+                            }
+                        }
+                    }
+
+                    // Funkcja aktualizująca zwraca ilość ludzi którzy zdołali dotrzeć do autubusu.
+                    peopleInTheBus += busStops[i].Update(goToTheBus, busLogic, timeCoherenceMultiplier);
+
+                    // Przełączenie do następnego przystanku.
+                    if (busStops[i].pedestrians.Count == 0 && peopleGettingOff == 0)
+                        NextBusStop();
                 }
                 else
                 {
                     busStops[i].Update(false, busLogic, timeCoherenceMultiplier);
                 }
+
+                // Usuwamy wszystkich pieszych którzy wcześniej zostali przeznaczeni do skasowania ze względu na osiągnięcie autobusu.
+                busStops[i].pedestrians.RemoveAll(delegate(BusStop.Pedestrian pedestrian)
+                {
+                    if (pedestrian.delete)
+                        return true;
+                    else
+                        return false;
+                });
             }
         }
     }
