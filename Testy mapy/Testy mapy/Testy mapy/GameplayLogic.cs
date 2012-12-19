@@ -695,6 +695,14 @@ namespace Testy_mapy
             return peopleInTheBus;
         }
 
+        /// <summary>
+        /// Pozycja przystanku do którego jedziemy.
+        /// </summary>
+        public Vector2 GetCurrentBusStopPosition()
+        {
+            return busStops[busStopsOrder[currentBusStop]].GetStopAreaPosition();
+        }
+
         protected class SettingsHandling
         {
             /// <summary>
