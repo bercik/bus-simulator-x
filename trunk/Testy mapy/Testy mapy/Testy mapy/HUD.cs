@@ -19,9 +19,14 @@ namespace Testy_mapy
         public float busSpeed; // predkosc autobusu
         public float busRpm; // obroty silnika autobusu
         public int busGear; // bieg autobusu
+
+        public Vector2 busPosition;     // pozycja autobusu
+        public Vector2 busStopPosition; // pozycja przystanku
+
         public PedestrianState pedestrianState; // stan pieszych
         public int numberOfPedestriansInTheBus; // liczba pieszych w autobusie
         public bool doorOpen; // czy drzwi sa otwarte
+
     }
 
     class HUD
@@ -56,6 +61,10 @@ namespace Testy_mapy
         // minimap !!! DO USUNIECIA !!! (chwilowo - pogladowo):
         Texture2D minimapTexture;
         Rectangle minimapRect;
+
+        // arrow
+        Texture2D directionArrowTexture;
+        Vector2 directionArrowTextureOrigin, directionArrowSize = new Vector2(100, 30);
 
         // door state:
         Texture2D doorOpenTexture;
@@ -117,6 +126,10 @@ namespace Testy_mapy
             point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
             gearFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
             actualPosX += size.Width;
+
+            // strzalka kierunku
+            directionArrowTexture = content.Load<Texture2D>("HUD/direction_arrow");
+            directionArrowTextureOrigin = new Vector2(directionArrowTexture.Width / 2, directionArrowTexture.Height / 2);
 
             // minimapa:
             minimapTexture = content.Load<Texture2D>("HUD/minimap");
@@ -216,6 +229,25 @@ namespace Testy_mapy
             string numberOfPedestriansInBus = infoForHud.numberOfPedestriansInTheBus.ToString();
             textPos = GetTextPos(numberOfPedestriansInBus, pedestriansInBusFont, pedestriansInBusFrameRect);
             spriteBatch.DrawString(pedestriansInBusFont, numberOfPedestriansInBus, textPos, Color.White);
+
+            // strzalka
+            Object arrow = GetArrow(infoForHud.busPosition, infoForHud.busStopPosition);
+            Rectangle rect = Helper.CalculateScaleRectangle(arrow.pos, arrow.size);
+            spriteBatch.Draw(directionArrowTexture, rect, null, Color.White, arrow.rotate, directionArrowTextureOrigin, SpriteEffects.None, 1);
+        }
+
+        protected Object GetArrow(Vector2 busPosition, Vector2 busStopPosition)
+        {
+            int arrowDistance = 150;
+            Vector2 arrowPosition = Helper.screenOrigin;
+            float arrowDirection = Helper.CalculateDirection(busPosition, busStopPosition);
+
+            arrowPosition.X += (arrowDistance * (float)Math.Sin(MathHelper.ToRadians(arrowDirection)));
+            arrowPosition.Y -= (arrowDistance * (float)Math.Cos(MathHelper.ToRadians(arrowDirection)));
+
+            Object arrow = new Object("", arrowPosition, directionArrowSize, MathHelper.ToRadians(arrowDirection));
+            
+            return arrow;
         }
 
         protected float GetSpeedometerTipRotation(float busSpeed)
