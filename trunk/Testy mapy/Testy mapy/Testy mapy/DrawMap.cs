@@ -20,9 +20,10 @@ namespace Testy_mapy
     class DrawMap
     {
         SpriteFont areaChangeFont; // czcionka u¿ywana do wyœwietlenia nazwy zmienianego obszaru
-        SpriteFont imHereFont; // czcionka u¿ywana do wyœwietlenia napisu: "jestem tutaj!"
+        SpriteFont mapPreviewFont; // czcionka u¿ywana do wyœwietlenia napisu: "jestem tutaj!"
 
         Texture2D imHereTexture; // tekstura: "jestem tutaj!"
+        Texture2D nextBusStopTexture; // tekstura: "nastêpny przystanek"
 
         // efekt gradientu na napisie:
         Effect gradientEffect;
@@ -74,7 +75,7 @@ namespace Testy_mapy
             trackLogic.Update(gameTime.ElapsedGameTime);
         }
 
-        public void DrawPreview(SpriteBatch spriteBatch, float previewScale)
+        public void DrawPreview(SpriteBatch spriteBatch, float previewScale, Vector2 currentBusStopPosition)
         {
             List<Object> objectsToPrewiev = mapLogic.GetObjectsToPreview(previewScale);
 
@@ -100,8 +101,26 @@ namespace Testy_mapy
                 }
 
                 // wyœwietlanie informacji o po³o¿eniu gracza:
+                ShowNextBusStop(spriteBatch, previewScale, currentBusStopPosition);
                 ShowImHere(spriteBatch, previewScale);
             }
+        }
+
+        private void ShowNextBusStop(SpriteBatch spriteBatch, float previewScale, Vector2 currentBusStopPosition)
+        {
+            Vector2 texturePos = Helper.MapPosToScreenPos(currentBusStopPosition);
+            Vector2 textureSize = new Vector2(nextBusStopTexture.Width, nextBusStopTexture.Height);
+            Vector2 textureOrigin = textureSize / 2;
+            texturePos = Helper.CalculateScalePoint(texturePos, previewScale);
+            spriteBatch.Draw(nextBusStopTexture, texturePos, null, Color.White, 0.0f, textureOrigin, 1.0f, SpriteEffects.None, 1.0f);
+
+            Vector2 textPos = texturePos;
+            textPos.Y += textureSize.Y + textureOrigin.Y;
+            string text = "NASTÊPNY PRZYSTANEK";
+            Vector2 textSize = mapPreviewFont.MeasureString(text);
+            Vector2 textOrigin = textSize / 2;
+
+            spriteBatch.DrawString(mapPreviewFont, text, textPos, Color.YellowGreen, 0.0f, textOrigin, 1.0f, SpriteEffects.None, 1);
         }
 
         private void ShowImHere(SpriteBatch spriteBatch, float previewScale)
@@ -115,11 +134,11 @@ namespace Testy_mapy
             Vector2 textPos = Helper.MapPosToScreenPos(Helper.busPos);
             textPos = Helper.CalculateScalePoint(textPos, previewScale);
             textPos.Y += textureSize.Y + textureOrigin.Y;
-            string text = "TU JESTES!";
-            Vector2 textSize = imHereFont.MeasureString(text);
+            string text = "TU JESTEŒ!";
+            Vector2 textSize = mapPreviewFont.MeasureString(text);
             Vector2 textOrigin = textSize / 2;
 
-            spriteBatch.DrawString(imHereFont, text, textPos, Color.OrangeRed, 0.0f, textOrigin, 1.0f, SpriteEffects.None, 1);
+            spriteBatch.DrawString(mapPreviewFont, text, textPos, Color.OrangeRed, 0.0f, textOrigin, 1.0f, SpriteEffects.None, 1);
         }
 
         public void DrawAreasChange(SpriteBatch spriteBatch, GameTime gameTime)
@@ -246,7 +265,7 @@ namespace Testy_mapy
                 if (trafficLights.ContainsKey(name))
                 {
                     spriteBatch.Draw(trafficLights[name], destinationPos, null, Color.White, MathHelper.ToRadians(tlo.rotate),
-                            tlo.original_origin, Helper.GetVectorScale() * tlo.scale, tlo.spriteEffects, 1.0f);
+                            tlo.original_origin, Helper.GetVectorScale(), tlo.spriteEffects, 1.0f);
                 }
             }
         }
@@ -271,10 +290,11 @@ namespace Testy_mapy
 
             // ladujemy czcionki:
             areaChangeFont = content.Load<SpriteFont>("fonts/areaChangeFont");
-            imHereFont = content.Load<SpriteFont>("fonts/imHereFont");
+            mapPreviewFont = content.Load<SpriteFont>("fonts/mapPreviewFont");
 
             // ladujemy teksture: "jestem tutaj!"
             imHereTexture = content.Load<Texture2D>("help/imHere");
+            nextBusStopTexture = content.Load<Texture2D>("help/nextBusStop");
 
             // ladowanie tekstur obiektow (PRZY DODANIU NOWEJ DODAJEMY LINIJKE TYLKO TUTAJ)
             textures = new Dictionary<string, Texture2D>();

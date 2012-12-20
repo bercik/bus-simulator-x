@@ -361,7 +361,7 @@ namespace Testy_mapy
 
             if (previewMode) // je¿eli rysujemy podgl¹d mapy
             {
-                drawMap.DrawPreview(spriteBatch, previewScale);
+                drawMap.DrawPreview(spriteBatch, previewScale, gameplayLogic.GetCurrentBusStopPosition());
 
                 spriteBatch.DrawString(font, "Preview scale: " + Math.Round(previewScale, 3), new Vector2(0, 0), Color.White);
             }
@@ -414,9 +414,6 @@ namespace Testy_mapy
                 spriteBatch.DrawString(font, "Pedestrians in the bus: " + gameplayLogic.NumberOfPedestriansInTheBus(), new Vector2(0, 210), Color.White);
 
                 spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 240), Color.White);
-
-                spriteBatch.DrawString(font, "Speed: " + Math.Round(busLogic.GetCurrentSpeed(), 0), new Vector2(0, 400), Color.White);
-                spriteBatch.DrawString(font, "Gear: " + busLogic.GetCurrentGear(), new Vector2(0, 430), Color.White);
             }
 
             // licznik FPS
@@ -441,6 +438,20 @@ namespace Testy_mapy
             infoForHud.busSpeed = busLogic.GetCurrentSpeed();
             infoForHud.busRpm = busLogic.GetCurrentAcceleration();
             infoForHud.busGear = busLogic.GetCurrentGear();
+            infoForHud.numberOfPedestriansInTheBus = gameplayLogic.NumberOfPedestriansInTheBus();
+            infoForHud.doorOpen = busLogic.DoorsAreOpen();
+            if (gameplayLogic.ArePedestriansGettingIn())
+            {
+                infoForHud.pedestrianState = PedestrianState.GettingIn;
+            }
+            else if (gameplayLogic.ArePedestriansGettingOff())
+            {
+                infoForHud.pedestrianState = PedestrianState.GettingOff;
+            }
+            else
+            {
+                infoForHud.pedestrianState = PedestrianState.Nothing;
+            }
 
             hud.Draw(spriteBatch, infoForHud);
         }

@@ -12,11 +12,16 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Testy_mapy
 {
+    enum PedestrianState { GettingIn, GettingOff, Nothing } // stan pieszych (wsiadają, wysiadają, nic nie robią)
+
     struct InformationForHud
     {
         public float busSpeed; // predkosc autobusu
         public float busRpm; // obroty silnika autobusu
         public int busGear; // bieg autobusu
+        public PedestrianState pedestrianState; // stan pieszych
+        public int numberOfPedestriansInTheBus; // liczba pieszych w autobusie
+        public bool doorOpen; // czy drzwi sa otwarte
     }
 
     class HUD
@@ -26,6 +31,7 @@ namespace Testy_mapy
         float tachometerScale = 1.0f; // skala obrotomierza (rozmiar tekstury jest mnozony przez skale)
         float tipScaleForSpeedometer = 0.65f; // skala wskazówki dla predkosciomierza
         float gearFrameScale = 1.0f; // skala ramki dla biegow
+        float rightGuiScale = 1.0f; // skala prawego GUI (wyświetlającego stan drzwi, pieszych i ich ilość)
         Vector2 tipPosForSpeedometer = new Vector2(75, 75); // pozycja wzgledna wskazowki na predkosciomierzu
 
         // speedometer:
@@ -46,6 +52,26 @@ namespace Testy_mapy
         Texture2D gearFrameTexture;
         Rectangle gearFrameRect;
         SpriteFont gearFont;
+        
+        // minimap !!! DO USUNIECIA !!! (chwilowo - pogladowo):
+        Texture2D minimapTexture;
+        Rectangle minimapRect;
+
+        // door state:
+        Texture2D doorOpenTexture;
+        Texture2D doorCloseTexture;
+        Rectangle doorStateRect;
+
+        // pedestrian state:
+        Texture2D pedestriansGettingIn;
+        Texture2D pedestriansGettingOff;
+        Texture2D pedestriansNothing;
+        Rectangle pedestriansStateRect;
+
+        // pedestrians in bus frame:
+        Texture2D pedestriansInBusFrameTexture;
+        Rectangle pedestriansInBusFrameRect;
+        SpriteFont pedestriansInBusFont;
 
         public HUD()
         {
@@ -57,7 +83,8 @@ namespace Testy_mapy
             // zmienne pomocnicze:
             Point point;
             Size size;
-            int actualPosX = 0; // aktualna pozycja X elementuInterfejsu
+            int actualPosX = 0; // aktualna pozycja X elementu Interfejsu
+            int actualPosY = 0; // aktualna pozycja Y elementu Interfejsu
 
             // tekstura wskazówki:
             tipTexture = content.Load<Texture2D>("HUD/tip");
@@ -90,10 +117,47 @@ namespace Testy_mapy
             point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
             gearFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
             actualPosX += size.Width;
+
+            // minimapa:
+            minimapTexture = content.Load<Texture2D>("HUD/minimap");
+            size = new Size((int)(minimapTexture.Width), (int)(minimapTexture.Height));
+            actualPosX = (int)(Helper.screenSize.X - size.Width); // ustawiamy HUD od prawej krawedzi ekranu
+            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
+            minimapRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // door state:
+            doorCloseTexture = content.Load<Texture2D>("HUD/door_close");
+            doorOpenTexture = content.Load<Texture2D>("HUD/door_open");
+            size = new Size((int)(doorOpenTexture.Width * rightGuiScale), (int)(doorOpenTexture.Height * rightGuiScale));
+            actualPosX -= size.Width;
+            actualPosY = (int)(Helper.screenSize.Y - size.Height);
+            point = new Point(actualPosX, actualPosY);
+            doorStateRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // pedestrian state:
+            pedestriansGettingIn = content.Load<Texture2D>("HUD/pedestrians_getting_in");
+            pedestriansGettingOff = content.Load<Texture2D>("HUD/pedestrians_getting_off");
+            pedestriansNothing = content.Load<Texture2D>("HUD/pedestrians_nothing");
+            size = new Size((int)(pedestriansNothing.Width * rightGuiScale), (int)(pedestriansNothing.Height * rightGuiScale));
+            actualPosY -= size.Height;
+            point = new Point(actualPosX, actualPosY);
+            pedestriansStateRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // number of pedestrians in bus
+            pedestriansInBusFont = content.Load<SpriteFont>("fonts/pedestriansInBusFont");
+
+            pedestriansInBusFrameTexture = content.Load<Texture2D>("HUD/pedestrians_in_bus_frame");
+            size = new Size((int)(pedestriansInBusFrameTexture.Width * rightGuiScale), (int)(pedestriansInBusFrameTexture.Height * rightGuiScale));
+            actualPosY -= size.Height;
+            point = new Point(actualPosX, actualPosY);
+            pedestriansInBusFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
         }
 
         public void Draw(SpriteBatch spriteBatch, InformationForHud infoForHud)
         {
+            // zmienna pomocnicza:
+            Vector2 textPos;
+
             // tachometer:
             spriteBatch.Draw(tachometerTexture, tachometerRect, Color.White);
             
@@ -106,8 +170,52 @@ namespace Testy_mapy
             // gear frame:
             spriteBatch.Draw(gearFrameTexture, gearFrameRect, Color.White);
             string gearName = GetGearName(infoForHud.busGear);
-            Vector2 gearPos = GetGearPos(gearName);
-            spriteBatch.DrawString(gearFont, gearName, gearPos, Color.White);
+            textPos = GetTextPos(gearName, gearFont, gearFrameRect);
+            spriteBatch.DrawString(gearFont, gearName, textPos, Color.White);
+
+            // minimap:
+            spriteBatch.Draw(minimapTexture, minimapRect, Color.White);
+
+            // door state:
+            Texture2D doorStateTexture;
+
+            if (infoForHud.doorOpen)
+            {
+                doorStateTexture = doorOpenTexture;
+            }
+            else
+            {
+                doorStateTexture = doorCloseTexture;
+            }
+
+            spriteBatch.Draw(doorStateTexture, doorStateRect, Color.White);
+
+            // pedestrian state:
+            Texture2D pedestriansStateTexture;
+
+            switch (infoForHud.pedestrianState)
+            {
+                case PedestrianState.GettingOff:
+                    pedestriansStateTexture = pedestriansGettingOff;
+                    break;
+                case PedestrianState.GettingIn:
+                    pedestriansStateTexture = pedestriansGettingIn;
+                    break;
+                case PedestrianState.Nothing:
+                    pedestriansStateTexture = pedestriansNothing;
+                    break;
+                default:
+                    pedestriansStateTexture = pedestriansNothing;
+                    break;
+            }
+
+            spriteBatch.Draw(pedestriansStateTexture, pedestriansStateRect, Color.White);
+
+            // number of pedestrians in bus:
+            spriteBatch.Draw(pedestriansInBusFrameTexture, pedestriansInBusFrameRect, Color.White);
+            string numberOfPedestriansInBus = infoForHud.numberOfPedestriansInTheBus.ToString();
+            textPos = GetTextPos(numberOfPedestriansInBus, pedestriansInBusFont, pedestriansInBusFrameRect);
+            spriteBatch.DrawString(pedestriansInBusFont, numberOfPedestriansInBus, textPos, Color.White);
         }
 
         protected float GetSpeedometerTipRotation(float busSpeed)
@@ -140,12 +248,12 @@ namespace Testy_mapy
                 return gear.ToString();
         }
 
-        protected Vector2 GetGearPos(string gear)
+        protected Vector2 GetTextPos(string gear, SpriteFont font, Rectangle rect)
         {
-            Vector2 gearSize = gearFont.MeasureString(gear);
+            Vector2 gearSize = font.MeasureString(gear);
 
-            float x = gearFrameRect.X + ((gearFrameRect.Width / 2) - (gearSize.X / 2));
-            float y = gearFrameRect.Y + ((gearFrameRect.Height / 2) - (gearSize.Y / 2));
+            float x = rect.X + ((rect.Width / 2) - (gearSize.X / 2));
+            float y = rect.Y + ((rect.Height / 2) - (gearSize.Y / 2));
 
             return new Vector2(x, y);
         }

@@ -104,8 +104,16 @@ namespace Testy_mapy
 
             for (int i = 0; i < objectsToShow.Count; ++i)
             {
-                objectsToShow[i] = (Object)objectsToShow[i].Clone();
-                objectsToShow[i].pos = Helper.MapPosToScreenPos(objectsToShow[i].pos);
+                if (objectsToShow[i].name.StartsWith("chodnik")) // usuwamy chodniki z podglądu mapy
+                {
+                    objectsToShow.RemoveAt(i);
+                    --i;
+                }
+                else
+                {
+                    objectsToShow[i] = (Object)objectsToShow[i].Clone();
+                    objectsToShow[i].pos = Helper.MapPosToScreenPos(objectsToShow[i].pos);
+                }
             }
 
             return objectsToShow;
