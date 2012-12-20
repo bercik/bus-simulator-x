@@ -438,6 +438,9 @@ namespace Testy_mapy
             infoForHud.busSpeed = busLogic.GetCurrentSpeed();
             infoForHud.busRpm = busLogic.GetCurrentAcceleration();
             infoForHud.busGear = busLogic.GetCurrentGear();
+            infoForHud.busPosition = busLogic.GetBusPosition();
+            infoForHud.busStopPosition = gameplayLogic.GetCurrentBusStopPosition();
+
             infoForHud.numberOfPedestriansInTheBus = gameplayLogic.NumberOfPedestriansInTheBus();
             infoForHud.doorOpen = busLogic.DoorsAreOpen();
             if (gameplayLogic.ArePedestriansGettingIn())
