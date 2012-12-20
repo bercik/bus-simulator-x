@@ -777,13 +777,20 @@ namespace Testy_mapy
 
         public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
         {
-            VehicleType vehicleType1 = new VehicleType(new Vector2(40, 100), 0, 3, new Vector2(0, 0), new Vector2(12, 0), new Vector2(0, 0));    // Czerwony.
-            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0));      // Niebieski.
-            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
-            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(-10, -10)); // Srebrny.
-            VehicleType vehicleType5 = new VehicleType(new Vector2(40, 100), 4, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10)); // Taxi.
+            VehicleType vehicleType1  = new VehicleType(new Vector2(40, 100), 0,  3, new Vector2(0, 0), new Vector2(12, 0), new Vector2(0, 0));     // Czerwony.
+            VehicleType vehicleType2  = new VehicleType(new Vector2(40, 100), 1,  3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0));      // Niebieski.
+            VehicleType vehicleType3  = new VehicleType(new Vector2(40, 100), 2,  3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
+            VehicleType vehicleType4  = new VehicleType(new Vector2(50, 100), 3,  1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(-10, -10)); // Srebrny.
+            VehicleType vehicleType5  = new VehicleType(new Vector2(40, 100), 4,  2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Taxi.
+            VehicleType vehicleType6  = new VehicleType(new Vector2(45, 100), 5,  3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Metalicznyniebieski.
+            VehicleType vehicleType7  = new VehicleType(new Vector2(45, 100), 6,  2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Srebrnopomarańczowy.
+            VehicleType vehicleType8  = new VehicleType(new Vector2(45, 100), 7,  1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Złoty ze spoilerem.
+            VehicleType vehicleType9  = new VehicleType(new Vector2(45, 100), 8,  1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Ferrari.
+            VehicleType vehicleType10 = new VehicleType(new Vector2(45, 100), 9,  1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Ferrari z pokrywą silnika.
+            VehicleType vehicleType11 = new VehicleType(new Vector2(45, 100), 10, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Mustang.
+            VehicleType vehicleType12 = new VehicleType(new Vector2(45, 100), 11, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Mustang + stripes.
 
-            vehiclesTypes = new VehicleType[5] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5 };
+            vehiclesTypes = new VehicleType[12] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12 };
 
             foreach (VehicleType vehicleType in vehiclesTypes)
                 maxRandom += vehicleType.likelihoodOfApperance;
@@ -1021,8 +1028,7 @@ namespace Testy_mapy
         {
             if (vehicles.Count() < maxVehicles && lastSpawn > spawnInterval)
             {
-                Random random = new Random();
-                int randomNumber = random.Next(1, maxRandom + 1);
+                int randomNumber = Helper.random.Next(1, maxRandom + 1);
                 int current = 0;
 
                 VehicleType type = new VehicleType();

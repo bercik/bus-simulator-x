@@ -14,7 +14,7 @@ namespace Testy_mapy
 {
     class DrawTraffic
     {
-        const int numberOfCars = 5;
+        const int numberOfCars = 12;
         Texture2D indicatorTexture, tailLightTexture;
         Vector2 indicatorTextureOrigin, tailLightTextureOrigin;
         Texture2D[] vehicleTexture = new Texture2D[numberOfCars];
