@@ -266,7 +266,7 @@ namespace Testy_mapy
                         Helper.busPos = busLogic.GetBusPosition();
 
                         // Kolizje.
-                        collisionsLogic.HandleCollisions(trafficLogic, busLogic);
+                        collisionsLogic.HandleCollisions(trafficLogic, busLogic, gameplayLogic);
                     }
                     else
                     {

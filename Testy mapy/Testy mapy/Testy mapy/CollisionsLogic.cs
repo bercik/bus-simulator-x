@@ -31,8 +31,11 @@ namespace Testy_mapy
         /// <summary>
         /// Main logic.
         /// </summary>
-        public void HandleCollisions(TrafficLogic trafficLogic, BusLogic busLogic)
+        public void HandleCollisions(TrafficLogic trafficLogic, BusLogic busLogic, GameplayLogic gameplayLogic)
         {
+            Vector2[] busCollisionPoints = busLogic.GetCollisionPoints();
+            MyRectangle busCollisionBox = PrepareRectangle(busCollisionPoints);
+
             foreach (TrafficLogic.Vehicle vehicle in trafficLogic.vehicles)
             {
                 Vector2[] vehicleCollisionPoints = vehicle.GetCollisionPoints();
@@ -71,9 +74,6 @@ namespace Testy_mapy
                 // Sprawdź pojazd - autobus.
                 if (ShouldBeChecked(vehicle.GetVehiclePosition(), busLogic.GetBusPosition(), vehicle.GetVehicleSize(), busLogic.GetSize()))
                 {
-                    Vector2[] busCollisionPoints = busLogic.GetCollisionPoints();
-                    MyRectangle busCollisionBox = PrepareRectangle(busCollisionPoints);
-
                     foreach (Vector2 point in vehicleCollisionPoints)
                     {
                         if (Helper.IsInside(point, busCollisionBox))
@@ -89,6 +89,64 @@ namespace Testy_mapy
                         {
                             vehicle.Collision();
                             busLogic.Collision();
+                        }
+                    }
+                }
+            }
+
+            // Sprawdź autobus - piesi z gameplayLogic.
+            foreach (GameplayLogic.BusStop busStop in gameplayLogic.busStops)
+            {
+                foreach (GameplayLogic.BusStop.Pedestrian pedestrian in busStop.pedestrians)
+                {
+                    if (pedestrian.collisionActive)
+                    {
+                        Vector2[] pedestrianCollisionPoints = pedestrian.GetCollisionPoints();
+                        MyRectangle pedestrianCollisionBox = PrepareRectangle(pedestrianCollisionPoints);
+
+                        // Sprawdź czy punkty kolizji subPojazdu są w collision boxie pojazdu
+                        foreach (Vector2 point in pedestrianCollisionPoints)
+                        {
+                            if (Helper.IsInside(point, busCollisionBox))
+                            {
+                                pedestrian.Collision();
+                            }
+                        }
+
+                        // Sprawdź czy punkty kolizji pojazdu są w collision boxie subPojazdu
+                        foreach (Vector2 point in busCollisionPoints)
+                        {
+                            if (Helper.IsInside(point, pedestrianCollisionBox))
+                            {
+                                pedestrian.Collision();
+                            }
+                        }
+                    }
+                }
+
+                foreach (GameplayLogic.BusStop.Pedestrian pedestrian in busStop.pedestriansWhoGotOff)
+                {
+                    if (pedestrian.collisionActive)
+                    {
+                        Vector2[] pedestrianCollisionPoints = pedestrian.GetCollisionPoints();
+                        MyRectangle pedestrianCollisionBox = PrepareRectangle(pedestrianCollisionPoints);
+
+                        // Sprawdź czy punkty kolizji subPojazdu są w collision boxie pojazdu
+                        foreach (Vector2 point in pedestrianCollisionPoints)
+                        {
+                            if (Helper.IsInside(point, busCollisionBox))
+                            {
+                                pedestrian.Collision();
+                            }
+                        }
+
+                        // Sprawdź czy punkty kolizji pojazdu są w collision boxie subPojazdu
+                        foreach (Vector2 point in busCollisionPoints)
+                        {
+                            if (Helper.IsInside(point, pedestrianCollisionBox))
+                            {
+                                pedestrian.Collision();
+                            }
                         }
                     }
                 }
