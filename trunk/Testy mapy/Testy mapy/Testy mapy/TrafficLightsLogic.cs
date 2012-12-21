@@ -84,6 +84,20 @@ namespace Testy_mapy
             return trafficLightJunctionsInRange;
         }
 
+        public void GetRedLightRectangles(out List<Rectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
+        {
+            redLightRectanglesForBus = new List<TrafficLightRectangle>();
+            redLightRectanglesForCars = new List<Rectangle>();
+
+            List<TrafficLightJunction> trafficLightJunctions = GetTrafficLightJunctionsInRange();
+
+            foreach (TrafficLightJunction junction in trafficLightJunctions)
+            {
+                redLightRectanglesForBus.AddRange(junction.trafficLight.getRedLightForBusRectangles());
+                redLightRectanglesForCars.AddRange(junction.trafficLight.getRedLightForCarsRectangles());
+            }
+        }
+
         public void Update(TimeSpan framesInterval)
         {
             List<TrafficLightJunction> trafficLightJunctionsInRange = GetTrafficLightJunctionsInRange();
@@ -350,6 +364,30 @@ namespace Testy_mapy
         {
             trafficLightState = (TrafficLightState)((int)(trafficLightState + 1) % 4);
         }
+
+        public TrafficLightRectangle[] getRedLightForBusRectangles()
+        {
+            TrafficLightRectangle[] redLightForBusRectangles = new TrafficLightRectangle[trafficLightObjects.Length];
+
+            for (int i = 0; i < redLightForBusRectangles.Length; ++i)
+            {
+                redLightForBusRectangles[i] = trafficLightObjects[i].getRedLightForBusRectangle();
+            }
+
+            return redLightForBusRectangles;
+        }
+
+        public Rectangle[] getRedLightForCarsRectangles()
+        {
+            Rectangle[] redLightForCarsRectangles = new Rectangle[trafficLightObjects.Length];
+
+            for (int i = 0; i < redLightForCarsRectangles.Length; ++i)
+            {
+                redLightForCarsRectangles[i] = trafficLightObjects[i].getRedLightForCarRectangle();
+            }
+
+            return redLightForCarsRectangles;
+        }
     }
 
     class TrafficLight
@@ -454,6 +492,26 @@ namespace Testy_mapy
                 nextPair1 = true;
                 actualInterval = trafficLightIntervalBeforeRedYellowStart;
             }
+        }
+
+        public List<TrafficLightRectangle> getRedLightForBusRectangles()
+        {
+            List<TrafficLightRectangle> redLightForBusRectangles = new List<TrafficLightRectangle>();
+
+            redLightForBusRectangles.AddRange(pair1.getRedLightForBusRectangles());
+            redLightForBusRectangles.AddRange(pair2.getRedLightForBusRectangles());
+
+            return redLightForBusRectangles;
+        }
+
+        public List<Rectangle> getRedLightForCarsRectangles()
+        {
+            List<Rectangle> redLightForCarsRectangles = new List<Rectangle>();
+
+            redLightForCarsRectangles.AddRange(pair1.getRedLightForCarsRectangles());
+            redLightForCarsRectangles.AddRange(pair2.getRedLightForCarsRectangles());
+
+            return redLightForCarsRectangles;
         }
     }
 }

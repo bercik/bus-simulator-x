@@ -31,12 +31,37 @@ namespace Testy_mapy
 
     class HUD
     {
+        // skala całego HUDU:
+        protected float f_scale = 1.0f;
+        public float scale
+        {
+            get
+            {
+                return f_scale;
+            }
+            set
+            {
+                f_scale = value;
+
+                if (f_scale > maxScale)
+                    f_scale = maxScale;
+                else if (f_scale < minScale)
+                    f_scale = minScale;
+
+                CalculateHUDPositionsAndSize();
+            }
+        }
+
+        const float maxScale = 1.5f;
+        const float minScale = 0.5f;
+
         // zmienne do ustawiania:
         float speedometerScale = 1.0f; // skala predkosciomierza (rozmiar tekstury jest mnozony przez skale)
         float tachometerScale = 1.0f; // skala obrotomierza (rozmiar tekstury jest mnozony przez skale)
         float tipScaleForSpeedometer = 0.65f; // skala wskazówki dla predkosciomierza
         float gearFrameScale = 1.0f; // skala ramki dla biegow
         float rightGuiScale = 1.0f; // skala prawego GUI (wyświetlającego stan drzwi, pieszych i ich ilość)
+        Size minimapSize = new Size(150, 150); // standartowy rozmiar minimapy
         Vector2 tipPosForSpeedometer = new Vector2(75, 75); // pozycja wzgledna wskazowki na predkosciomierzu
 
         // speedometer:
@@ -59,7 +84,6 @@ namespace Testy_mapy
         SpriteFont gearFont;
         
         // minimap !!! DO USUNIECIA !!! (chwilowo - pogladowo):
-        Texture2D minimapTexture;
         Rectangle minimapRect;
 
         // arrow
@@ -89,84 +113,39 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
-            // zmienne pomocnicze:
-            Point point;
-            Size size;
-            int actualPosX = 0; // aktualna pozycja X elementu Interfejsu
-            int actualPosY = 0; // aktualna pozycja Y elementu Interfejsu
-
             // tekstura wskazówki:
             tipTexture = content.Load<Texture2D>("HUD/tip");
 
             // tachometer:
             tachometerTexture = content.Load<Texture2D>("HUD/tachometer");
-            size = new Size((int)(tachometerTexture.Width * tachometerScale), (int)(tachometerTexture.Height * tachometerScale));
-            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
-            tachometerRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
-            actualPosX += size.Width;
 
             // speedometer:
             speedometerTexture = content.Load<Texture2D>("HUD/speedometer");
-            size = new Size((int)(speedometerTexture.Width * speedometerScale), (int)(speedometerTexture.Height * speedometerScale));
-            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
-            speedometerRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
-            actualPosX += size.Width;
-
-            tipPosForSpeedometer *= speedometerScale;
-            tipPosForSpeedometer += new Vector2(point.X, point.Y);
-            tipScaleForSpeedometer *= speedometerScale;
-            size = new Size((int)(tipTexture.Width * tipScaleForSpeedometer), (int)(tipTexture.Height * tipScaleForSpeedometer));
-            tipRectForSpeedometer = new Rectangle((int)tipPosForSpeedometer.X, (int)tipPosForSpeedometer.Y, size.Width, size.Height);
 
             // ramka dla biegów:
             gearFont = content.Load<SpriteFont>("fonts/gearFont");
-
             gearFrameTexture = content.Load<Texture2D>("HUD/gear_frame");
-            size = new Size((int)(gearFrameTexture.Width * gearFrameScale), (int)(gearFrameTexture.Height * gearFrameScale));
-            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
-            gearFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
-            actualPosX += size.Width;
 
             // strzalka kierunku
             directionArrowTexture = content.Load<Texture2D>("HUD/direction_arrow");
-            directionArrowTextureOrigin = new Vector2(directionArrowTexture.Width / 2, directionArrowTexture.Height / 2);
-
-            // minimapa:
-            minimapTexture = content.Load<Texture2D>("HUD/minimap");
-            size = new Size((int)(minimapTexture.Width), (int)(minimapTexture.Height));
-            actualPosX = (int)(Helper.screenSize.X - size.Width); // ustawiamy HUD od prawej krawedzi ekranu
-            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
-            minimapRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
 
             // door state:
             doorCloseTexture = content.Load<Texture2D>("HUD/door_close");
             doorOpenTexture = content.Load<Texture2D>("HUD/door_open");
-            size = new Size((int)(doorOpenTexture.Width * rightGuiScale), (int)(doorOpenTexture.Height * rightGuiScale));
-            actualPosX -= size.Width;
-            actualPosY = (int)(Helper.screenSize.Y - size.Height);
-            point = new Point(actualPosX, actualPosY);
-            doorStateRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
 
             // pedestrian state:
             pedestriansGettingIn = content.Load<Texture2D>("HUD/pedestrians_getting_in");
             pedestriansGettingOff = content.Load<Texture2D>("HUD/pedestrians_getting_off");
             pedestriansNothing = content.Load<Texture2D>("HUD/pedestrians_nothing");
-            size = new Size((int)(pedestriansNothing.Width * rightGuiScale), (int)(pedestriansNothing.Height * rightGuiScale));
-            actualPosY -= size.Height;
-            point = new Point(actualPosX, actualPosY);
-            pedestriansStateRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
 
             // number of pedestrians in bus
             pedestriansInBusFont = content.Load<SpriteFont>("fonts/pedestriansInBusFont");
-
             pedestriansInBusFrameTexture = content.Load<Texture2D>("HUD/pedestrians_in_bus_frame");
-            size = new Size((int)(pedestriansInBusFrameTexture.Width * rightGuiScale), (int)(pedestriansInBusFrameTexture.Height * rightGuiScale));
-            actualPosY -= size.Height;
-            point = new Point(actualPosX, actualPosY);
-            pedestriansInBusFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            CalculateHUDPositionsAndSize();
         }
 
-        public void Draw(SpriteBatch spriteBatch, InformationForHud infoForHud)
+        public void Draw(SpriteBatch spriteBatch, InformationForHud infoForHud, Texture2D minimapTexture)
         {
             // zmienna pomocnicza:
             Vector2 textPos;
@@ -186,7 +165,7 @@ namespace Testy_mapy
             string gearName = GetGearName(infoForHud.busGear);
             GetTextPosAndOrigin(gearName, gearFont, gearFrameRect, out textPos, out textOrigin);
             spriteBatch.DrawString(gearFont, gearName, textPos, Color.White, 0, textOrigin,
-                    gearFrameScale, SpriteEffects.None, 1.0f);
+                    gearFrameScale * scale, SpriteEffects.None, 1.0f);
 
             // minimap:
             spriteBatch.Draw(minimapTexture, minimapRect, Color.White);
@@ -231,12 +210,74 @@ namespace Testy_mapy
             string numberOfPedestriansInBus = infoForHud.numberOfPedestriansInTheBus.ToString();
             GetTextPosAndOrigin(numberOfPedestriansInBus, pedestriansInBusFont, pedestriansInBusFrameRect, out textPos, out textOrigin);
             spriteBatch.DrawString(pedestriansInBusFont, numberOfPedestriansInBus, textPos, Color.White, 0, textOrigin,
-                    rightGuiScale, SpriteEffects.None, 1.0f);
+                    rightGuiScale * scale, SpriteEffects.None, 1.0f);
 
             // strzalka
             Object arrow = GetArrow(infoForHud.busPosition, infoForHud.busStopPosition);
             Rectangle rect = Helper.CalculateScaleRectangle(arrow.pos, arrow.size);
             spriteBatch.Draw(directionArrowTexture, rect, null, Color.White, arrow.rotate, directionArrowTextureOrigin, SpriteEffects.None, 1);
+        }
+
+        // oblicza pozycję i rozmiar elementów HUDU w zależności od skali
+        protected void CalculateHUDPositionsAndSize()
+        {
+            // zmienne pomocnicze:
+            Point point;
+            Size size;
+            int actualPosX = 0; // aktualna pozycja X elementu Interfejsu
+            int actualPosY = 0; // aktualna pozycja Y elementu Interfejsu
+
+            // tachometer:
+            size = new Size((int)(tachometerTexture.Width * tachometerScale * scale), (int)(tachometerTexture.Height * tachometerScale * scale));
+            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
+            tachometerRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+            actualPosX += size.Width;
+
+            // speedometer:
+            size = new Size((int)(speedometerTexture.Width * speedometerScale * scale), (int)(speedometerTexture.Height * speedometerScale * scale));
+            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
+            speedometerRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+            actualPosX += size.Width;
+
+            tipPosForSpeedometer *= speedometerScale * scale;
+            tipPosForSpeedometer += new Vector2(point.X, point.Y);
+            tipScaleForSpeedometer *= speedometerScale * scale;
+            size = new Size((int)(tipTexture.Width * tipScaleForSpeedometer), (int)(tipTexture.Height * tipScaleForSpeedometer));
+            tipRectForSpeedometer = new Rectangle((int)tipPosForSpeedometer.X, (int)tipPosForSpeedometer.Y, size.Width, size.Height);
+
+            // ramka dla biegów:
+            size = new Size((int)(gearFrameTexture.Width * gearFrameScale * scale), (int)(gearFrameTexture.Height * gearFrameScale * scale));
+            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
+            gearFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+            actualPosX += size.Width;
+
+            // strzalka kierunku:
+            directionArrowTextureOrigin = new Vector2(directionArrowTexture.Width / 2, directionArrowTexture.Height / 2);
+
+            // minimapa:
+            size = new Size((int)(minimapSize.Width * scale), (int)(minimapSize.Height * scale));
+            actualPosX = (int)(Helper.screenSize.X - size.Width); // ustawiamy HUD od prawej krawedzi ekranu
+            point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
+            minimapRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // door state:
+            size = new Size((int)(doorOpenTexture.Width * rightGuiScale * scale), (int)(doorOpenTexture.Height * rightGuiScale * scale));
+            actualPosX -= size.Width;
+            actualPosY = (int)(Helper.screenSize.Y - size.Height);
+            point = new Point(actualPosX, actualPosY);
+            doorStateRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // pedestrian state:
+            size = new Size((int)(pedestriansNothing.Width * rightGuiScale * scale), (int)(pedestriansNothing.Height * rightGuiScale * scale));
+            actualPosY -= size.Height;
+            point = new Point(actualPosX, actualPosY);
+            pedestriansStateRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // number of pedestrians in bus:
+            size = new Size((int)(pedestriansInBusFrameTexture.Width * rightGuiScale * scale), (int)(pedestriansInBusFrameTexture.Height * rightGuiScale * scale));
+            actualPosY -= size.Height;
+            point = new Point(actualPosX, actualPosY);
+            pedestriansInBusFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
         }
 
         protected Object GetArrow(Vector2 busPosition, Vector2 busStopPosition)

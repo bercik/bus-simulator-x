@@ -40,11 +40,12 @@ namespace Testy_mapy
         TrackLogic trackLogic;
         PedestriansLogic pedestriansLogic;
         AreasLogic areasLogic;
+        MinimapLogic minimapLogic;
         Vector2 pos =  new Vector2(0, 0);
 
         bool load = false;
 
-        public DrawMap()
+        public DrawMap(GraphicsDevice graphicsDevice)
         {
             // TODO: Construct any child components here
             mapLogic = new MapLogic();
@@ -52,6 +53,7 @@ namespace Testy_mapy
             trackLogic = new TrackLogic();
             pedestriansLogic = new PedestriansLogic();
             areasLogic = new AreasLogic();
+            minimapLogic = new MinimapLogic(graphicsDevice);
         }
 
         /// <summary>
@@ -73,6 +75,16 @@ namespace Testy_mapy
             pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
             areasLogic.Update(gameTime.ElapsedGameTime, ref trafficLogic);
             trackLogic.Update(gameTime.ElapsedGameTime);
+        }
+
+        public Texture2D GetMinimapTexture()
+        {
+            return minimapLogic.GetMinimapTexture();
+        }
+
+        public void DrawMinimap(SpriteBatch spriteBatch, float busDirection, Vector2 currentBusStopPosition)
+        {
+            minimapLogic.DrawMinimap(spriteBatch, mapLogic.GetJunctionsForMinimap(GameParams.minimapScale), junctions, busDirection, currentBusStopPosition);
         }
 
         public void DrawPreview(SpriteBatch spriteBatch, float previewScale, Vector2 currentBusStopPosition)
@@ -278,6 +290,8 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
+            minimapLogic.LoadContent(content);
+
             // zmienna pomocnicza:
             Vector2 size;
 
@@ -468,6 +482,11 @@ namespace Testy_mapy
         public void CreateGrass(Vector2 mapPos)
         {
             backgroundLogic.CreateGrass(mapPos);
+        }
+
+        public void GetRedLightRectangles(out List<Rectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
+        {
+            trackLogic.GetRedLightRectangles(out redLightRectanglesForCars, out redLightRectanglesForBus);
         }
     }
 }
