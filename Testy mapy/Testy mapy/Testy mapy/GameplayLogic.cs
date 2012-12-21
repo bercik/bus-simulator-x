@@ -89,6 +89,7 @@ namespace Testy_mapy
                     this.position = startPosition;
                     this.direction = Helper.CalculateDirection(this.position, this.waitingPosition);
                     this.skin = Helper.random.Next(0, 3);
+                    this.collisionActive = false;
                 }
 
                 private int GetRandomDirection()
@@ -742,6 +743,16 @@ namespace Testy_mapy
                     foreach (Vector2 point in pointsArray)
                         list.Add(Helper.MapPosToScreenPos(point));
                 }
+
+                foreach (BusStop.Pedestrian pedestrian in busStop.pedestriansWhoGotOff)
+                {
+                    list.Add(Helper.MapPosToScreenPos(pedestrian.GetPosition()));
+
+                    pointsArray = pedestrian.GetCollisionPoints();
+
+                    foreach (Vector2 point in pointsArray)
+                        list.Add(Helper.MapPosToScreenPos(point));
+                }
             }
 
             return list.ToArray();
@@ -878,8 +889,10 @@ namespace Testy_mapy
                 doorsOpen = false;
             }
 
+            // Przeliteruj przystanki.
             for (int i = 0; i < busStops.Count; i++)
             {
+                // Jeśli aktualny przystanek.
                 if (i == busStopsOrder[currentBusStop])
                 {
                     // Sprawdź czy autobus stoi na przystanku i czy ma otwarte drzwi.
@@ -902,9 +915,6 @@ namespace Testy_mapy
                     // Jeśli autobus jest dobrze ustawiony i drzwi są otwarte.
                     if (busOnTheBusStop && busLogic.DoorsAreOpen())
                     {
-                        // Idź do autobusu.
-                        goToTheBus = true;
-
                         // Jeśli są pasażerowie którzy mieliby potencjalnie wysiadać
                         if (peopleGettingOff > 0)
                         {
@@ -922,6 +932,11 @@ namespace Testy_mapy
                                 // Zresetuj licznik.
                                 getOffCounter = getOffInterval;
                             }
+                        }
+                        else
+                        {
+                            // Idź do autobusu.
+                            goToTheBus = true;
                         }
                     }
                     else
