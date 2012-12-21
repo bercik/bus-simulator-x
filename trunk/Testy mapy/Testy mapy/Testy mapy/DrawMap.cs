@@ -97,7 +97,7 @@ namespace Testy_mapy
                 else if (trafficLights.ContainsKey(o.name))
                 {
                     spriteBatch.Draw(trafficLights[o.name], destinationPos, null, Color.White, MathHelper.ToRadians(o.rotate),
-                            o.original_origin, v_previewScale * o.scale, o.spriteEffects, 1.0f);
+                            o.original_origin, v_previewScale, o.spriteEffects, 1.0f);
                 }
 
                 // wyœwietlanie informacji o po³o¿eniu gracza:

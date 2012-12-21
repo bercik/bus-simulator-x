@@ -170,6 +170,7 @@ namespace Testy_mapy
         {
             // zmienna pomocnicza:
             Vector2 textPos;
+            Vector2 textOrigin;
 
             // tachometer:
             spriteBatch.Draw(tachometerTexture, tachometerRect, Color.White);
@@ -183,8 +184,9 @@ namespace Testy_mapy
             // gear frame:
             spriteBatch.Draw(gearFrameTexture, gearFrameRect, Color.White);
             string gearName = GetGearName(infoForHud.busGear);
-            textPos = GetTextPos(gearName, gearFont, gearFrameRect);
-            spriteBatch.DrawString(gearFont, gearName, textPos, Color.White);
+            GetTextPosAndOrigin(gearName, gearFont, gearFrameRect, out textPos, out textOrigin);
+            spriteBatch.DrawString(gearFont, gearName, textPos, Color.White, 0, textOrigin,
+                    gearFrameScale, SpriteEffects.None, 1.0f);
 
             // minimap:
             spriteBatch.Draw(minimapTexture, minimapRect, Color.White);
@@ -227,8 +229,9 @@ namespace Testy_mapy
             // number of pedestrians in bus:
             spriteBatch.Draw(pedestriansInBusFrameTexture, pedestriansInBusFrameRect, Color.White);
             string numberOfPedestriansInBus = infoForHud.numberOfPedestriansInTheBus.ToString();
-            textPos = GetTextPos(numberOfPedestriansInBus, pedestriansInBusFont, pedestriansInBusFrameRect);
-            spriteBatch.DrawString(pedestriansInBusFont, numberOfPedestriansInBus, textPos, Color.White);
+            GetTextPosAndOrigin(numberOfPedestriansInBus, pedestriansInBusFont, pedestriansInBusFrameRect, out textPos, out textOrigin);
+            spriteBatch.DrawString(pedestriansInBusFont, numberOfPedestriansInBus, textPos, Color.White, 0, textOrigin,
+                    rightGuiScale, SpriteEffects.None, 1.0f);
 
             // strzalka
             Object arrow = GetArrow(infoForHud.busPosition, infoForHud.busStopPosition);
@@ -280,14 +283,15 @@ namespace Testy_mapy
                 return gear.ToString();
         }
 
-        protected Vector2 GetTextPos(string gear, SpriteFont font, Rectangle rect)
+        protected void GetTextPosAndOrigin(string gear, SpriteFont font, Rectangle rect, out Vector2 pos, out Vector2 origin)
         {
             Vector2 gearSize = font.MeasureString(gear);
 
             float x = rect.X + ((rect.Width / 2) - (gearSize.X / 2));
             float y = rect.Y + ((rect.Height / 2) - (gearSize.Y / 2));
 
-            return new Vector2(x, y);
+            origin = gearSize / 2;
+            pos = new Vector2(x, y) + origin;
         }
     }
 }
