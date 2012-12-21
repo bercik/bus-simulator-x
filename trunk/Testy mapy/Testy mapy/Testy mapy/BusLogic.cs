@@ -466,6 +466,12 @@ namespace Testy_mapy
                     doorsOpen = false;
             }
 
+            if (gearUp)
+                gearBox.GearUp();
+
+            if (gearDown)
+                gearBox.GearDown();
+
             if (!doorsOpen)
             {
 
@@ -495,12 +501,6 @@ namespace Testy_mapy
                 {
                     breaking = false;
                 }
-
-                if (gearUp)
-                    gearBox.GearUp();
-
-                if (gearDown)
-                    gearBox.GearDown();
 
                 if (speed > 0)
                 {
