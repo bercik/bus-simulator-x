@@ -52,6 +52,67 @@ namespace Testy_mapy
         }
 
         /// <summary>
+        /// Pobiera skrzyzowania do wyswietlenia na minimapie
+        /// </summary>
+        /// <param name="previewScale"></param>
+        /// <returns></returns>
+        public List<Object> GetJunctionsForMinimap(float minimapScale)
+        {
+            Vector2 scaledSize = Helper.screenSize * minimapScale;
+
+            // x i y kawałka na którym się znajdujemy
+            int a_x = (int)Helper.mapPos.X / chunkSize.Width;
+            int a_y = (int)Helper.mapPos.Y / chunkSize.Height;
+
+            // ilość kawałków jakie należy sprawdzić (nad, pod, w lewo i w prawo od aktualnego) - inaczej przesunięcie (Shift)
+            int s_x = (int)Math.Ceiling((scaledSize.X / 2) / chunkSize.Width);
+            int s_y = (int)Math.Ceiling((scaledSize.Y / 2) / chunkSize.Height);
+
+            // kawałek od którego będziemy zaczynać
+            int ch_x = a_x - s_x;
+            if (ch_x < 0)
+                ch_x = 0;
+
+            int ch_y = a_y - s_y;
+            if (ch_y < 0)
+                ch_y = 0;
+
+            List<Object> junctionsForMinimap = new List<Object>();
+
+            for (int x = ch_x; x <= a_x + s_x; ++x)
+            {
+                for (int y = ch_y; y <= a_y + s_y; ++y)
+                {
+                    if (x < numberOfChunks.X && y < numberOfChunks.Y)
+                    {
+                        junctionsForMinimap.AddRange(chunks[x, y].GetJunctions());
+                    }
+                }
+            }
+
+            for (int i = 0; i < junctionsForMinimap.Count; ++i)
+            {
+                if (!(junctionsForMinimap[i].name.StartsWith("junction") 
+                    || junctionsForMinimap[i].name.StartsWith("street"))) // usuwamy wszystko co nie jest skrzyżowaniem lub drogą
+                {
+                    junctionsForMinimap.RemoveAt(i);
+                    --i;
+                }
+            }
+
+            List<Object> junctionsForMinimapInRange = new List<Object>();
+            GetObjectsInRangeFrom(ref junctionsForMinimapInRange, junctionsForMinimap, Helper.mapPos, scaledSize);
+
+            for (int i = 0; i < junctionsForMinimapInRange.Count; ++i)
+            {
+                junctionsForMinimapInRange[i] = (Object)junctionsForMinimapInRange[i].Clone();
+                junctionsForMinimapInRange[i].pos = Helper.MapPosToScreenPos(junctionsForMinimapInRange[i].pos);
+            }
+
+            return junctionsForMinimapInRange;
+        }
+
+        /// <summary>
         /// Pobiera obiekty do wyświetlenia w podglądzie
         /// </summary>
         /// <param name="previewScale"></param>
@@ -96,6 +157,15 @@ namespace Testy_mapy
                 }
             }
 
+            for (int i = 0; i < junctionsToPreview.Count; ++i)
+            {
+                if (junctionsToPreview[i].name.StartsWith("chodnik")) // usuwamy chodniki z podglądu mapy
+                {
+                    junctionsToPreview.RemoveAt(i);
+                    --i;
+                }
+            }
+
             List<Object> objectsToShow = new List<Object>();
             GetObjectsInRangeFrom(ref objectsToShow, junctionsToPreview, Helper.mapPos, scaledSize);
             GetObjectsInRangeFrom(ref objectsToShow, objectsUnderBusToPreview, Helper.mapPos, scaledSize);
@@ -104,16 +174,8 @@ namespace Testy_mapy
 
             for (int i = 0; i < objectsToShow.Count; ++i)
             {
-                if (objectsToShow[i].name.StartsWith("chodnik")) // usuwamy chodniki z podglądu mapy
-                {
-                    objectsToShow.RemoveAt(i);
-                    --i;
-                }
-                else
-                {
-                    objectsToShow[i] = (Object)objectsToShow[i].Clone();
-                    objectsToShow[i].pos = Helper.MapPosToScreenPos(objectsToShow[i].pos);
-                }
+                objectsToShow[i] = (Object)objectsToShow[i].Clone();
+                objectsToShow[i].pos = Helper.MapPosToScreenPos(objectsToShow[i].pos);
             }
 
             return objectsToShow;

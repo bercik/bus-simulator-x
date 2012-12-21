@@ -41,7 +41,7 @@ namespace Testy_mapy
         double time = 0.0f;
 
         // !!! pomocnicze zmienne do EW. USUNIECIA !!!
-        Vector2 startPos = new Vector2(200, 1200); //poczatkowa pozycja
+        Vector2 startPos = new Vector2(0, 0); //poczatkowa pozycja
         Texture2D point; // tekstura punktu
         
         float scrollingSpeed = 10.0f; // predkosc przewijania mapy
@@ -92,21 +92,6 @@ namespace Testy_mapy
             //graphics.IsFullScreen = true;
             graphics.PreferredBackBufferHeight = 768;
             graphics.PreferredBackBufferWidth = 1024;
-
-            // inicjujemy klasê Helper
-            Helper.mapPos = startPos;
-
-            hud = new HUD();
-
-            drawMap = new DrawMap();
-            drawBus = new DrawBus();
-            
-            busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150));
-            trafficLogic = new TrafficLogic();
-            drawTraffic = new DrawTraffic();
-            collisionsLogic = new CollisionsLogic();
-            gameplayLogic = new GameplayLogic();
-            drawGameplay = new DrawGameplay();
         }
 
         /// <summary>
@@ -118,6 +103,21 @@ namespace Testy_mapy
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            // inicjujemy klasê Helper
+            Helper.mapPos = startPos;
+
+            hud = new HUD();
+            
+            drawMap = new DrawMap(graphics.GraphicsDevice);
+            drawBus = new DrawBus();
+            
+            busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150));
+            trafficLogic = new TrafficLogic();
+            drawTraffic = new DrawTraffic();
+            collisionsLogic = new CollisionsLogic();
+            gameplayLogic = new GameplayLogic();
+            drawGameplay = new DrawGameplay();
 
             base.Initialize();
         }
@@ -305,6 +305,13 @@ namespace Testy_mapy
                     if (keybState.IsKeyDown(Keys.Delete))
                         Helper.SetScale(1.0f);
 
+                    // ob³usga skali HUDU:
+                    if (keybState.IsKeyDown(Keys.OemPlus))
+                        hud.scale += 0.01f;
+
+                    if (keybState.IsKeyDown(Keys.OemMinus))
+                        hud.scale -= 0.01f;
+
                     trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
                     gameplayLogic.Update(busLogic, gameTime.ElapsedGameTime);
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
@@ -353,20 +360,25 @@ namespace Testy_mapy
         {
             GraphicsDevice.Clear(Color.Green);
 
-            spriteBatch.Begin();
-
             base.Draw(gameTime);
 
             // TODO: Add your drawing code here
 
             if (previewMode) // je¿eli rysujemy podgl¹d mapy
             {
+                spriteBatch.Begin();
+
                 drawMap.DrawPreview(spriteBatch, previewScale, gameplayLogic.GetCurrentBusStopPosition());
 
                 spriteBatch.DrawString(font, "Preview scale: " + Math.Round(previewScale, 3), new Vector2(0, 0), Color.White);
             }
             else
             {
+                // drawing minimap:
+                drawMap.DrawMinimap(spriteBatch, busLogic.GetCurrentDirection(), gameplayLogic.GetCurrentBusStopPosition());
+
+                spriteBatch.Begin();
+
                 // track, objects under bus, pedestrians
                 drawMap.DrawTrack(spriteBatch, gameTime);
                 drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
@@ -414,6 +426,7 @@ namespace Testy_mapy
                 spriteBatch.DrawString(font, "Pedestrians in the bus: " + gameplayLogic.NumberOfPedestriansInTheBus(), new Vector2(0, 210), Color.White);
 
                 spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 240), Color.White);
+                spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 270), Color.White);
             }
 
             // licznik FPS
@@ -456,7 +469,7 @@ namespace Testy_mapy
                 infoForHud.pedestrianState = PedestrianState.Nothing;
             }
 
-            hud.Draw(spriteBatch, infoForHud);
+            hud.Draw(spriteBatch, infoForHud, drawMap.GetMinimapTexture());
         }
     }
 }

@@ -507,13 +507,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HUD\minimap.png">
-      <Name>minimap</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="HUD\door_close.png">
       <Name>door_close</Name>
       <Importer>TextureImporter</Importer>
@@ -555,6 +548,18 @@
   <ItemGroup>
     <Compile Include="HUD\direction_arrow.png">
       <Name>direction_arrow</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="help\bus_minimap.png">
+      <Name>bus_minimap</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="help\bus_stop_minimap.png">
+      <Name>bus_stop_minimap</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

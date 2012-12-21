@@ -886,5 +886,10 @@ namespace Testy_mapy
                 origin = Vector2.Zero;
             }
         }
+
+        public void GetRedLightRectangles(out List<Rectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
+        {
+            trafficLightsLogic.GetRedLightRectangles(out redLightRectanglesForCars, out redLightRectanglesForBus);
+        }
     }
 }
