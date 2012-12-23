@@ -764,20 +764,21 @@ namespace Testy_mapy
         }
 
         private float minVehicleSpawnDistance = 100; // Minimalna odleglość od innego samochodu aby zespanowac.
-        Vector2 indicatorTextureSize = new Vector2(50, 50); // Rozmiar tekstury migacza.
-        Vector2 tailLightTextureSize = new Vector2(50, 50); // Rozmiar tekstury tylnych świateł.
+        private Vector2 indicatorTextureSize = new Vector2(50, 50); // Rozmiar tekstury migacza.
+        private Vector2 tailLightTextureSize = new Vector2(50, 50); // Rozmiar tekstury tylnych świateł.
         float indicatorBlinkInterval = 1; // Jak czesto mają migać migacze.
 
         public List<Vehicle> vehicles = new List<Vehicle>();
-        private VehicleType[] vehiclesTypes;
+        public VehicleType[] vehicleTypes;
         private int maxVehicles = 10;    // Maksymalna liczba pojazdów
         private float spawnInterval = 5; // Co ile spawnować nowe pojazdy [s]
         private int maxRandom = 0;
         private float lastSpawn = 0;     // Ostatni spawn [s]
 
-        public TrafficLogic() // Constructor. Tutaj zdefiniuj typy pojazdów.
+        // Constructor. Tutaj zdefiniuj typy pojazdów.
+        public TrafficLogic()
         {
-            VehicleType vehicleType1  = new VehicleType(new Vector2(40, 100), 0,  3, new Vector2(0, 0), new Vector2(12, 0), new Vector2(0, 0));     // Czerwony.
+            VehicleType vehicleType1  = new VehicleType(new Vector2(50, 100), 0,  3000, new Vector2(0, 0), new Vector2(20, 0), new Vector2(0, 0));     // Czerwony.
             VehicleType vehicleType2  = new VehicleType(new Vector2(40, 100), 1,  3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0));      // Niebieski.
             VehicleType vehicleType3  = new VehicleType(new Vector2(40, 100), 2,  3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
             VehicleType vehicleType4  = new VehicleType(new Vector2(50, 100), 3,  1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(-10, -10)); // Srebrny.
@@ -790,10 +791,42 @@ namespace Testy_mapy
             VehicleType vehicleType11 = new VehicleType(new Vector2(45, 100), 10, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Mustang.
             VehicleType vehicleType12 = new VehicleType(new Vector2(45, 100), 11, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10));  // Mustang + stripes.
 
-            vehiclesTypes = new VehicleType[12] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12 };
+            vehicleTypes = new VehicleType[12] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12 };
 
-            foreach (VehicleType vehicleType in vehiclesTypes)
+            foreach (VehicleType vehicleType in vehicleTypes)
                 maxRandom += vehicleType.likelihoodOfApperance;
+        }
+
+        /// <summary>
+        /// Get the size of the indicator texture.
+        /// </summary>
+        public Vector2 GetIndicatorTextureSize()
+        {
+            return indicatorTextureSize;
+        }
+
+        /// <summary>
+        /// Get the size of te taillight texture.
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetTailLightTextureSize()
+        {
+            return tailLightTextureSize;
+        }
+
+        /// <summary>
+        /// Get the array filled with sizes of the vehicle types.
+        /// </summary>
+        public Vector2[] GetVehicleTypesSizes()
+        {
+            Vector2[] vehicleTypesSizes = new Vector2[GameParams.numberOfCars];
+
+            for (int i = 0; i < vehicleTypes.Length; i++)
+            {
+                vehicleTypesSizes[i] = vehicleTypes[i].size;
+            }
+
+            return vehicleTypesSizes;
         }
 
         /// <summary>
@@ -836,7 +869,7 @@ namespace Testy_mapy
 
                 if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) // Jeśli autobus jest blisko, sprawdź go.
                 {
-                    collisionPoints = busLogic.GetCollisionPoints(busLogic.GetRealPosition(), busLogic.GetDirection());
+                    collisionPoints = busLogic.GetCollisionPoints();
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
                     if (Helper.IsInside(point, rectangle))
                         return false;
@@ -869,7 +902,7 @@ namespace Testy_mapy
 
                 if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) // Jeśli autobus jest blisko, sprawdź go.
                 {
-                    collisionPoints = busLogic.GetCollisionPoints(busLogic.GetRealPosition(), busLogic.GetDirection());
+                    collisionPoints = busLogic.GetCollisionPoints();
                     rectangle = new MyRectangle(collisionPoints[3], collisionPoints[2], collisionPoints[1], collisionPoints[0]);
                     if (Helper.IsInside(point, rectangle))
                     {
@@ -1033,7 +1066,7 @@ namespace Testy_mapy
 
                 VehicleType type = new VehicleType();
 
-                foreach (VehicleType vehicleType in vehiclesTypes)
+                foreach (VehicleType vehicleType in vehicleTypes)
                 {
                     if (randomNumber > current && randomNumber <= current + vehicleType.likelihoodOfApperance)
                     {
