@@ -15,11 +15,16 @@ namespace Testy_mapy
     class DrawGameplay
     {
         const int numberOfPedestrians = 3;
-        Texture2D stopAreaTexture, stopAreaActiveTexture, waitingAreaTexture, signTexture, deadPedestrianTexture;
+        Texture2D stopAreaTexture, stopAreaActiveTexture, signTexture, deadPedestrianTexture;
+        
         Texture2D[] pedestrianTexture = new Texture2D[numberOfPedestrians];
         Vector2[] pedestrianTextureOrigin = new Vector2[numberOfPedestrians];
+        Vector2[] pedestrianTextureScale = new Vector2[numberOfPedestrians];
 
-        Vector2 stopAreaTextureOrigin, stopAreaActiveTextureOrigin, waitingAreaTextureOrigin, signTextureOrigin, deadPedestrianTextureOrigin;
+        Vector2 stopAreaTextureOrigin, stopAreaTextureScale,
+                stopAreaActiveTextureOrigin, stopAreaActiveTextureScale,
+                signTextureOrigin, signTextureScale,
+                deadPedestrianTextureOrigin, deadPedestrianTextureScale;
 
         // Constructor.
         public DrawGameplay()
@@ -29,16 +34,13 @@ namespace Testy_mapy
         /// <summary>
         /// Load sprites.
         /// </summary>
-        public void LoadContent(ContentManager content)
+        public void LoadContent(ContentManager content, Vector2 pedestrianSize, Vector2 stopAreaTextureSize, Vector2 stopAreaActiveTextureSize, Vector2 signTextureSize, Vector2 deadPedestrianTextureSize)
         {
             stopAreaTexture = content.Load<Texture2D>("busstops/busstoparea");
             stopAreaTextureOrigin = new Vector2(stopAreaTexture.Width / 2, stopAreaTexture.Height / 2);
 
             stopAreaActiveTexture = content.Load<Texture2D>("busstops/busstoparea_active");
             stopAreaActiveTextureOrigin = new Vector2(stopAreaActiveTexture.Width / 2, stopAreaActiveTexture.Height / 2);
-
-            waitingAreaTexture = content.Load<Texture2D>("busstops/busstoparea");
-            waitingAreaTextureOrigin = new Vector2(waitingAreaTexture.Width / 2, waitingAreaTexture.Height / 2);
 
             signTexture = content.Load<Texture2D>("busstops/busstopsign");
             signTextureOrigin = new Vector2(signTexture.Width / 2, signTexture.Height / 2);

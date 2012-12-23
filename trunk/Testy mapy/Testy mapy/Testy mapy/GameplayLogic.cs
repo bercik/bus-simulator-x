@@ -29,6 +29,28 @@ namespace Testy_mapy
 
             public class Pedestrian
             {
+                public Vector2 waitingPosition;    // Pozycja oczekiwania na autobus na przystanku.
+                public Vector2 position;           // Aktualna pozycja.
+                public float direction;            // Aktualny kierunek.
+
+                public bool collisionActive = true;
+
+                protected float idleDirection;        // Kierunek do którego będzie dążył pieszy aby symulować losowe, anturalne ruchy rozglądania się.
+                protected float directionChange = 50; // Szybkość obrotu.
+                protected float stayIdleFor = 0;      // Jak długo nie ma wykonywać kolejnego obrotu.
+                protected int idleMin = 2;            // Minimalny czas oczekiwania na następny obrót.
+                protected int idleMax = 5;            // Maksymany czas oczekiwania na następny obrót.
+
+                public bool collision = false;        // Czy nastąpiła kolizja?
+
+                public bool delete = false;           // Should be deleted?
+
+                protected int speed = 10;             // Prędkość z jaką sie porusza.
+                protected float speedMultiplier = 4;  // Współczynnik pozwalający na dopasowanie prędkości.
+
+                public int skin;                           // Wygląd.
+                public Vector2 size = new Vector2(20, 20); // Rozmiar.
+
                 // Constructor.
                 public Pedestrian(Vector2 waitingArea, Vector2 waitingAreaSize, float waitingAreaDirection)
                 {
@@ -92,26 +114,41 @@ namespace Testy_mapy
                     this.collisionActive = false;
                 }
 
+                /// <summary>
+                /// Get the random integer ranging from 0 to 360.
+                /// </summary>
                 private int GetRandomDirection()
                 {
                     return Helper.random.Next(0, 361);
                 }
 
+                /// <summary>
+                /// Get the current pedestrian position.
+                /// </summary>
                 public Vector2 GetPosition()
                 {
                     return position;
                 }
 
+                /// <summary>
+                /// Get the current pedestrian size.
+                /// </summary>
                 public Vector2 GetSize()
                 {
                     return size;
                 }
 
+                /// <summary>
+                /// Get the current pedestrian direction.
+                /// </summary>
                 public float GetDirection()
                 {
                     return direction;
                 }
 
+                /// <summary>
+                /// Get the pedestrian's skin ID.
+                /// </summary>
                 public int GetSkin()
                 {
                     return skin;
@@ -181,6 +218,9 @@ namespace Testy_mapy
                     return rotateLeft;
                 }
 
+                /// <summary>
+                /// Gradually rotates pedestrian to the given direction.
+                /// </summary>
                 private void RotateToDirection(float desiredDirection, float timeCoherenceMultiplier)
                 {
                     if (ShouldRotateLeft(direction, desiredDirection))
@@ -205,6 +245,9 @@ namespace Testy_mapy
                     }
                 }
 
+                /// <summary>
+                /// Simulate the random movement of the pedestrian when he is idle.
+                /// </summary>
                 public void HandleIdle(float waitingAreaDirection, float timeCoherenceMultiplier)
                 {
                     // Kierunek w którym mają patrzec pieszy ma być prostopadły do kierunku podanego i połozony z lewej.
@@ -260,6 +303,9 @@ namespace Testy_mapy
                     }
                 }
 
+                /// <summary>
+                /// Calculate new position after moving with the given speed in the direction given.
+                /// </summary>
                 private Vector2 CalculateNewPosition(float speed, float direction, float timeCoherenceMultiplier)
                 {
                     Vector2 newPosition;
@@ -268,16 +314,25 @@ namespace Testy_mapy
                     return newPosition;
                 }
 
+                /// <summary>
+                /// Applies position returned by CalculateNewPosition.
+                /// </summary>
                 private void ChangePosition(float speed, float direction, float timeCoherenceMultiplier)
                 {
                     position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
                 }
 
+                /// <summary>
+                /// Mark pedestrian for deletion.
+                /// </summary>
                 public void Delete()
                 {
                     delete = true;
                 }
 
+                /// <summary>
+                /// Simulate the collision.
+                /// </summary>
                 public void Collision()
                 {
                     collision = true;
@@ -329,6 +384,9 @@ namespace Testy_mapy
                     }
                 }
 
+                /// <summary>
+                /// Check if the pedestrian has reached the bus.
+                /// </summary>
                 public bool BusReached(BusLogic busLogic)
                 {
                     if (Helper.CalculateDistance(position, busLogic.GetBusPosition()) < size.Y / 2)
@@ -336,28 +394,6 @@ namespace Testy_mapy
                     else
                         return false;
                 }
-
-                public Vector2 waitingPosition;    // Pozycja oczekiwania na autobus na przystanku.
-                public Vector2 position;           // Aktualna pozycja.
-                public float direction;            // Aktualny kierunek.
-
-                public bool collisionActive = true;
-
-                protected float idleDirection;        // Kierunek do którego będzie dążył pieszy aby symulować losowe, anturalne ruchy rozglądania się.
-                protected float directionChange = 50; // Szybkość obrotu.
-                protected float stayIdleFor = 0;      // Jak długo nie ma wykonywać kolejnego obrotu.
-                protected int idleMin = 2;            // Minimalny czas oczekiwania na następny obrót.
-                protected int idleMax = 5;            // Maksymany czas oczekiwania na następny obrót.
-                
-                public bool collision = false;
-
-                public bool delete = false;           // Should be deleted?
-
-                protected int speed = 10;
-                protected float speedMultiplier = 4;
-
-                public int skin;                           // Wygląd.
-                public Vector2 size = new Vector2(20, 20); // Rozmiar.
             }
 
             public int id;

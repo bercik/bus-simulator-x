@@ -25,6 +25,7 @@ namespace Testy_mapy
         private float brakeAcc = 20;
         private float speedDecay = (float)0.5;
         private Vector2 tailLightTextureSize = new Vector2(50, 50); //Rozmiar tekstury migacza.
+        private Vector2 tailLightsOffset = new Vector2(-20, 0);
 
         private GearBox gearBox = new GearBox();
         private Wheel wheel = new Wheel();
@@ -109,7 +110,10 @@ namespace Testy_mapy
             return position;
         }
 
-        public Vector2 CalculateCenter(Vector2 busPosition, float busDirection)
+        /// <summary>
+        /// Calculate center of the bus for given position and direction.
+        /// </summary>
+        private Vector2 CalculateCenter(Vector2 busPosition, float busDirection)
         {
             Vector2 center;
 
@@ -119,21 +123,33 @@ namespace Testy_mapy
             return center;
         }
 
-        public Vector2 GetOrigin()
-        {
-            return size / 2;
-        }
-
+        /// <summary>
+        /// Get side acceleration.
+        /// </summary>
         public float GetSideAcceleration()
         {
             return wheel.GetSideAcceleration();
         }
 
+        /// <summary>
+        /// Get bus size.
+        /// </summary>
         public Vector2 GetSize()
         {
             return size;
         }
 
+        /// <summary>
+        /// Get tailight size.
+        /// </summary>
+        public Vector2 GetTailLightSize()
+        {
+            return tailLightTextureSize;
+        }
+
+        /// <summary>
+        /// Get current direction.
+        /// </summary>
         public float GetDirection()
         {
             return direction;
@@ -150,7 +166,7 @@ namespace Testy_mapy
 
             if (IsBreaking())
             {
-                pointsArray = GetCollisionPoints();
+                pointsArray = GetCollisionPoints(position, direction, tailLightsOffset);
 
                 list.Add(new Object("", pointsArray[2], tailLightTextureSize, 0));
                 list.Add(new Object("", pointsArray[3], tailLightTextureSize, 0));
@@ -402,21 +418,21 @@ namespace Testy_mapy
         /// <summary>
         /// Get collision points.
         /// </summary>
-        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection)
+        public Vector2[] GetCollisionPoints(Vector2 busPosition, float busDirection, Vector2 sizeOffset)
         {
             Vector2 p1, p2, p3, p4; // Create 4 points.
 
-            p3.X = busPosition.X + ((size.X * (float)Math.Cos(DegToRad(busDirection))) / 2); // Calculate their positions.
-            p3.Y = busPosition.Y + ((size.X * (float)Math.Sin(DegToRad(busDirection))) / 2);
+            p3.X = busPosition.X + (((size.X + sizeOffset.X) * (float)Math.Cos(DegToRad(busDirection))) / 2); // Calculate their positions.
+            p3.Y = busPosition.Y + (((size.X + sizeOffset.X) * (float)Math.Sin(DegToRad(busDirection))) / 2);
 
-            p4.X = busPosition.X - (size.X * (float)Math.Cos(DegToRad(busDirection)) / 2);
-            p4.Y = busPosition.Y - (size.X * (float)Math.Sin(DegToRad(busDirection)) / 2);
+            p4.X = busPosition.X - ((size.X + sizeOffset.X) * (float)Math.Cos(DegToRad(busDirection)) / 2);
+            p4.Y = busPosition.Y - ((size.X + sizeOffset.X) * (float)Math.Sin(DegToRad(busDirection)) / 2);
 
-            p1.X = p4.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
-            p1.Y = p4.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
+            p1.X = p4.X + ((size.Y + sizeOffset.Y) * (float)Math.Sin(DegToRad(busDirection)));
+            p1.Y = p4.Y - ((size.Y + sizeOffset.Y) * (float)Math.Cos(DegToRad(busDirection)));
 
-            p2.X = p3.X + (size.Y * (float)Math.Sin(DegToRad(busDirection)));
-            p2.Y = p3.Y - (size.Y * (float)Math.Cos(DegToRad(busDirection)));
+            p2.X = p3.X + ((size.Y + sizeOffset.Y) * (float)Math.Sin(DegToRad(busDirection)));
+            p2.Y = p3.Y - ((size.Y + sizeOffset.Y) * (float)Math.Cos(DegToRad(busDirection)));
 
             Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; // Create list and add points.
 
@@ -428,7 +444,7 @@ namespace Testy_mapy
         /// </summary>
         public Vector2[] GetCollisionPoints()
         {
-            return GetCollisionPoints(position, direction);
+            return GetCollisionPoints(position, direction, new Vector2(0, 0));
         }
 
         public void RewindPositionAndDirection()
@@ -532,7 +548,7 @@ namespace Testy_mapy
             List<Vector2> list = new List<Vector2>();
             Vector2[] pointsArray;
 
-            pointsArray = GetCollisionPoints(position, direction);
+            pointsArray = GetCollisionPoints();
             foreach (Vector2 point in pointsArray)
                 list.Add(Helper.MapPosToScreenPos(point));
 

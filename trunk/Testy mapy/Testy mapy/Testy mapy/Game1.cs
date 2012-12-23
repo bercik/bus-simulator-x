@@ -144,9 +144,11 @@ namespace Testy_mapy
             hud.LoadContent(this.Content);
 
             // ³adowanie klas rysuj¹cych
-            drawBus.LoadContent(this.Content);
-            drawGameplay.LoadContent(this.Content);
-            drawTraffic.LoadContent(this.Content);
+            drawBus.LoadContent(this.Content, busLogic.GetSize(), busLogic.GetTailLightSize());
+            drawGameplay.LoadContent(this.Content, new Vector2(10, 10), new Vector2(10, 10), new Vector2(10, 10), new Vector2(10, 10), new Vector2(10, 10));
+
+            drawTraffic.LoadContent(this.Content, trafficLogic.GetVehicleTypesSizes(), trafficLogic.GetIndicatorTextureSize(), trafficLogic.GetTailLightTextureSize());
+
             drawMap.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("fonts/font1");

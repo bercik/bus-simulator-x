@@ -93,9 +93,11 @@ namespace Testy_mapy
         public static readonly float trafficLightYellowInterval = 2.0f; // czas trwania zoltego swiatla
         public static readonly float trafficLightRedYellowInterval = 0.8f; // czas trwania czerwono-zoltego swiatla
 
+
+        public const int numberOfCars = 12; // Number of cars/car skins.
+
         // dla MinimapLogic:
         public static readonly float minimapScale = 3.0f; // skala minimapy
-
     }
 
     static class Helper
