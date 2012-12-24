@@ -486,10 +486,8 @@ namespace Testy_mapy
         // laduje informacje o obiektach
         public void LoadObjectsInformation(string path)
         {
-            path = "db/" + path;
-
-            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-            StreamReader sr = new StreamReader(fs);
+            Stream s = TitleContainer.OpenStream("Content/db/" + path);
+            StreamReader sr = new StreamReader(s);
 
             string s_objectInformation = sr.ReadLine(); // !!! pierwsza linijka to komentarz !!! (DO EW. USUNIECIA)
 
@@ -740,7 +738,7 @@ namespace Testy_mapy
         public Vector2 original_origin { get; set; } // uzywac przy wyswietlaniu
                                                     // (oryginalny srodek dla standartowych rozmiarow tekstury)
 
-        protected Vector2 v_size;
+        private Vector2 v_size;
         public Vector2 size
         {
             get

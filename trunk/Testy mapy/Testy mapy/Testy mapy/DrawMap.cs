@@ -411,37 +411,27 @@ namespace Testy_mapy
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu, startowa rotacja autobusu
-        public bool LoadMap(string path, ref Vector2 startPosition, ref float startRotation)
+        public void LoadMap(string path, ref Vector2 startPosition, ref float startRotation)
         {
-            path = "maps/" + path;
+            Stream s = TitleContainer.OpenStream("Content/maps/" + path);
 
-            if (File.Exists(path))
-            {
-                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-                Encoding enc = Encoding.GetEncoding("Windows-1250"); // dziêki temu mo¿emy odczytywaæ polskie znaki
-                StreamReader sr = new StreamReader(fs, enc);
+            Encoding enc = Encoding.GetEncoding("Windows-1250"); // dziêki temu mo¿emy odczytywaæ polskie znaki
+            StreamReader sr = new StreamReader(s, enc);
 
-                // pobieramy startowa pozycje autobusu i jego rotacje
-                string s_startPosition = sr.ReadLine();
-                string[] split = s_startPosition.Split(new char[] { ';' });
-                startPosition = new Vector2(float.Parse(split[0]), float.Parse(split[1]));
-                startRotation = float.Parse(sr.ReadLine()); // pobieramy startow¹ rotacjê
+            // pobieramy startowa pozycje autobusu i jego rotacje
+            string s_startPosition = sr.ReadLine();
+            string[] split = s_startPosition.Split(new char[] { ';' });
+            startPosition = new Vector2(float.Parse(split[0]), float.Parse(split[1]));
+            startRotation = float.Parse(sr.ReadLine()); // pobieramy startow¹ rotacjê
 
-                mapLogic.LoadMap(ref sr);
-                trackLogic.LoadTrack(ref sr);
-                areasLogic.LoadAreas(ref sr);
-                mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania, drogi i chodniki jako obiekty do wyswietlenia
-                mapLogic.AddTrafficLightsToChunks(trackLogic.GetTrafficLights()); // dodajemy swiatla jako obiekty do wyswietlenia
-                pedestriansLogic.SetSidewalks(trackLogic.GetSidewalks()); // ustawiamy skrzyzowania w klasie pedestriansLogic
+            mapLogic.LoadMap(ref sr);
+            trackLogic.LoadTrack(ref sr);
+            areasLogic.LoadAreas(ref sr);
+            mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania, drogi i chodniki jako obiekty do wyswietlenia
+            mapLogic.AddTrafficLightsToChunks(trackLogic.GetTrafficLights()); // dodajemy swiatla jako obiekty do wyswietlenia
+            pedestriansLogic.SetSidewalks(trackLogic.GetSidewalks()); // ustawiamy skrzyzowania w klasie pedestriansLogic
 
-                load = true;
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            load = true;
         }
 
         public void SetPosition(Vector2 pos)
