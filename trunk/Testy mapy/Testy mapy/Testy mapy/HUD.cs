@@ -60,9 +60,11 @@ namespace Testy_mapy
         float tachometerScale = 1.0f; // skala obrotomierza (rozmiar tekstury jest mnozony przez skale)
         float tipScaleForSpeedometer = 0.65f; // skala wskazówki dla predkosciomierza
         float gearFrameScale = 1.0f; // skala ramki dla biegow
-        float rightGuiScale = 1.0f; // skala prawego GUI (wyświetlającego stan drzwi, pieszych i ich ilość)
+        float rightGuiScale = 1.0f; // skala prawego GUI (wyświetlającego stan drzwi, pieszych, ich ilość i wiadomosc o punktach)
+        float scoreFrameScale = 1.0f; // skala ramki dla wyniku
         Size minimapSize = new Size(150, 150); // standartowy rozmiar minimapy
-        Vector2 tipPosForSpeedometer = new Vector2(75, 75); // pozycja wzgledna wskazowki na predkosciomierzu
+        Vector2 tipPosForSpeedometer = new Vector2(75, 75); // pierwotna pozycja wzgledna wskazowki na predkosciomierzu
+        float pointMessageSpeed = 0.1f; // szybkosc przewijania tekstu wiadomosci o punktach
 
         // speedometer:
         Texture2D speedometerTexture;
@@ -106,6 +108,21 @@ namespace Testy_mapy
         Rectangle pedestriansInBusFrameRect;
         SpriteFont pedestriansInBusFont;
 
+        // wiadomosc o punktach:
+        RasterizerState rasterizerState = new RasterizerState() { ScissorTestEnable = true };
+        SpriteFont pointMessageFont;
+        Rectangle pointMessageRect;
+        Vector2 pointMessagePos;
+        Vector2 pointMessageSize;
+        bool showingPointMessage = false;
+        string currentPointMessage;
+        Color currentPointMessageColor;
+
+        // wynik:
+        SpriteFont scoreFont;
+        Texture2D scoreFrameTexture;
+        Rectangle scoreFrameRect;
+
         public HUD()
         {
 
@@ -138,14 +155,21 @@ namespace Testy_mapy
             pedestriansGettingOff = content.Load<Texture2D>("HUD/pedestrians_getting_off");
             pedestriansNothing = content.Load<Texture2D>("HUD/pedestrians_nothing");
 
-            // number of pedestrians in bus
+            // number of pedestrians in bus:
             pedestriansInBusFont = content.Load<SpriteFont>("fonts/pedestriansInBusFont");
             pedestriansInBusFrameTexture = content.Load<Texture2D>("HUD/pedestrians_in_bus_frame");
+
+            // punkty:
+            pointMessageFont = content.Load<SpriteFont>("fonts/pointMessageFont");
+
+            // ramka dla wyniku:
+            scoreFont = content.Load<SpriteFont>("fonts/scoreFont");
+            scoreFrameTexture = content.Load<Texture2D>("HUD/score_frame");
 
             CalculateHUDPositionsAndSize();
         }
 
-        public void Draw(SpriteBatch spriteBatch, InformationForHud infoForHud, Texture2D minimapTexture)
+        public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, TimeSpan frameInterval, InformationForHud infoForHud, Texture2D minimapTexture, bool pause)
         {
             // zmienna pomocnicza:
             Vector2 textPos;
@@ -212,10 +236,31 @@ namespace Testy_mapy
             spriteBatch.DrawString(pedestriansInBusFont, numberOfPedestriansInBus, textPos, Color.White, 0, textOrigin,
                     rightGuiScale * scale, SpriteEffects.None, 1.0f);
 
-            // strzalka
+            // strzalka:
             Object arrow = GetArrow(infoForHud.busPosition, infoForHud.busStopPosition);
             Rectangle rect = Helper.CalculateScaleRectangle(arrow.pos, arrow.size);
             spriteBatch.Draw(directionArrowTexture, rect, null, Color.White, arrow.rotate, directionArrowTextureOrigin, SpriteEffects.None, 1);
+
+            // punkty:
+            if (showingPointMessage)
+            {
+                // jezeli nie wcisnieto pauzy to aktualizujemy pozycje wiadomosci o punktach
+                if (!pause)
+                    pointMessagePos.X -= (float)(pointMessageSpeed * scale * rightGuiScale * frameInterval.TotalMilliseconds);
+
+                ShowPointMessage(spriteBatch, graphicsDevice, frameInterval);
+            }
+            else if (!pause) // j.w. jezeli nie wcisnieto pauzy to probujemy pobrac nowe zdarzenie
+            {
+                TryGetNextAction();
+            }
+
+            // wynik:
+            spriteBatch.Draw(scoreFrameTexture, scoreFrameRect, Color.White);
+            string totalScore = Score.GetTotalScore().ToString();
+            GetTextPosAndOrigin(totalScore, scoreFont, scoreFrameRect, out textPos, out textOrigin);
+            spriteBatch.DrawString(scoreFont, totalScore, textPos, Color.White, 0, textOrigin,
+                    scoreFrameScale * scale, SpriteEffects.None, 1.0f);
         }
 
         // oblicza pozycję i rozmiar elementów HUDU w zależności od skali
@@ -239,11 +284,13 @@ namespace Testy_mapy
             speedometerRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
             actualPosX += size.Width;
 
-            tipPosForSpeedometer *= speedometerScale * scale;
-            tipPosForSpeedometer += new Vector2(point.X, point.Y);
-            tipScaleForSpeedometer *= speedometerScale * scale;
-            size = new Size((int)(tipTexture.Width * tipScaleForSpeedometer), (int)(tipTexture.Height * tipScaleForSpeedometer));
-            tipRectForSpeedometer = new Rectangle((int)tipPosForSpeedometer.X, (int)tipPosForSpeedometer.Y, size.Width, size.Height);
+            Vector2 v_tipPosForSpeedometer = tipPosForSpeedometer;
+            v_tipPosForSpeedometer *= speedometerScale * scale;
+            v_tipPosForSpeedometer += new Vector2(point.X, point.Y);
+            float f_tipScaleForSpeedometer = tipScaleForSpeedometer;
+            f_tipScaleForSpeedometer *= speedometerScale * scale;
+            size = new Size((int)(tipTexture.Width * f_tipScaleForSpeedometer), (int)(tipTexture.Height * f_tipScaleForSpeedometer));
+            tipRectForSpeedometer = new Rectangle((int)v_tipPosForSpeedometer.X, (int)v_tipPosForSpeedometer.Y, size.Width, size.Height);
 
             // ramka dla biegów:
             size = new Size((int)(gearFrameTexture.Width * gearFrameScale * scale), (int)(gearFrameTexture.Height * gearFrameScale * scale));
@@ -255,7 +302,7 @@ namespace Testy_mapy
             directionArrowTextureOrigin = new Vector2(directionArrowTexture.Width / 2, directionArrowTexture.Height / 2);
 
             // minimapa:
-            size = new Size((int)(minimapSize.Width * scale), (int)(minimapSize.Height * scale));
+            size = new Size((int)(minimapSize.Width * scale * rightGuiScale), (int)(minimapSize.Height * scale * rightGuiScale));
             actualPosX = (int)(Helper.screenSize.X - size.Width); // ustawiamy HUD od prawej krawedzi ekranu
             point = new Point(actualPosX, (int)(Helper.screenSize.Y - size.Height));
             minimapRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
@@ -278,6 +325,20 @@ namespace Testy_mapy
             actualPosY -= size.Height;
             point = new Point(actualPosX, actualPosY);
             pedestriansInBusFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // point message:
+            size = new Size((int)(Helper.screenSize.X - point.X), (int)(pointMessageFont.LineSpacing * scale * rightGuiScale));
+            actualPosY -= size.Height;
+            point = new Point(actualPosX, actualPosY);
+            pointMessageRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+            pointMessagePos.Y = point.Y;
+
+            // score:
+            size = new Size((int)(scoreFrameTexture.Width * scoreFrameScale * scale), (int)(scoreFrameTexture.Height * scoreFrameScale * scale));
+            actualPosX = (int)(Helper.screenSize.X - size.Width); // ustawiamy pozycje na prawy gorny rog
+            actualPosY = 0; // j.w.
+            point = new Point(actualPosX, actualPosY);
+            scoreFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
         }
 
         protected Object GetArrow(Vector2 busPosition, Vector2 busStopPosition)
@@ -333,6 +394,32 @@ namespace Testy_mapy
 
             origin = gearSize / 2;
             pos = new Vector2(x, y) + origin;
+        }
+
+        protected void ShowPointMessage(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, TimeSpan frameInterval)
+        {
+            spriteBatch.End();
+            graphicsDevice.ScissorRectangle = pointMessageRect;
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, rasterizerState);
+
+            // sprawdzamy czy napis nie wyszedl poza prostokat gdzie ma byc wyswietlany
+            if (pointMessagePos.X + (pointMessageSize.X * scale * rightGuiScale) < pointMessageRect.X)
+                showingPointMessage = false;
+
+            spriteBatch.DrawString(pointMessageFont, currentPointMessage, pointMessagePos, currentPointMessageColor, 0, Vector2.Zero, scale * rightGuiScale, SpriteEffects.None, 1.0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin();
+        }
+
+        protected void TryGetNextAction()
+        {
+            if (Score.GetNextAction(out currentPointMessage, out currentPointMessageColor))
+            {
+                showingPointMessage = true;
+                pointMessagePos.X = pointMessageRect.X + pointMessageRect.Width;
+                pointMessageSize = pointMessageFont.MeasureString(currentPointMessage);
+            }
         }
     }
 }

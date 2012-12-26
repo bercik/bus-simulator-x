@@ -211,6 +211,7 @@ namespace Testy_mapy
                 {
                     name = "died_pedestrian";
                     collision = true;
+                    Score.AddAction("killed pedestrian", 1.0f);
                     return true;
                 }
                 else // jezeli nie wykryto bezposredniej kolizji sprawdzamy czy autobus nie znajduje sie niedaleko pieszego

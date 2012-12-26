@@ -199,6 +199,7 @@ namespace Testy_mapy
             {
                 if (keybState.IsKeyDown(Keys.P) && p_release)
                 {
+                    Score.AddAction("click pause", 1.0f); // !!! DO USUNIECIA (DLA TESTOW) !!!
                     pause = !pause;
                     p_release = false;
                 }
@@ -417,7 +418,7 @@ namespace Testy_mapy
                 spriteBatch.End();
                 spriteBatch.Begin();
 
-                DrawHud(spriteBatch);
+                DrawHud(spriteBatch, gameTime.ElapsedGameTime);
 
                 spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
                 spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
@@ -447,7 +448,7 @@ namespace Testy_mapy
             spriteBatch.End();
         }
 
-        protected void DrawHud(SpriteBatch spriteBatch)
+        protected void DrawHud(SpriteBatch spriteBatch, TimeSpan frameInterval)
         {
             InformationForHud infoForHud = new InformationForHud();
             infoForHud.busSpeed = busLogic.GetCurrentSpeed();
@@ -471,7 +472,7 @@ namespace Testy_mapy
                 infoForHud.pedestrianState = PedestrianState.Nothing;
             }
 
-            hud.Draw(spriteBatch, infoForHud, drawMap.GetMinimapTexture());
+            hud.Draw(spriteBatch, GraphicsDevice, frameInterval, infoForHud, drawMap.GetMinimapTexture(), pause);
         }
     }
 }

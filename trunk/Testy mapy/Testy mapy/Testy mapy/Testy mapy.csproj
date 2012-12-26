@@ -139,6 +139,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="ScoreLogic.cs" />
     <Compile Include="Sound.cs" />
     <Compile Include="TrackLogic.cs" />
     <Compile Include="TrafficLightsLogic.cs" />
