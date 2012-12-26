@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1">
-  <asmv1:assemblyIdentity name="Testy mapy.exe" version="1.0.0.3" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
+  <asmv1:assemblyIdentity name="Testy mapy.exe" version="1.0.0.4" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
   <description asmv2:iconFile="Game.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
@@ -93,14 +93,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Testy mapy.exe" size="124416">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Testy mapy.exe" size="128000">
       <assemblyIdentity name="Testy mapy" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>0qaVyStNjx33aqzZXtiyGtqtmPo=</dsig:DigestValue>
+        <dsig:DigestValue>1rRMqxBYfgZA4pwS7Ge1Iur5udQ=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -192,6 +192,24 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
       <dsig:DigestValue>UHzGyWy5IZ/DA/MJ0SXQ6nDpCHM=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\fonts\pointMessageFont.xnb" size="137947">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>mNwCZCX33adBglt85fKL0Y6xkeg=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\fonts\scoreFont.xnb" size="47278">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>BOX3y1LYwlr0EprFS0HUjL5btkI=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\grass\trawa0.xnb" size="40187">
@@ -336,6 +354,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
       <dsig:DigestValue>PiKrZ/Bs5iLY2Fn4eTr3aOiyB88=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\HUD\score_frame.xnb" size="20187">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>ATn6zQ+0UlnKjhsGtpLb2EAr39Y=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\HUD\speedometer.xnb" size="90187">
