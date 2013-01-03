@@ -580,6 +580,7 @@
       <Name>scoreFont</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
+      <SubType>Designer</SubType>
     </Compile>
     <None Include="maps\order_test.ord">
       <Name>order_test</Name>

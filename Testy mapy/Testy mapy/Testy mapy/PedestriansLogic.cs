@@ -506,6 +506,11 @@ namespace Testy_mapy
             }
         }
 
+        public bool AddPedestrian(string id, Vector2 position, float rotation)
+        {
+            return false;
+        }
+
         // pobiera liste pieszych do wyswietlenia
         public List<Object> GetPedestriansToShow()
         {

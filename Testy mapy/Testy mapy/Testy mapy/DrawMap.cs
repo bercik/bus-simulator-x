@@ -77,6 +77,18 @@ namespace Testy_mapy
             trackLogic.Update(gameTime.ElapsedGameTime);
         }
 
+        /// <summary>
+        /// Funkcja pozwalaj¹ca na dodanie pieszego do chodnika
+        /// </summary>
+        /// <param name="id">Nazwa tekstury.</param>
+        /// <param name="position">Aktualna pozycja pieszego.</param>
+        /// <param name="rotation">Aktualna rotacja pieszego.</param>
+        /// <returns>True je¿eli uda³o siê dodaæ pieszego do chodnika. False je¿eli nie.</returns>
+        public bool AddPedestrian(string id, Vector2 position, float rotation)
+        {
+            return pedestriansLogic.AddPedestrian(id, position, rotation);
+        }
+
         public Texture2D GetMinimapTexture()
         {
             return minimapLogic.GetMinimapTexture();
