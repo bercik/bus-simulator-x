@@ -93,14 +93,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Testy mapy.exe" size="128000">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Testy mapy.exe" size="128512">
       <assemblyIdentity name="Testy mapy" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>1rRMqxBYfgZA4pwS7Ge1Iur5udQ=</dsig:DigestValue>
+        <dsig:DigestValue>MQvSYBqCe+T268Hkqu3OS1rut4w=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -140,31 +140,31 @@
       <dsig:DigestValue>DU3RdKgzxI4vEA0lkhg0Z4igEJY=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Content\effects\gradient.xnb" size="1808">
+  <file name="Content\effects\gradient.xnb" size="1804">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>aVSRq6os9CgHJm5GxtDVdeYCsNQ=</dsig:DigestValue>
+      <dsig:DigestValue>CwRAJIjPodPJAIBr8CNsmrNbMz4=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Content\fonts\areaChangeFont.xnb" size="377563">
+  <file name="Content\fonts\areaChangeFont.xnb" size="344795">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>T5l7tGmQ/3bfHXitufylNgOxbIM=</dsig:DigestValue>
+      <dsig:DigestValue>Oxr8po+CC0MLHHByWzwmDb0zMFs=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Content\fonts\font1.xnb" size="146139">
+  <file name="Content\fonts\font1.xnb" size="137947">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>8ofV5Lb6m0UUDKCzKw7r2N6Ahok=</dsig:DigestValue>
+      <dsig:DigestValue>tpVZ3kclklLRQ5jTFVir+fTi+xM=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\fonts\gearFont.xnb" size="52398">
@@ -173,16 +173,16 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>UHzGyWy5IZ/DA/MJ0SXQ6nDpCHM=</dsig:DigestValue>
+      <dsig:DigestValue>qLIN/3XluYFxHEFP6vT2ZhAcss8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Content\fonts\mapPreviewFont.xnb" size="99035">
+  <file name="Content\fonts\mapPreviewFont.xnb" size="91867">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>Ma1Jmislhayp1PuXGcuXhBBiJok=</dsig:DigestValue>
+      <dsig:DigestValue>6S2+9Lu5ezb0hPlX2SKu76raCZM=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\fonts\pedestriansInBusFont.xnb" size="52398">
@@ -191,16 +191,16 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>UHzGyWy5IZ/DA/MJ0SXQ6nDpCHM=</dsig:DigestValue>
+      <dsig:DigestValue>qLIN/3XluYFxHEFP6vT2ZhAcss8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Content\fonts\pointMessageFont.xnb" size="137947">
+  <file name="Content\fonts\pointMessageFont.xnb" size="127707">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>mNwCZCX33adBglt85fKL0Y6xkeg=</dsig:DigestValue>
+      <dsig:DigestValue>crhhJQY+Qwv0zGmyerOWkXIwWOg=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\fonts\scoreFont.xnb" size="47278">
@@ -209,7 +209,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>BOX3y1LYwlr0EprFS0HUjL5btkI=</dsig:DigestValue>
+      <dsig:DigestValue>75OsaihdFAqrlT3iD2L9gnTWjl8=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\grass\trawa0.xnb" size="40187">
@@ -716,13 +716,13 @@
       <dsig:DigestValue>j0rI67rCGWkTxqGhiQn8oPupiIA=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Content\sounds\background_song.wma" size="2653579">
+  <file name="Content\sounds\background_song.wma" size="2653581">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>hyHEQmTJSTF2+kh5w8hzJ/KR2ds=</dsig:DigestValue>
+      <dsig:DigestValue>eBK5ex6ZgzNKp5JtTOdSX8hxFrY=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Content\sounds\background_song.xnb" size="133">

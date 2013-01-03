@@ -9,6 +9,22 @@ namespace Testy_mapy
 {
     class GameplayLogic
     {
+        // Ta struktura przechowuje w jednym miejscu wszystkie odgórne ustawienia parametrów rozgrywki.
+        public class GameplayParams
+        {
+            public readonly int     pedestrianIdleMin = 2;                   // Minimalny czas oczekiwania na następny obrót.
+            public readonly int     pedestrianIdleMax = 5;                   // Maksymany czas oczekiwania na następny obrót.
+            public readonly int     pedestrianSpeed   = 10;                  // Prędkość z jaką sie porusza.
+            public readonly Vector2 pedestrianSize    = new Vector2(20, 20); // Rozmiar pieszego.
+
+            public readonly Vector2 stopAreaSize    = new Vector2(80, 200);
+            public readonly Vector2 waitingAreaSize = new Vector2(40, 100);
+            public readonly Vector2 signSize        = new Vector2(50, 50);
+
+            public readonly float getOffInterval = 1;                     // How often people leave the bus. Seconds.
+            public readonly float speedMultiplier = 4;                    // Współczynnik pozwalający na dopasowanie prędkości.
+        }
+
         /// <summary>
         /// This is the bus stop.
         /// </summary>
@@ -38,18 +54,12 @@ namespace Testy_mapy
                 protected float idleDirection;        // Kierunek do którego będzie dążył pieszy aby symulować losowe, anturalne ruchy rozglądania się.
                 protected float directionChange = 50; // Szybkość obrotu.
                 protected float stayIdleFor = 0;      // Jak długo nie ma wykonywać kolejnego obrotu.
-                protected int idleMin = 2;            // Minimalny czas oczekiwania na następny obrót.
-                protected int idleMax = 5;            // Maksymany czas oczekiwania na następny obrót.
 
                 public bool collision = false;        // Czy nastąpiła kolizja?
 
                 public bool delete = false;           // Should be deleted?
-
-                protected int speed = 10;             // Prędkość z jaką sie porusza.
-                protected float speedMultiplier = 4;  // Współczynnik pozwalający na dopasowanie prędkości.
-
+                
                 public int skin;                           // Wygląd.
-                public Vector2 size = new Vector2(20, 20); // Rozmiar.
 
                 // Constructor.
                 public Pedestrian(Vector2 waitingArea, Vector2 waitingAreaSize, float waitingAreaDirection)
@@ -135,7 +145,7 @@ namespace Testy_mapy
                 /// </summary>
                 public Vector2 GetSize()
                 {
-                    return size;
+                    return gameplayParams.pedestrianSize;
                 }
 
                 /// <summary>
@@ -165,24 +175,23 @@ namespace Testy_mapy
                      * |p4 p3|
                      */
 
-                    p3.X = position.X + ((size.X * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2); // Calculate their positions.
-                    p3.Y = position.Y + ((size.X * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
+                    p3.X = position.X + ((gameplayParams.pedestrianSize.X * (float)Math.Cos(MathHelper.ToRadians(direction))) / 2); // Calculate their positions.
+                    p3.Y = position.Y + ((gameplayParams.pedestrianSize.X * (float)Math.Sin(MathHelper.ToRadians(direction))) / 2);
 
-                    p4.X = position.X - (size.X * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
-                    p4.Y = position.Y - (size.X * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
+                    p4.X = position.X - (gameplayParams.pedestrianSize.X * (float)Math.Cos(MathHelper.ToRadians(direction)) / 2);
+                    p4.Y = position.Y - (gameplayParams.pedestrianSize.X * (float)Math.Sin(MathHelper.ToRadians(direction)) / 2);
 
-                    p1.X = p4.X + (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                    p1.Y = p4.Y - (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                    p1.X = p4.X + (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p1.Y = p4.Y - (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                    p2.X = p3.X + (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                    p2.Y = p3.Y - (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                    p2.X = p3.X + (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p2.Y = p3.Y - (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                    p3.X = p3.X - (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                    p3.Y = p3.Y + (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                    p3.X = p3.X - (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p3.Y = p3.Y + (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
-                    p4.X = p4.X - (size.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                    p4.Y = p4.Y + (size.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
-
+                    p4.X = p4.X - (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    p4.Y = p4.Y + (gameplayParams.pedestrianSize.Y / 2 * (float)Math.Cos(MathHelper.ToRadians(direction)));
 
 
                     Vector2[] pointsArray = new Vector2[4] { p1, p2, p3, p4 }; // Create list and add points.
@@ -205,6 +214,7 @@ namespace Testy_mapy
                 private bool ShouldRotateLeft(float currentDirection, float desiredDirection)
                 {
                     bool rotateLeft = false;
+
                     if (Math.Max(currentDirection, desiredDirection) - Math.Min(currentDirection, desiredDirection) < 180)
                     {
                         rotateLeft = true;
@@ -273,7 +283,7 @@ namespace Testy_mapy
                     if (Math.Abs(idleDirection - direction) < 5)
                     {
                         idleDirection = Helper.random.Next((int)waitingAreaDirection - 70, (int)waitingAreaDirection + 70);
-                        stayIdleFor = Helper.random.Next(idleMin * 10, idleMax * 10 + 1) / 10;
+                        stayIdleFor = Helper.random.Next(gameplayParams.pedestrianIdleMin * 10, gameplayParams.pedestrianIdleMax * 10 + 1) / 10;
                     }
                 }
 
@@ -293,7 +303,7 @@ namespace Testy_mapy
                         }
                         else
                         {
-                            ChangePosition(speed, direction, timeCoherenceMultiplier);
+                            ChangePosition(gameplayParams.pedestrianSpeed, direction, timeCoherenceMultiplier);
                         }
 
                         if (Helper.CalculateDistance(position, waitingPosition) < 2)
@@ -309,8 +319,8 @@ namespace Testy_mapy
                 private Vector2 CalculateNewPosition(float speed, float direction, float timeCoherenceMultiplier)
                 {
                     Vector2 newPosition;
-                    newPosition.X = position.X + (speedMultiplier * timeCoherenceMultiplier * speed * (float)Math.Sin(MathHelper.ToRadians(direction)));
-                    newPosition.Y = position.Y - (speedMultiplier * timeCoherenceMultiplier * speed * (float)Math.Cos(MathHelper.ToRadians(direction)));
+                    newPosition.X = position.X + (gameplayParams.speedMultiplier * timeCoherenceMultiplier * speed * (float)Math.Sin(MathHelper.ToRadians(direction)));
+                    newPosition.Y = position.Y - (gameplayParams.speedMultiplier * timeCoherenceMultiplier * speed * (float)Math.Cos(MathHelper.ToRadians(direction)));
                     return newPosition;
                 }
 
@@ -353,7 +363,7 @@ namespace Testy_mapy
                     }
                     else
                     {
-                        ChangePosition(speed, direction, timeCoherenceMultiplier);
+                        ChangePosition(gameplayParams.pedestrianSpeed, direction, timeCoherenceMultiplier);
                     }
                 }
 
@@ -374,7 +384,7 @@ namespace Testy_mapy
                         }
                         else
                         {
-                            ChangePosition(speed, direction, timeCoherenceMultiplier);
+                            ChangePosition(gameplayParams.pedestrianSpeed, direction, timeCoherenceMultiplier);
                         }
 
                         if (Helper.CalculateDistance(position, waitingPosition) < 2)
@@ -389,7 +399,7 @@ namespace Testy_mapy
                 /// </summary>
                 public bool BusReached(BusLogic busLogic)
                 {
-                    if (Helper.CalculateDistance(position, busLogic.GetBusPosition()) < size.Y / 2)
+                    if (Helper.CalculateDistance(position, busLogic.GetBusPosition()) < gameplayParams.pedestrianSize.Y / 2)
                         return true;
                     else
                         return false;
@@ -400,15 +410,12 @@ namespace Testy_mapy
 
             public Vector2 stopArea;
             public float stopAreaDirection;
-            public Vector2 stopAreaSize = new Vector2(80, 200);
 
             public Vector2 waitingArea;
             public float waitingAreaDirection;
-            public Vector2 waitingAreaSize = new Vector2(40, 100);
 
             public Vector2 sign;
             public float signDirection;
-            public Vector2 signSize = new Vector2(50, 50);
 
             public List<Pedestrian> pedestrians = new List<Pedestrian>();           // Piesi którzy mają wsiąść do autobusu.
             public List<Pedestrian> pedestriansWhoGotOff = new List<Pedestrian>();  // Piesi którzy wysiedli na tym przystanku.
@@ -454,17 +461,17 @@ namespace Testy_mapy
 
             public Vector2[] GetStopAreaCollisionPoints()
             {
-                return GetCollisionPoints(stopArea, stopAreaDirection, stopAreaSize);
+                return GetCollisionPoints(stopArea, stopAreaDirection, gameplayParams.stopAreaSize);
             }
 
             public Vector2[] GetWaitingAreaCollisionPoints()
             {
-                return GetCollisionPoints(waitingArea, waitingAreaDirection, waitingAreaSize);
+                return GetCollisionPoints(waitingArea, waitingAreaDirection, gameplayParams.waitingAreaSize);
             }
 
             public Vector2[] GetSignCollisionPoints()
             {
-                return GetCollisionPoints(sign, signDirection, signSize);
+                return GetCollisionPoints(sign, signDirection, gameplayParams.signSize);
             }
 
             public Vector2 GetStopAreaPosition()
@@ -491,7 +498,7 @@ namespace Testy_mapy
 
                 for (int i = 0; i < randomNumber; i++)
                 {
-                    Pedestrian pedestrian = new Pedestrian(waitingArea, waitingAreaSize, waitingAreaDirection);
+                    Pedestrian pedestrian = new Pedestrian(waitingArea, gameplayParams.waitingAreaSize, waitingAreaDirection);
                     pedestrians.Add(pedestrian);
                 }
             }
@@ -621,7 +628,6 @@ namespace Testy_mapy
         // Heh. :) He he he he... He... Yeah.
         protected int peopleGettingOff = 0;
         protected float getOffCounter = 0;
-        protected float getOffInterval = 1; // Seconds.
 
         protected int minGettingOff = 1;
         protected int maxGettingOff = 5;
@@ -629,15 +635,21 @@ namespace Testy_mapy
         protected bool busOnTheBusStop = false;
         protected bool doorsOpen = false;
 
+        protected static GameplayParams gameplayParams = new GameplayParams();
+
         /// <summary>
         /// Czy ludzie nadal wysiadają?
         /// </summary>
         public bool ArePedestriansGettingOff()
         {
-            if (doorsOpen && busOnTheBusStop && peopleGettingOff > 0) // JVS.
+            if (doorsOpen && busOnTheBusStop && peopleGettingOff > 0)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
 
         /// <summary>
@@ -645,18 +657,29 @@ namespace Testy_mapy
         /// </summary>
         public bool ArePedestriansGettingIn()
         {
-            if (doorsOpen && busOnTheBusStop && busStops[busStopsOrder[currentBusStop]].NumberOfPedestriansWaiting() > 0) // JVS.
+            if (doorsOpen && busOnTheBusStop && busStops[busStopsOrder[currentBusStop]].NumberOfPedestriansWaiting() > 0)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
 
+        /// <summary>
+        /// Zmień bus stop do którego jedziemy na następny.
+        /// </summary>
         private void NextBusStop()
         {
             if (currentBusStop + 1 >= busStopsOrder.Count)
+            {
                 currentBusStop = 0;
+            }
             else
+            {
                 currentBusStop += 1;
+            }
 
             if (busStops[busStopsOrder[currentBusStop]].NumberOfPedestriansWaiting() == 0)
             {
@@ -703,7 +726,7 @@ namespace Testy_mapy
             */
             BusStop busStop = busStops[busStopsOrder[currentBusStop]];
 
-            list.Add(new Object(busOnTheBusStop.ToString(), busStop.GetStopAreaPosition(), busStop.stopAreaSize, busStop.stopAreaDirection));
+            list.Add(new Object(busOnTheBusStop.ToString(), busStop.GetStopAreaPosition(), gameplayParams.stopAreaSize, busStop.stopAreaDirection));
 
             return list;
         }
@@ -711,7 +734,6 @@ namespace Testy_mapy
         /// <summary>
         /// Get all stop areas for drawing.
         /// </summary>
-        /// <returns></returns>
         public List<Object> GetPedestriansToDraw()
         {
             List<Object> list = new List<Object>();
@@ -734,7 +756,7 @@ namespace Testy_mapy
 
             foreach (BusStop busStop in busStops)
             {
-                list.Add(new Object("", busStop.GetSignPosition(), busStop.signSize, busStop.signDirection));
+                list.Add(new Object("", busStop.GetSignPosition(), gameplayParams.signSize, busStop.signDirection));
             }
 
             return list;
@@ -800,6 +822,26 @@ namespace Testy_mapy
         public int NumberOfPedestriansInTheBus()
         {
             return peopleInTheBus;
+        }
+
+        public Vector2 GetPedestriansSize()
+        {
+            return gameplayParams.pedestrianSize;
+        }
+
+        public Vector2 GetWaitingAreaSize()
+        {
+            return gameplayParams.waitingAreaSize;
+        }
+
+        public Vector2 GetStopAreaSize()
+        {
+            return gameplayParams.stopAreaSize;
+        }
+
+        public Vector2 GetSignSize()
+        {
+            return gameplayParams.signSize;
         }
 
         /// <summary>
@@ -952,12 +994,12 @@ namespace Testy_mapy
                             if (getOffCounter < 0)
                             {
                                 // Wysadzamy ludzi.
-                                busStops[i].pedestriansWhoGotOff.Add(new BusStop.Pedestrian(busStops[i].waitingArea, busStops[i].waitingAreaSize, busStops[i].waitingAreaDirection, busLogic.GetBusPosition()));
+                                busStops[i].pedestriansWhoGotOff.Add(new BusStop.Pedestrian(busStops[i].waitingArea, gameplayParams.waitingAreaSize, busStops[i].waitingAreaDirection, busLogic.GetBusPosition()));
                                 peopleGettingOff -= 1;
                                 peopleInTheBus -= 1;
 
                                 // Zresetuj licznik.
-                                getOffCounter = getOffInterval;
+                                getOffCounter = gameplayParams.getOffInterval;
                             }
                         }
                         else
