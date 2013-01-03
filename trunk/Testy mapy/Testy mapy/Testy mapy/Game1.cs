@@ -145,7 +145,7 @@ namespace Testy_mapy
 
             // ³adowanie klas rysuj¹cych
             drawBus.LoadContent(this.Content, busLogic.GetSize(), busLogic.GetTailLightSize());
-            drawGameplay.LoadContent(this.Content, new Vector2(10, 10), new Vector2(10, 10), new Vector2(10, 10), new Vector2(10, 10), new Vector2(10, 10));
+            drawGameplay.LoadContent(this.Content, gameplayLogic.GetPedestriansSize(), gameplayLogic.GetStopAreaSize(), gameplayLogic.GetSignSize());
 
             drawTraffic.LoadContent(this.Content, trafficLogic.GetVehicleTypesSizes(), trafficLogic.GetIndicatorTextureSize(), trafficLogic.GetTailLightTextureSize());
 

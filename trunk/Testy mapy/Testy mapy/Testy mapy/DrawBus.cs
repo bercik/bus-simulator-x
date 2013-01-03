@@ -19,7 +19,6 @@ namespace Testy_mapy
 
         public DrawBus()
         {
-
         }
 
         public void LoadContent(ContentManager content, Vector2 busSize, Vector2 tailLightSize)
