@@ -163,17 +163,6 @@ namespace Testy_mapy
             return pos - (mapPos - screenSize / 2);
         }
 
-        /// <summary>
-        /// Oblicza przeskalowany prostokąt służący do wyświetlania
-        /// </summary>
-        /// <param name="pos">Oryginalna pozycja w jednostkach ekranowych</param>
-        /// <param name="size">Oryginalny rozmiar</param>
-        /// <returns></returns>
-        public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size)
-        {
-            return CalculateScaleRectangle(pos, size, scale);
-        }
-
         public static Vector2 CalculateScalePosition(Vector2 pos)
         {
             return CalculateScalePosition(pos, scale);
@@ -191,38 +180,6 @@ namespace Testy_mapy
             scalePos.Y = (float)(v_mapPos.Y + y);
 
             return scalePos;
-        }
-
-        public static Rectangle CalculateScaleRectangle(Vector2 pos, Vector2 size, float scale)
-        {
-            Rectangle rect = new Rectangle();
-
-            Vector2 v_mapPos = Helper.screenOrigin; // pozycja srodka mapy w wspolrzednych ekranowych (zawsze srodek)
-
-            double x = ((pos.X - v_mapPos.X) / scale);
-            rect.X = (int)Math.Ceiling(v_mapPos.X + x);
-            double y = ((pos.Y - v_mapPos.Y) / scale);
-            rect.Y = (int)Math.Ceiling(v_mapPos.Y + y);
-
-            rect.Width = (int)Math.Ceiling(size.X / scale);
-            rect.Height = (int)Math.Ceiling(size.Y / scale);
-
-            return rect;
-        }
-
-        public static Rectangle CalculateScaleRectangle(Object o, float scale)
-        {
-            return CalculateScaleRectangle(o.pos, o.size, scale);
-        }
-
-        /// <summary>
-        /// Oblicza przeskalowany prostokąt służący do wyświetlania
-        /// </summary>
-        /// <param name="o">obiekt, który chcemy przeskalować</param>
-        /// <returns></returns>
-        public static Rectangle CalculateScaleRectangle(Object o)
-        {
-            return CalculateScaleRectangle(o.pos, o.size);
         }
 
         /// <summary>

@@ -238,8 +238,8 @@ namespace Testy_mapy
 
             // strzalka:
             Object arrow = GetArrow(infoForHud.busPosition, infoForHud.busStopPosition);
-            Rectangle rect = Helper.CalculateScaleRectangle(arrow.pos, arrow.size);
-            spriteBatch.Draw(directionArrowTexture, rect, null, Color.White, arrow.rotate, directionArrowTextureOrigin, SpriteEffects.None, 1);
+            //Rectangle rect = Helper.CalculateScaleRectangle(arrow.pos, arrow.size);
+            //spriteBatch.Draw(directionArrowTexture, rect, null, Color.White, arrow.rotate, directionArrowTextureOrigin, SpriteEffects.None, 1);
 
             // punkty:
             if (showingPointMessage)
