@@ -29,6 +29,10 @@ namespace Testy_mapy
         Effect gradientEffect;
         EffectParameter gradientColor;
 
+        // zmienne pomocnicze dla napisu zmiany obszaru:
+        Texture2D areasChangeTexture;
+        Vector2 areasChangeTexturePosition;
+
         Dictionary<string, Texture2D> textures;
         Dictionary<string, Texture2D> grass;
         Dictionary<string, Texture2D> junctions;
@@ -165,7 +169,7 @@ namespace Testy_mapy
             spriteBatch.DrawString(mapPreviewFont, text, textPos, Color.OrangeRed, 0.0f, textOrigin, 1.0f, SpriteEffects.None, 1);
         }
 
-        public void DrawAreasChange(SpriteBatch spriteBatch, GameTime gameTime)
+        public void DrawAreasChangeInit(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, GameTime gameTime)
         {
             string text;
             Color color;
@@ -174,17 +178,50 @@ namespace Testy_mapy
 
             if (text != "")
             {
+                // zmiana parametru koloru dla efektu gradientu:
+                gradientColor.SetValue(color.ToVector4());
+
                 // ustalanie pozycji tekstu na ekranie (tak aby by³ na samym jego œrodku):
                 Vector2 textSize = areaChangeFont.MeasureString(text);
-                Vector2 position = new Vector2(Helper.screenOrigin.X - (textSize.X / 2), 0);
+                areasChangeTexturePosition = new Vector2(Helper.screenOrigin.X - (textSize.X / 2), 0);
+
+                // tworzenie obiektu i ustawianie obiektu renderowania:
+                RenderTarget2D areaChangeRenderTarget = new RenderTarget2D(graphicsDevice, (int)textSize.X, (int)textSize.Y);
+
+                graphicsDevice.SetRenderTarget(areaChangeRenderTarget); // ustawiamy obiekt renderowania
+
+                graphicsDevice.Clear(Color.Transparent);
+
+                // rysowanie napisu do tekstury:
+                spriteBatch.Begin(); // inicjujemy sprite batch
+
+                spriteBatch.DrawString(areaChangeFont, text, new Vector2(0, 0), Color.White);  // rysujemy napis
+
+                spriteBatch.End();  // zakañczamy sprite batch
+
+                graphicsDevice.SetRenderTarget(null); // ustawiamy obiekt renderowania z powrotem na domyœlny (ekran)
+
+                areasChangeTexture = areaChangeRenderTarget;
+            }
+            else
+            {
+                areasChangeTexture = null;
+            }
+        }
+
+        public void DrawAreasChange(SpriteBatch spriteBatch)
+        {
+            if (areasChangeTexture != null)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
 
                 // w³¹czanie efektu:
                 gradientEffect.CurrentTechnique = gradientEffect.Techniques["Gradient"];
                 gradientEffect.CurrentTechnique.Passes[0].Apply();
-                gradientColor.SetValue(color.ToVector4());
 
-                // wyœwietlanie napisu na ekranie
-                spriteBatch.DrawString(areaChangeFont, text, position, Color.White);
+                spriteBatch.Draw(areasChangeTexture, areasChangeTexturePosition, Color.White);
+
+                spriteBatch.End(); // zakañczamy sprite batch
             }
         }
 
