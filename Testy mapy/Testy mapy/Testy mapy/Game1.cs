@@ -379,6 +379,7 @@ namespace Testy_mapy
             {
                 // drawing minimap:
                 drawMap.DrawMinimap(spriteBatch, busLogic.GetCurrentDirection(), gameplayLogic.GetCurrentBusStopPosition());
+                drawMap.DrawAreasChangeInit(GraphicsDevice, spriteBatch, gameTime);
 
                 spriteBatch.Begin();
 
@@ -413,9 +414,7 @@ namespace Testy_mapy
 
                 // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
-                drawMap.DrawAreasChange(spriteBatch, gameTime);
-                spriteBatch.End();
+                drawMap.DrawAreasChange(spriteBatch);
                 spriteBatch.Begin();
 
                 DrawHud(spriteBatch, gameTime.ElapsedGameTime);

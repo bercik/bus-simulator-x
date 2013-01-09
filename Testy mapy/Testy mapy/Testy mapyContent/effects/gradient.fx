@@ -10,8 +10,12 @@ float4 PixelShaderFunction(float2 coords: TEXCOORD0) : COLOR0
 
 	color.a = gradientColor.a;
 
-	float halfStep = gradientColor.rgb * .2;
-	color.rgb = gradientColor.rgb - halfStep + (halfStep * 2 * coords.x);
+	float halfStep = gradientColor.rgb * .3;
+
+	if (coords.x < .5)
+		color.rgb = gradientColor.rgb - halfStep + (halfStep * coords.x * 2);
+	else
+		color.rgb = gradientColor.rgb - (halfStep * (coords.x - .5) * 2);
 
 	return color;
 }
