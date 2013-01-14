@@ -213,7 +213,7 @@ namespace Testy_mapy
         {
             if (areasChangeTexture != null)
             {
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied); // musimy zmieniæ tryb spriteBatch, ¿eby ekeft gradientu móg³ dzia³aæ
 
                 // w³¹czanie efektu:
                 gradientEffect.CurrentTechnique = gradientEffect.Techniques["Gradient"];
