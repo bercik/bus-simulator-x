@@ -20,6 +20,8 @@ namespace Testy_mapy
         SpriteBatch spriteBatch;
         SpriteFont font;
 
+        Effect lightEffect; // efekt œwiat³a
+
         HUD hud;
 
         DrawMap drawMap;
@@ -130,6 +132,9 @@ namespace Testy_mapy
         {
             // ³adowanie dŸwiêków
             Sound.LoadContent(this.Content);
+
+            // ³adujemy efekty:
+            lightEffect = Content.Load<Effect>("effects/light");
 
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
@@ -381,7 +386,11 @@ namespace Testy_mapy
                 drawMap.DrawMinimap(spriteBatch, busLogic.GetCurrentDirection(), gameplayLogic.GetCurrentBusStopPosition());
                 drawMap.DrawAreasChangeInit(GraphicsDevice, spriteBatch, gameTime);
 
-                spriteBatch.Begin();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend); // musimy zmieniæ tryb spriteBatch, ¿eby ekeft œwiat³a móg³ dzia³aæ
+
+                // turning on the light effect
+                lightEffect.CurrentTechnique = lightEffect.Techniques["Light"];
+                lightEffect.CurrentTechnique.Passes[0].Apply();
 
                 // track, objects under bus, pedestrians
                 drawMap.DrawTrack(spriteBatch, gameTime);

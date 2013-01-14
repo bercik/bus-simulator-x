@@ -582,6 +582,11 @@
       <Processor>FontDescriptionProcessor</Processor>
       <SubType>Designer</SubType>
     </Compile>
+    <Compile Include="effects\light.fx">
+      <Name>light</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
     <None Include="maps\order_test.ord">
       <Name>order_test</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
