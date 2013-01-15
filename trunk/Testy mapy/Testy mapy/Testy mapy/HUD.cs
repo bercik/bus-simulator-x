@@ -90,7 +90,7 @@ namespace Testy_mapy
 
         // arrow
         Texture2D directionArrowTexture;
-        Vector2 directionArrowTextureOrigin, directionArrowSize = new Vector2(100, 30);
+        Vector2 directionArrowTextureOrigin, directionArrowSize = new Vector2(100, 30), directionArrowTextureScale;
 
         // door state:
         Texture2D doorOpenTexture;
@@ -145,6 +145,7 @@ namespace Testy_mapy
 
             // strzalka kierunku
             directionArrowTexture = content.Load<Texture2D>("HUD/direction_arrow");
+            directionArrowTextureScale = new Vector2(directionArrowSize.X / directionArrowTexture.Width, directionArrowSize.Y / directionArrowTexture.Height);
 
             // door state:
             doorCloseTexture = content.Load<Texture2D>("HUD/door_close");
@@ -238,8 +239,8 @@ namespace Testy_mapy
 
             // strzalka:
             Object arrow = GetArrow(infoForHud.busPosition, infoForHud.busStopPosition);
-            //Rectangle rect = Helper.CalculateScaleRectangle(arrow.pos, arrow.size);
-            //spriteBatch.Draw(directionArrowTexture, rect, null, Color.White, arrow.rotate, directionArrowTextureOrigin, SpriteEffects.None, 1);
+            Vector2 position = Helper.CalculateScalePosition(arrow.pos);
+            spriteBatch.Draw(directionArrowTexture, position, null, Color.White, MathHelper.ToRadians(arrow.rotate), directionArrowTextureOrigin, Helper.GetVectorScale() * directionArrowTextureScale, SpriteEffects.None, 1);
 
             // punkty:
             if (showingPointMessage)
@@ -350,7 +351,7 @@ namespace Testy_mapy
             arrowPosition.X += (arrowDistance * (float)Math.Sin(MathHelper.ToRadians(arrowDirection)));
             arrowPosition.Y -= (arrowDistance * (float)Math.Cos(MathHelper.ToRadians(arrowDirection)));
 
-            Object arrow = new Object("", arrowPosition, directionArrowSize, MathHelper.ToRadians(arrowDirection));
+            Object arrow = new Object("", arrowPosition, directionArrowSize, arrowDirection);
             
             return arrow;
         }
