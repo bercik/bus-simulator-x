@@ -530,7 +530,7 @@ namespace Testy_mapy
                 return pedestriansWhoGotOff.Count();
             }
 
-            public int Update(bool GoToTheBus, BusLogic busLogic, float timeCoherenceMultiplier)
+            public int Update(bool GoToTheBus, BusLogic busLogic, DrawMap drawMap, float timeCoherenceMultiplier)
             {
                 int pedestriansWhoReachedTheBus = 0;
 
@@ -609,7 +609,15 @@ namespace Testy_mapy
                     // Jeśli pieszy stoi na pozycji wyjściowej symuluj losowe obroty.
                     if (pedestrian.Idle())
                     {
-                        pedestrian.HandleIdle(waitingAreaDirection, timeCoherenceMultiplier);
+                        // Jeśli uda się przekazać pieszego do DrawMap skasuj go lub nadal symuluj losowe ruchy.
+                        if (drawMap.AddPedestrian(pedestrian.skin.ToString(), pedestrian.position, pedestrian.direction))
+                        {
+                            pedestrian.Delete();
+                        }
+                        else
+                        {
+                            pedestrian.HandleIdle(waitingAreaDirection, timeCoherenceMultiplier);
+                        }
                     }
                 }
 
@@ -945,7 +953,7 @@ namespace Testy_mapy
             }
         }
 
-        public void Update(BusLogic busLogic, TimeSpan framesInterval)
+        public void Update(BusLogic busLogic, DrawMap drawMap, TimeSpan framesInterval)
         {
             float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000;
 
@@ -1014,7 +1022,7 @@ namespace Testy_mapy
                     }
 
                     // Funkcja aktualizująca zwraca ilość ludzi którzy zdołali dotrzeć do autubusu.
-                    peopleInTheBus += busStops[i].Update(goToTheBus, busLogic, timeCoherenceMultiplier);
+                    peopleInTheBus += busStops[i].Update(goToTheBus, busLogic, drawMap, timeCoherenceMultiplier);
 
                     // Przełączenie do następnego przystanku.
                     if (busStops[i].NumberOfPedestriansWaiting() == 0 && peopleGettingOff == 0)
@@ -1022,7 +1030,7 @@ namespace Testy_mapy
                 }
                 else
                 {
-                    busStops[i].Update(false, busLogic, timeCoherenceMultiplier);
+                    busStops[i].Update(false, busLogic, drawMap, timeCoherenceMultiplier);
                 }
 
                 // Usuwamy wszystkich pieszych którzy wcześniej zostali przeznaczeni do skasowania ze względu na osiągnięcie autobusu.

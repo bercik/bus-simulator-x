@@ -321,7 +321,7 @@ namespace Testy_mapy
                         hud.scale -= 0.01f;
 
                     trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
-                    gameplayLogic.Update(busLogic, gameTime.ElapsedGameTime);
+                    gameplayLogic.Update(busLogic, drawMap, gameTime.ElapsedGameTime);
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
                 }
             }
