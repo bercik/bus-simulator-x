@@ -27,6 +27,7 @@ namespace Testy_mapy
         public int numberOfPedestriansInTheBus; // liczba pieszych w autobusie
         public bool doorOpen; // czy drzwi sa otwarte
 
+        public string currentTime; // aktualny czas
     }
 
     class HUD
@@ -62,6 +63,7 @@ namespace Testy_mapy
         float gearFrameScale = 1.0f; // skala ramki dla biegow
         float rightGuiScale = 1.0f; // skala prawego GUI (wyświetlającego stan drzwi, pieszych, ich ilość i wiadomosc o punktach)
         float scoreFrameScale = 1.0f; // skala ramki dla wyniku
+        float timeFrameScale = 1.0f; // skala ramki czasu
         Size minimapSize = new Size(150, 150); // standartowy rozmiar minimapy
         Vector2 tipPosForSpeedometer = new Vector2(75, 75); // pierwotna pozycja wzgledna wskazowki na predkosciomierzu
         float pointMessageSpeed = 0.1f; // szybkosc przewijania tekstu wiadomosci o punktach
@@ -123,6 +125,11 @@ namespace Testy_mapy
         Texture2D scoreFrameTexture;
         Rectangle scoreFrameRect;
 
+        // czas:
+        SpriteFont timeFont;
+        Texture2D timeFrameTexture;
+        Rectangle timeFrameRect;
+
         public HUD()
         {
 
@@ -163,9 +170,13 @@ namespace Testy_mapy
             // punkty:
             pointMessageFont = content.Load<SpriteFont>("fonts/pointMessageFont");
 
-            // ramka dla wyniku:
+            // wynik:
             scoreFont = content.Load<SpriteFont>("fonts/scoreFont");
             scoreFrameTexture = content.Load<Texture2D>("HUD/score_frame");
+
+            // czas:
+            timeFont = content.Load<SpriteFont>("fonts/timeFont");
+            timeFrameTexture = content.Load<Texture2D>("HUD/time_frame");
 
             CalculateHUDPositionsAndSize();
         }
@@ -262,6 +273,12 @@ namespace Testy_mapy
             GetTextPosAndOrigin(totalScore, scoreFont, scoreFrameRect, out textPos, out textOrigin);
             spriteBatch.DrawString(scoreFont, totalScore, textPos, Color.White, 0, textOrigin,
                     scoreFrameScale * scale, SpriteEffects.None, 1.0f);
+
+            // czas:
+            spriteBatch.Draw(timeFrameTexture, timeFrameRect, Color.White);
+            GetTextPosAndOrigin(infoForHud.currentTime, timeFont, timeFrameRect, out textPos, out textOrigin);
+            spriteBatch.DrawString(timeFont, infoForHud.currentTime, textPos, Color.White, 0, textOrigin,
+                    timeFrameScale * scale, SpriteEffects.None, 1.0f);
         }
 
         // oblicza pozycję i rozmiar elementów HUDU w zależności od skali
@@ -340,6 +357,13 @@ namespace Testy_mapy
             actualPosY = 0; // j.w.
             point = new Point(actualPosX, actualPosY);
             scoreFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
+
+            // time:
+            size = new Size((int)(timeFrameTexture.Width * timeFrameScale * scale), (int)(timeFrameTexture.Height * timeFrameScale * scale));
+            actualPosX = 0; // ustalamy pozycje na lewy gorny rog
+            actualPosY = 0;
+            point = new Point(actualPosX, actualPosY);
+            timeFrameRect = new Rectangle(point.X, point.Y, size.Width, size.Height);
         }
 
         protected Object GetArrow(Vector2 busPosition, Vector2 busStopPosition)
@@ -386,9 +410,9 @@ namespace Testy_mapy
                 return gear.ToString();
         }
 
-        protected void GetTextPosAndOrigin(string gear, SpriteFont font, Rectangle rect, out Vector2 pos, out Vector2 origin)
+        protected void GetTextPosAndOrigin(string text, SpriteFont font, Rectangle rect, out Vector2 pos, out Vector2 origin)
         {
-            Vector2 gearSize = font.MeasureString(gear);
+            Vector2 gearSize = font.MeasureString(text);
 
             float x = rect.X + ((rect.Width / 2) - (gearSize.X / 2));
             float y = rect.Y + ((rect.Height / 2) - (gearSize.Y / 2));

@@ -587,6 +587,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="fonts\timeFont.spritefont">
+      <Name>timeFont</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
     <None Include="maps\order_test.ord">
       <Name>order_test</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -599,6 +604,13 @@
   <ItemGroup>
     <Compile Include="HUD\score_frame.png">
       <Name>score_frame</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HUD\time_frame.png">
+      <Name>time_frame</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

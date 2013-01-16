@@ -498,8 +498,11 @@ namespace Testy_mapy
         {
             List<TrafficLightRectangle> redLightForBusRectangles = new List<TrafficLightRectangle>();
 
-            redLightForBusRectangles.AddRange(pair1.getRedLightForBusRectangles());
-            redLightForBusRectangles.AddRange(pair2.getRedLightForBusRectangles());
+            if (pair1.trafficLightState == TrafficLightState.red)
+                redLightForBusRectangles.AddRange(pair1.getRedLightForBusRectangles());
+
+            if (pair2.trafficLightState == TrafficLightState.red)
+                redLightForBusRectangles.AddRange(pair2.getRedLightForBusRectangles());
 
             return redLightForBusRectangles;
         }
@@ -508,8 +511,13 @@ namespace Testy_mapy
         {
             List<Rectangle> redLightForCarsRectangles = new List<Rectangle>();
 
-            redLightForCarsRectangles.AddRange(pair1.getRedLightForCarsRectangles());
-            redLightForCarsRectangles.AddRange(pair2.getRedLightForCarsRectangles());
+            if (pair1.trafficLightState == TrafficLightState.red || pair1.trafficLightState == TrafficLightState.redYellow
+                    || pair1.trafficLightState == TrafficLightState.yellow)
+                redLightForCarsRectangles.AddRange(pair1.getRedLightForCarsRectangles());
+
+            if (pair2.trafficLightState == TrafficLightState.red || pair2.trafficLightState == TrafficLightState.redYellow
+                    || pair2.trafficLightState == TrafficLightState.yellow)
+                redLightForCarsRectangles.AddRange(pair2.getRedLightForCarsRectangles());
 
             return redLightForCarsRectangles;
         }
