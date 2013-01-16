@@ -415,6 +415,23 @@ namespace Testy_mapy
                 // zmienne pomocnicze rysowane na ekranie:
                 DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
 
+                /*punkty*/
+                List<Rectangle> trafficLightsForCars;
+                List<TrafficLightRectangle> trafficLightsForBus;
+
+                drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
+
+                foreach (Rectangle rect in trafficLightsForCars)
+                {
+                    MyRectangle myRect = Helper.ToMyRectangle(rect);
+
+                    DrawPoint(Helper.MapPosToScreenPos(myRect.point1));
+                    DrawPoint(Helper.MapPosToScreenPos(myRect.point2));
+                    DrawPoint(Helper.MapPosToScreenPos(myRect.point3));
+                    DrawPoint(Helper.MapPosToScreenPos(myRect.point4));
+                }
+                /*/punkty*/
+
                 DrawPoints(trafficLogic.GetPointsToDraw());
                 DrawPoints(busLogic.GetPointsToDraw());
                 DrawPoints(gameplayLogic.GetPointsToDraw());
