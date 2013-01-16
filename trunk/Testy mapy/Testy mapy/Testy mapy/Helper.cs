@@ -292,5 +292,20 @@ namespace Testy_mapy
 
             return direction;
         }
+
+        /// <summary>
+        /// Convert Rectangle to MyRectangle.
+        /// </summary>
+        public static MyRectangle ToMyRectangle(Rectangle rectangle)
+        {
+            Vector2[] array = new Vector2[4];
+
+            array[0] = new Vector2(rectangle.X, rectangle.Y);
+            array[1] = new Vector2(rectangle.X, rectangle.Y + rectangle.Height);
+            array[2] = new Vector2(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height);
+            array[3] = new Vector2(rectangle.X + rectangle.Width, rectangle.Y);
+
+            return new MyRectangle(array[0], array[1], array[2], array[3]);
+        }
     }
 }

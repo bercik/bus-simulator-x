@@ -859,13 +859,23 @@ namespace Testy_mapy
         /// <summary>
         /// Check if the road in front of the car is clear.
         /// </summary>
-        private bool IsRoadClear(Vehicle vehicle, BusLogic busLogic)
+        private bool IsRoadClear(Vehicle vehicle, BusLogic busLogic, DrawMap drawMap)
         {
             Vector2[] points = vehicle.GetDetectionPoints();
             foreach (Vector2 point in points)
             {
                 Vector2[] collisionPoints;
                 MyRectangle rectangle;
+                List<Rectangle> trafficLightsForCars;
+                List<TrafficLightRectangle> trafficLightsForBus;
+
+                drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
+
+                foreach (Rectangle trafficLightsRectangle in trafficLightsForCars)
+                {
+                    if (Helper.IsInside(point, Helper.ToMyRectangle(trafficLightsRectangle)))
+                        return false;
+                }
 
                 if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) // Jeśli autobus jest blisko, sprawdź go.
                 {
@@ -1124,7 +1134,7 @@ namespace Testy_mapy
                 {
                     MatchSpeeds(vehicle, busLogic); // ...dopasuj prędkość do pojazdów z przodu
 
-                    if (IsRoadClear(vehicle, busLogic)) // ...sprawdź czy ma się zatrzymać
+                    if (IsRoadClear(vehicle, busLogic, drawMap)) // ...sprawdź czy ma się zatrzymać
                         vehicle.Start(timeCoherenceMultiplier);
                     else
                         vehicle.Stop();
