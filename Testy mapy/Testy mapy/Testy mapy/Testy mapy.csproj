@@ -128,6 +128,7 @@
     <Compile Include="DrawGameplay.cs" />
     <Compile Include="DrawMap.cs" />
     <Compile Include="DrawTraffic.cs" />
+    <Compile Include="EnvironmentSimulation.cs" />
     <Compile Include="GameplayLogic.cs">
       <SubType>Code</SubType>
     </Compile>

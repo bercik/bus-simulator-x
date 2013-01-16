@@ -21,6 +21,7 @@ namespace Testy_mapy
         SpriteFont font;
 
         Effect lightEffect; // efekt œwiat³a
+        EffectParameter globalLightColor; // globalny kolor œwiat³a
 
         HUD hud;
 
@@ -33,6 +34,8 @@ namespace Testy_mapy
         CollisionsLogic collisionsLogic;
         GameplayLogic gameplayLogic;
         DrawGameplay drawGameplay;
+
+        EnvironmentSimulation environmentSimulation;
 
         bool left, right, brake, accelerate, up, down, prevup, prevdown, doors, prevdoors; // Zmienne s³u¿¹ce do sterowana autobusem.
         bool pause, p_release;
@@ -110,6 +113,7 @@ namespace Testy_mapy
             Helper.mapPos = startPos;
 
             hud = new HUD();
+            environmentSimulation = new EnvironmentSimulation(50, 23);
             
             drawMap = new DrawMap(graphics.GraphicsDevice);
             drawBus = new DrawBus();
@@ -135,6 +139,7 @@ namespace Testy_mapy
 
             // ³adujemy efekty:
             lightEffect = Content.Load<Effect>("effects/light");
+            globalLightColor = lightEffect.Parameters["globalLightColor"];
 
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
@@ -323,6 +328,8 @@ namespace Testy_mapy
                     trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
                     gameplayLogic.Update(busLogic, drawMap, gameTime.ElapsedGameTime);
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
+                    environmentSimulation.Update(gameTime.ElapsedGameTime);
+                    globalLightColor.SetValue(environmentSimulation.GetGlobalLightColor());
                 }
             }
             else
@@ -445,16 +452,15 @@ namespace Testy_mapy
 
                 DrawHud(spriteBatch, gameTime.ElapsedGameTime);
 
-                spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 0), Color.White);
-                spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 30), Color.White);
-                spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 90), Color.White);
-                spriteBatch.DrawString(font, "Acc: " + Math.Round(busLogic.GetCurrentAcceleration(), 2), new Vector2(0, 120), Color.White);
-                spriteBatch.DrawString(font, "Side acc: " + Math.Round(busLogic.GetSideAcceleration(), 2), new Vector2(0, 150), Color.White);
-                spriteBatch.DrawString(font, "Doors open: " + busLogic.DoorsAreOpen(), new Vector2(0, 180), Color.White);
-                spriteBatch.DrawString(font, "Pedestrians in the bus: " + gameplayLogic.NumberOfPedestriansInTheBus(), new Vector2(0, 210), Color.White);
+                spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 90), Color.White);
+                spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 120), Color.White);
+                spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 150), Color.White);
+                spriteBatch.DrawString(font, "Acc: " + Math.Round(busLogic.GetCurrentAcceleration(), 2), new Vector2(0, 180), Color.White);
+                spriteBatch.DrawString(font, "Side acc: " + Math.Round(busLogic.GetSideAcceleration(), 2), new Vector2(0, 210), Color.White);
 
-                spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 240), Color.White);
-                spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 270), Color.White);
+                spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 270), Color.White);
+                spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 300), Color.White);
+                spriteBatch.DrawString(font, "Global Light: " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
             }
 
             // licznik FPS
@@ -496,6 +502,8 @@ namespace Testy_mapy
             {
                 infoForHud.pedestrianState = PedestrianState.Nothing;
             }
+
+            infoForHud.currentTime = environmentSimulation.GetCurrentTime();
 
             hud.Draw(spriteBatch, GraphicsDevice, frameInterval, infoForHud, drawMap.GetMinimapTexture(), pause);
         }

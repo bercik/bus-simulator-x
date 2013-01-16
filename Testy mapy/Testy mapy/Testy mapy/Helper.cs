@@ -96,6 +96,9 @@ namespace Testy_mapy
 
         public const int numberOfCars = 12; // Number of cars/car skins.
 
+        // dla Environment Simulation:
+        public static readonly float timeBeetwenOneMinute = 0.05f; // czas w sekundach, w którym upływa jedna minuta w grze
+
         // dla MinimapLogic:
         public static readonly float minimapScale = 3.0f; // skala minimapy
     }

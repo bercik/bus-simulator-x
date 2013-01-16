@@ -1,13 +1,13 @@
 sampler s0;
 
+float4 globalLightColor;
+
 float4 PixelShaderFunction(float2 coords: TEXCOORD0) : COLOR0
 {
     // TODO: add your pixel shader code here.
 	float4 color = tex2D(s0, coords);
 
-	float4 light = float4(1, 1, 1, 1);
-
-    return (color * light);
+    return (color * globalLightColor);
 }
 
 technique Light

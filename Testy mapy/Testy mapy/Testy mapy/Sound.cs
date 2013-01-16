@@ -24,7 +24,7 @@ namespace Testy_mapy
         public static void PlayBackgroundSong()
         {
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(backgroundSong);
+            //MediaPlayer.Play(backgroundSong);
         }
     }
 }
