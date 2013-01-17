@@ -778,7 +778,7 @@ namespace Testy_mapy
         // Constructor. Tutaj zdefiniuj typy pojazdów.
         public TrafficLogic()
         {
-            VehicleType vehicleType1  = new VehicleType(new Vector2(50, 100), 0,  3000, new Vector2(0, 0), new Vector2(20, 0), new Vector2(0, 0));     // Czerwony.
+            VehicleType vehicleType1  = new VehicleType(new Vector2(50, 100), 0,  3, new Vector2(0, 0), new Vector2(20, 0), new Vector2(0, 0));     // Czerwony.
             VehicleType vehicleType2  = new VehicleType(new Vector2(40, 100), 1,  3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0));      // Niebieski.
             VehicleType vehicleType3  = new VehicleType(new Vector2(40, 100), 2,  3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0));     // Pickup.
             VehicleType vehicleType4  = new VehicleType(new Vector2(50, 100), 3,  1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(-10, -10)); // Srebrny.
