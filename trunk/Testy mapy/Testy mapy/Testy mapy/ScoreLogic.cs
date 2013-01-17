@@ -47,6 +47,8 @@ namespace Testy_mapy
             // DODAJ AKCJE TUTAJ:
             actions.Add("killed pedestrian", new Action(-100, "Zabicie pieszego"));
             actions.Add("click pause", new Action(50, "Klikniecie pauzy"));
+
+            // Przed tym komentarzem Robert, po nim Filip.
         }
 
         public static int GetAddedScore()
