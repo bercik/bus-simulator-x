@@ -34,6 +34,8 @@ namespace Testy_mapy
         CollisionsLogic collisionsLogic;
         GameplayLogic gameplayLogic;
         DrawGameplay drawGameplay;
+        ParticlesLogic particlesLogic;
+        DrawParticles drawParticles;
 
         EnvironmentSimulation environmentSimulation;
 
@@ -124,6 +126,8 @@ namespace Testy_mapy
             collisionsLogic = new CollisionsLogic();
             gameplayLogic = new GameplayLogic();
             drawGameplay = new DrawGameplay();
+            particlesLogic = new ParticlesLogic();
+            drawParticles = new DrawParticles();
 
             base.Initialize();
         }
@@ -158,6 +162,7 @@ namespace Testy_mapy
             drawGameplay.LoadContent(this.Content, gameplayLogic.GetPedestriansSize(), gameplayLogic.GetStopAreaSize(), gameplayLogic.GetSignSize());
 
             drawTraffic.LoadContent(this.Content, trafficLogic.GetVehicleTypesSizes(), trafficLogic.GetIndicatorTextureSize(), trafficLogic.GetTailLightTextureSize());
+            drawParticles.LoadContent(this.Content);
 
             drawMap.LoadContent(this.Content);
 
@@ -275,7 +280,7 @@ namespace Testy_mapy
                         /* </ZMIANY BIEGOW> */
 
                         // Logika autobusu.
-                        busLogic.Update(accelerate, brake, left, right, up, down, doors, gameTime.ElapsedGameTime);
+                        busLogic.Update(accelerate, brake, left, right, up, down, doors);
 
                         // Ustawienia mapy i klasy pomocniczej.
                         drawMap.SetPosition(busLogic.GetBusPosition());
@@ -334,6 +339,7 @@ namespace Testy_mapy
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
                     environmentSimulation.Update(gameTime.ElapsedGameTime);
                     globalLightColor.SetValue(environmentSimulation.GetGlobalLightColor());
+                    particlesLogic.Update(trafficLogic);
                 }
             }
             else
@@ -422,6 +428,9 @@ namespace Testy_mapy
 
                 // traffic lights
                 drawMap.DrawTrafficLights(spriteBatch, gameTime);
+
+                // Particles.
+                drawParticles.Draw(particlesLogic, spriteBatch);
 
                 // zmienne pomocnicze rysowane na ekranie:
                 DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));

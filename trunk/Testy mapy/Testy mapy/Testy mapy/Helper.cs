@@ -105,7 +105,7 @@ namespace Testy_mapy
 
     static class Helper
     {
-        public static float timeCoherenceMultiplier; // Ten współczynnik odpowiada za utrzymanie tej samej szybkości symulacji w razie spadku FPS - kiedy rośnie interwał pomiędzy klatkami rośnie także ten współczynnik przyspieszając niektóre obliczenia np. przesunięć.
+        public static float timeCoherenceMultiplier; // Ten współczynnik odpowiada za utrzymanie tej samej szybkości symulacji w razie spadku FPS - kiedy rośnie interwał pomiędzy klatkami rośnie także ten współczynnik przyspieszając niektóre obliczenia np. przesunięć. Tak naprawdę jest to po prostu czas jaki mija pomiędzy dwoma klatkami w sekundach.
 
         public static Vector2 screenSize { get; private set; } // wielkosc ekranu
         public static Vector2 screenOrigin { get; private set; } // srodek ekranu
