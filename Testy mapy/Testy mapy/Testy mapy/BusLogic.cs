@@ -358,13 +358,13 @@ namespace Testy_mapy
                 return acceleration;
             }
 
-            public float GetDirectionChange(float busSpeed, bool right, bool left, float timeCoherenceMultiplier)
+            public float GetDirectionChange(float busSpeed, bool right, bool left)
             {
                 if (right)
-                    sideAcc = sideAcc + GetAcceleration(busSpeed) * timeCoherenceMultiplier;
+                    sideAcc = sideAcc + GetAcceleration(busSpeed) * Helper.timeCoherenceMultiplier;
 
                 if (left)
-                    sideAcc = sideAcc - GetAcceleration(busSpeed) * timeCoherenceMultiplier;
+                    sideAcc = sideAcc - GetAcceleration(busSpeed) * Helper.timeCoherenceMultiplier;
 
                 float maximalSideAcc;
 
@@ -385,13 +385,13 @@ namespace Testy_mapy
                 {
                     if (sideAcc > 0)
                     {
-                        sideAcc = sideAcc - sideAccLoss * timeCoherenceMultiplier;
+                        sideAcc = sideAcc - sideAccLoss * Helper.timeCoherenceMultiplier;
                         if (sideAcc < 0)
                             sideAcc = 0;
                     }
                     else
                     {
-                        sideAcc = sideAcc + sideAccLoss * timeCoherenceMultiplier;
+                        sideAcc = sideAcc + sideAccLoss * Helper.timeCoherenceMultiplier;
                         if (sideAcc > 0)
                             sideAcc = 0;
                     }
@@ -453,11 +453,11 @@ namespace Testy_mapy
             position = oldPosition;
         }
 
-        private Vector2 CalculateNewPosition(float busSpeed, float busDirection, float timeCoherenceMultiplier)
+        private Vector2 CalculateNewPosition(float busSpeed, float busDirection)
         {
             Vector2 newPosition;
-            newPosition.X = position.X + (speedMultiplier * timeCoherenceMultiplier * busSpeed * (float)Math.Sin(DegToRad(busDirection)));
-            newPosition.Y = position.Y - (speedMultiplier * timeCoherenceMultiplier * busSpeed * (float)Math.Cos(DegToRad(busDirection)));
+            newPosition.X = position.X + (speedMultiplier * Helper.timeCoherenceMultiplier * busSpeed * (float)Math.Sin(DegToRad(busDirection)));
+            newPosition.Y = position.Y - (speedMultiplier * Helper.timeCoherenceMultiplier * busSpeed * (float)Math.Cos(DegToRad(busDirection)));
             return newPosition;
         }
 
@@ -470,10 +470,8 @@ namespace Testy_mapy
         /// <summary>
         /// Main logic.
         /// </summary>
-        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, bool triggerDoors, TimeSpan framesInterval)
+        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, bool triggerDoors)
         {
-            float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000;
-
             if (speed == 0)
             {
                 if (!doorsOpen && triggerDoors)
@@ -493,7 +491,7 @@ namespace Testy_mapy
 
                 if (accelerate)
                 {
-                    speed += gearBox.GetAcceleration(speed) * timeCoherenceMultiplier;
+                    speed += gearBox.GetAcceleration(speed) * Helper.timeCoherenceMultiplier;
                 }
 
                 if (brake)
@@ -501,14 +499,14 @@ namespace Testy_mapy
                     breaking = true;
                     if (speed > 0)
                     {
-                        speed -= brakeAcc * timeCoherenceMultiplier;
+                        speed -= brakeAcc * Helper.timeCoherenceMultiplier;
                         if (speed < 0)
                             speed = 0;
                     }
 
                     if (speed < 0)
                     {
-                        speed += brakeAcc * timeCoherenceMultiplier;
+                        speed += brakeAcc * Helper.timeCoherenceMultiplier;
                         if (speed > 0)
                             speed = 0;
                     }
@@ -520,14 +518,14 @@ namespace Testy_mapy
 
                 if (speed > 0)
                 {
-                    speed = speed - speedDecay * timeCoherenceMultiplier;
+                    speed = speed - speedDecay * Helper.timeCoherenceMultiplier;
                     if (speed < 0)
                         speed = 0;
                 }
 
                 if (speed < 0)
                 {
-                    speed = speed + speedDecay * timeCoherenceMultiplier;
+                    speed = speed + speedDecay * Helper.timeCoherenceMultiplier;
                     if (speed > 0)
                         speed = 0;
                 }
@@ -535,8 +533,8 @@ namespace Testy_mapy
                 oldDirection = direction;
                 oldPosition = position;
 
-                direction += wheel.GetDirectionChange(speed, right, left, timeCoherenceMultiplier);
-                position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
+                direction += wheel.GetDirectionChange(speed, right, left);
+                position = CalculateNewPosition(speed, direction);
             }
         }
 
