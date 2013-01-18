@@ -202,6 +202,10 @@ namespace Testy_mapy
                 this.Exit();
 
             // TODO: Add your update logic here
+
+            // Zaktualizuj helper. Przed t¹ akcj¹ nie powinno byæ ¿adnych innych update'ów.
+            Helper.Update(gameTime);
+
             // Obs³uga klawiatury.
             KeyboardState keybState = Keyboard.GetState();
 
