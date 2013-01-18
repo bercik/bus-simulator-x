@@ -105,6 +105,8 @@ namespace Testy_mapy
 
     static class Helper
     {
+        public static float timeCoherenceMultiplier; // Ten współczynnik odpowiada za utrzymanie tej samej szybkości symulacji w razie spadku FPS - kiedy rośnie interwał pomiędzy klatkami rośnie także ten współczynnik przyspieszając niektóre obliczenia np. przesunięć.
+
         public static Vector2 screenSize { get; private set; } // wielkosc ekranu
         public static Vector2 screenOrigin { get; private set; } // srodek ekranu
 
@@ -309,6 +311,11 @@ namespace Testy_mapy
             array[3] = new Vector2(rectangle.X + rectangle.Width, rectangle.Y);
 
             return new MyRectangle(array[0], array[1], array[2], array[3]);
+        }
+
+        public static void Update(GameTime gameTime)
+        {
+            timeCoherenceMultiplier = (float)gameTime.ElapsedGameTime.Milliseconds / 1000;
         }
     }
 }
