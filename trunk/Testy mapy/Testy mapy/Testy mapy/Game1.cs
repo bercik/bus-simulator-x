@@ -334,7 +334,7 @@ namespace Testy_mapy
                     if (keybState.IsKeyDown(Keys.OemMinus))
                         hud.scale -= 0.01f;
 
-                    trafficLogic.Update(drawMap, busLogic, gameTime.ElapsedGameTime);
+                    trafficLogic.Update(drawMap, busLogic);
                     gameplayLogic.Update(busLogic, drawMap, gameTime.ElapsedGameTime);
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
                     environmentSimulation.Update(gameTime.ElapsedGameTime);
@@ -430,7 +430,11 @@ namespace Testy_mapy
                 drawMap.DrawTrafficLights(spriteBatch, gameTime);
 
                 // Particles.
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
                 drawParticles.Draw(particlesLogic, spriteBatch);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                 // zmienne pomocnicze rysowane na ekranie:
                 DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));

@@ -411,20 +411,20 @@ namespace Testy_mapy
             /// <summary>
             /// Calculate the new position based on speed and direction.
             /// </summary>
-            private Vector2 CalculateNewPosition(float vehicleSpeed, float vehicleDirection, float timeCoherenceMultiplier)
+            private Vector2 CalculateNewPosition(float vehicleSpeed, float vehicleDirection)
             {
                 Vector2 newPosition;
-                newPosition.X = position.X + (speedMultiplier * timeCoherenceMultiplier * vehicleSpeed * (float)Math.Sin(MathHelper.ToRadians(vehicleDirection)));
-                newPosition.Y = position.Y - (speedMultiplier * timeCoherenceMultiplier * vehicleSpeed * (float)Math.Cos(MathHelper.ToRadians(vehicleDirection)));
+                newPosition.X = position.X + (speedMultiplier * Helper.timeCoherenceMultiplier * vehicleSpeed * (float)Math.Sin(MathHelper.ToRadians(vehicleDirection)));
+                newPosition.Y = position.Y - (speedMultiplier * Helper.timeCoherenceMultiplier * vehicleSpeed * (float)Math.Cos(MathHelper.ToRadians(vehicleDirection)));
                 return newPosition;
             } 
 
             /// <summary>
             /// Start driving.
             /// </summary>
-            public void Start(float timeCoherenceMultiplier)
+            public void Start()
             {
-                stopCounter += timeCoherenceMultiplier;
+                stopCounter += Helper.timeCoherenceMultiplier;
                 if (stopCounter > startAfter)
                     driving = true;
             } 
@@ -441,18 +441,18 @@ namespace Testy_mapy
             /// <summary>
             /// Used for accelerating.
             /// </summary>
-            private void Accelerate(float acceleration, float timeCoherenceMultiplier)
+            private void Accelerate(float acceleration)
             {
-                speed += acceleration * timeCoherenceMultiplier; // Przyspieszaj.
+                speed += acceleration * Helper.timeCoherenceMultiplier; // Przyspieszaj.
                 breaking = false;
             }
 
             /// <summary>
             /// Used for breaking.
             /// </summary>
-            private void Break(float acceleration, float timeCoherenceMultiplier)
+            private void Break(float acceleration)
             {
-                speed -= acceleration * timeCoherenceMultiplier; // Zwalniaj.
+                speed -= acceleration * Helper.timeCoherenceMultiplier; // Zwalniaj.
                 breaking = true;
             }
 
@@ -678,7 +678,7 @@ namespace Testy_mapy
                 }
             }
 
-            public void Update(DrawMap drawMap, float timeCoherenceMultiplier)
+            public void Update(DrawMap drawMap)
             {
                 if (maxSpeed == 0) // Jeśli maxSpeed nie został nadpisany przez funkcję wykrywającą czy należy zwolnić z powodu innego pojazdu.
                 {
@@ -694,20 +694,20 @@ namespace Testy_mapy
                 {
                     if (speed <= maxSpeed)
                     {
-                        Accelerate(lightAcceleration, timeCoherenceMultiplier);
+                        Accelerate(lightAcceleration);
                         if (speed > maxSpeed)
                             speed = maxSpeed;
                     }
                     else
                     {
-                        Break(lightAcceleration, timeCoherenceMultiplier);
+                        Break(lightAcceleration);
                         if (speed < 0)
                             speed = 0;
                     }
                 }
                 else
                 {
-                    Break(acceleration, timeCoherenceMultiplier);
+                    Break(acceleration);
                     if (speed < 0)
                         speed = 0;
                 }
@@ -737,7 +737,7 @@ namespace Testy_mapy
                     }
                     else
                     {
-                        position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
+                        position = CalculateNewPosition(speed, direction);
                     }
                 }
                 else
@@ -759,7 +759,7 @@ namespace Testy_mapy
                         }
 
                         direction = roadsSwitching.CalculateDirection(position, roadsSwitching.target);
-                        position = CalculateNewPosition(speed, direction, timeCoherenceMultiplier);
+                        position = CalculateNewPosition(speed, direction);
                     }
                 }
 
@@ -1132,11 +1132,9 @@ namespace Testy_mapy
         /// <summary>
         /// Main function.
         /// </summary>
-        public void Update(DrawMap drawMap, BusLogic busLogic, TimeSpan framesInterval)
+        public void Update(DrawMap drawMap, BusLogic busLogic)
         {
-            float timeCoherenceMultiplier = (float)framesInterval.Milliseconds / 1000; // Czas pomiędzy dwoma tickami służący do utrzymania spójności obliczeń. [s]
-
-            lastSpawn += timeCoherenceMultiplier; // Zwiększmy czas od ostatniego spawnu.
+            lastSpawn += Helper.timeCoherenceMultiplier; // Zwiększmy czas od ostatniego spawnu.
             CreateNewVehicles(drawMap); // Stwórzmy nowe pojazdy.
 
             vehicles.RemoveAll(delegate(Vehicle vehicle) // Usuńmy pojazdy będące za daleko.
@@ -1156,16 +1154,16 @@ namespace Testy_mapy
                     MatchSpeeds(vehicle, busLogic); // ...dopasuj prędkość do pojazdów z przodu
 
                     if (IsRoadClear(vehicle, busLogic, drawMap)) // ...sprawdź czy ma się zatrzymać
-                        vehicle.Start(timeCoherenceMultiplier);
+                        vehicle.Start();
                     else
                         vehicle.Stop();
 
                     if (!vehicle.accident) //jesli nie mial wypadku
-                        vehicle.Update(drawMap, timeCoherenceMultiplier); // ...zaktualizuj jego pozycję
+                        vehicle.Update(drawMap); // ...zaktualizuj jego pozycję
                 }
                 else
                 {
-                    vehicle.indicatorCounter += timeCoherenceMultiplier; // ...zajmij się migaczami.
+                    vehicle.indicatorCounter += Helper.timeCoherenceMultiplier; // ...zajmij się migaczami.
                     if (vehicle.indicatorCounter > indicatorBlinkInterval)
                     {
                         vehicle.indicatorBlink = !vehicle.indicatorBlink;

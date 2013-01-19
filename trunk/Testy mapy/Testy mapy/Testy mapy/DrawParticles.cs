@@ -14,9 +14,9 @@ namespace Testy_mapy
 {
     class DrawParticles
     {
-        Texture2D exhaustFumesTexture;
+        Texture2D exhaustFumesTexture, rainTexture;
 
-        Vector2 exhaustFumesTextureOrigin, exhaustFumesTextureScale;
+        Vector2 exhaustFumesTextureOrigin, exhaustFumesTextureScale, rainTextureOrigin, rainTextureScale;
 
         // Constructor.
         public DrawParticles()
@@ -30,6 +30,9 @@ namespace Testy_mapy
         {
             exhaustFumesTexture = content.Load<Texture2D>("particles/exhaust_fumes");
             exhaustFumesTextureOrigin = new Vector2(exhaustFumesTexture.Width / 2, exhaustFumesTexture.Height / 2);
+
+            rainTexture = content.Load<Texture2D>("particles/rain");
+            rainTextureOrigin = new Vector2(rainTexture.Width / 2, rainTexture.Height / 2);
         }
 
         /// <summary>
@@ -37,7 +40,8 @@ namespace Testy_mapy
         /// </summary>
         public void Draw(ParticlesLogic particlesLogic, SpriteBatch spriteBatch)
         {
-            List<Object> objectsList = particlesLogic.GetParticlesToDraw();
+            List<Object> objectsList = particlesLogic.GetParticlesToDraw();            
+
             foreach (Object particle in objectsList)
                 DrawParticle(spriteBatch, particle);
         }
@@ -47,11 +51,22 @@ namespace Testy_mapy
             Vector2 position = Helper.MapPosToScreenPos(particle.pos);
             position = Helper.CalculateScalePosition(position);
 
-            if (int.Parse(particle.name) == 0)
+            string[] split = particle.name.Split(new char[] { '$' });
+
+            float opacity = (float)System.Convert.ToDouble(split[1]);
+
+            if (int.Parse(split[0]) == 0)
             {
                 exhaustFumesTextureScale = new Vector2(particle.size.X / exhaustFumesTexture.Width, particle.size.Y / exhaustFumesTexture.Height);
 
-                spriteBatch.Draw(exhaustFumesTexture, position, null, Color.White, MathHelper.ToRadians(particle.rotate), exhaustFumesTextureOrigin, Helper.GetVectorScale() * exhaustFumesTextureScale, SpriteEffects.None, 1);
+                spriteBatch.Draw(exhaustFumesTexture, position, null, Color.White * opacity, MathHelper.ToRadians(particle.rotate), exhaustFumesTextureOrigin, Helper.GetVectorScale() * exhaustFumesTextureScale, SpriteEffects.None, 1);
+            }
+
+            if (int.Parse(split[0]) == 1)
+            {
+                rainTextureScale = new Vector2(particle.size.X / rainTexture.Width, particle.size.Y / rainTexture.Height);
+
+                spriteBatch.Draw(rainTexture, position, null, Color.White * opacity, MathHelper.ToRadians(particle.rotate), rainTextureOrigin, Helper.GetVectorScale() * rainTextureScale, SpriteEffects.None, 1);
             }
         }
     }
