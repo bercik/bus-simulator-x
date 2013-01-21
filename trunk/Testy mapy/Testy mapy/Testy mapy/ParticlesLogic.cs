@@ -252,8 +252,26 @@ namespace Testy_mapy
         float currentSpawnRainEvery = 0;
         float spawnRainEvery = (float)0.02;
         Vector2 rainSize = new Vector2(5, 40);       // Starting size.
-        float rainSpeed = 800;                         // Starting speed of the rain particle.
+        float rainSpeed = 800;                       // Starting speed of the rain particle.
         float rainDirection = 170;
+
+        bool rainEnabled = false; // Decyduje czy deszcz pada czy nie.
+
+        /// <summary>
+        /// Uruchom deszcz.
+        /// </summary>
+        public void EnableRain()
+        {
+            rainEnabled = true;
+        }
+
+        /// <summary>
+        /// Wyłącz deszcz.
+        /// </summary>
+        public void DisableRain()
+        {
+            rainEnabled = false;
+        }
 
         /// <summary>
         /// Constructor.
@@ -285,7 +303,7 @@ namespace Testy_mapy
             return (float)Helper.random.NextDouble() * (maximum - minimum) + minimum;
         }
 
-        public void Update(TrafficLogic trafficLogic)
+        public void Update(TrafficLogic trafficLogic, BusLogic busLogic)
         {
             // EXHAUST FUMES.
             // Increase last spawned counter.
@@ -296,6 +314,7 @@ namespace Testy_mapy
             {
                 // Get the information about the exhaust pipes.
                 List<Vector4> spawnPoints = trafficLogic.GetExhaustPipePositions();
+                spawnPoints.Add(busLogic.GetExhaustPipePosition());
 
                 // Spawn at each location.
                 foreach (Vector4 spawnPoint in spawnPoints)
@@ -312,7 +331,7 @@ namespace Testy_mapy
                         direction -= 360;
                     
                     // Spawn.
-                    exhaustFumes.Spawn(new Vector2(spawnPoint.X, spawnPoint.Y), direction, fumesSpeed/* - spawnPoint.W*/, fumeSize, (float)0.5, 0);  
+                    exhaustFumes.Spawn(new Vector2(spawnPoint.X, spawnPoint.Y), direction, fumesSpeed - spawnPoint.W /* Speed must be relative to the car. */, fumeSize, (float)0.5, 0);  
                 }
 
                 lastFumesSpawn = 0;
@@ -328,27 +347,25 @@ namespace Testy_mapy
                     return false;
             });
 
-            // RAIN.
-            bool raining = true;
-            
+            // RAIN.                   
             lastRainSpawn += Helper.timeCoherenceMultiplier;
 
-            if (raining)
+            if (rainEnabled)
             {
-                currentSpawnRainEvery -= 0.01f;
+                currentSpawnRainEvery -= 0.1f;
                 if (currentSpawnRainEvery < spawnRainEvery)
                     currentSpawnRainEvery = spawnRainEvery;
             }
             else
             {
-                currentSpawnRainEvery += 0.01f;
+                currentSpawnRainEvery += 0.1f;
                 if (currentSpawnRainEvery > 5)
                     currentSpawnRainEvery = 5;
             }
 
-            if (lastRainSpawn > spawnRainEvery && spawnRainEvery < 5)
+            if (lastRainSpawn > currentSpawnRainEvery && currentSpawnRainEvery < 5)
             {
-                Vector2 position = new Vector2(Helper.random.Next((int)(Helper.mapPos.X - Helper.screenSize.X), (int)(Helper.mapPos.X + Helper.screenSize.X)), Helper.mapPos.Y - (Helper.screenSize.Y / 2));
+                Vector2 position = new Vector2(Helper.random.Next((int)(Helper.mapPos.X - (Helper.workAreaSize.X / 2)), (int)(Helper.mapPos.X + (Helper.workAreaSize.X / 2))), Helper.mapPos.Y - (Helper.workAreaSize.Y / 2));
                 rain.Spawn(position, rainDirection, rainSpeed, rainSize, 0.5f, 1);
                 lastRainSpawn = 0;
             }
@@ -357,7 +374,7 @@ namespace Testy_mapy
 
             rain.particlesList.RemoveAll(delegate(ParticlesEnvironment.Particle particle) // Usuńmy cząsteczki, które są za daleko.
             {
-                if (particle.position.Y > Helper.mapPos.Y + (Helper.screenSize.Y / 2))
+                if (particle.position.Y > Helper.mapPos.Y + (Helper.workAreaSize.Y / 2))
                     return true;
                 else
                     return false;

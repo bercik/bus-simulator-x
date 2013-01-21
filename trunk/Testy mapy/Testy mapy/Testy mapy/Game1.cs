@@ -339,7 +339,7 @@ namespace Testy_mapy
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
                     environmentSimulation.Update(gameTime.ElapsedGameTime);
                     globalLightColor.SetValue(environmentSimulation.GetGlobalLightColor());
-                    particlesLogic.Update(trafficLogic);
+                    particlesLogic.Update(trafficLogic, busLogic);
                 }
             }
             else
@@ -431,7 +431,10 @@ namespace Testy_mapy
 
                 // Particles.
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                // turning on the light effect
+                lightEffect.CurrentTechnique = lightEffect.Techniques["Light"];
+                lightEffect.CurrentTechnique.Passes[0].Apply();
                 drawParticles.Draw(particlesLogic, spriteBatch);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);

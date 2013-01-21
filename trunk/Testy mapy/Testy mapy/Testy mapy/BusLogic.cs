@@ -26,6 +26,7 @@ namespace Testy_mapy
         private float speedDecay = (float)0.5;
         private Vector2 tailLightTextureSize = new Vector2(50, 50); //Rozmiar tekstury migacza.
         private Vector2 tailLightsOffset = new Vector2(-20, 0);
+        private Vector2 exhaustPipeOffset = new Vector2(-20, 0);
 
         private GearBox gearBox = new GearBox();
         private Wheel wheel = new Wheel();
@@ -173,6 +174,18 @@ namespace Testy_mapy
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// Return the points where the exhaust fumes should appear.
+        /// </summary>
+        /// <returns>X,Y,direction,speed</returns>
+        public Vector4 GetExhaustPipePosition()
+        {
+            Vector2[] pointsArray;
+
+            pointsArray = GetCollisionPoints(GetRealPosition(), GetCurrentDirection(), exhaustPipeOffset);
+            return new Vector4(pointsArray[2], GetCurrentDirection(), GetCurrentSpeed());
         }
 
         class GearBox // Gearbox is responsible for calculating accelerations of the bus...
