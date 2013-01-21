@@ -115,7 +115,7 @@ namespace Testy_mapy
             Helper.mapPos = startPos;
 
             hud = new HUD();
-            environmentSimulation = new EnvironmentSimulation(50, 23);
+            environmentSimulation = new EnvironmentSimulation(0, 16);
             
             drawMap = new DrawMap(graphics.GraphicsDevice);
             drawBus = new DrawBus();
@@ -337,7 +337,7 @@ namespace Testy_mapy
                     trafficLogic.Update(drawMap, busLogic);
                     gameplayLogic.Update(busLogic, drawMap, gameTime.ElapsedGameTime);
                     drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
-                    environmentSimulation.Update(gameTime.ElapsedGameTime);
+                    environmentSimulation.Update(gameTime.ElapsedGameTime, ref particlesLogic);
                     globalLightColor.SetValue(environmentSimulation.GetGlobalLightColor());
                     particlesLogic.Update(trafficLogic, busLogic);
                 }
@@ -480,7 +480,8 @@ namespace Testy_mapy
 
                 spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 270), Color.White);
                 spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 300), Color.White);
-                spriteBatch.DrawString(font, "Global Light: " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
+                spriteBatch.DrawString(font, "Global Light (red): " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
+                spriteBatch.DrawString(font, "Global Light (greenBlue): " + environmentSimulation.GetGlobalLightColor().Y.ToString(), new Vector2(0, 360), Color.White);
             }
 
             // licznik FPS

@@ -84,7 +84,7 @@ namespace Testy_mapy
         public static readonly float trafficDistanceToDeleteWhenAccident = 500;        // Samochody, które uległy wypadkowi będace dalej niż podany dystans zostaną usunięte.
 
         // dla TrafficLights:
-        public static readonly int redLightRectangleHeight = 100; // zakres wysokosci prostokata do wykrywania czerwonego swiatla
+        public static readonly int redLightRectangleHeight = 50; // zakres wysokosci prostokata do wykrywania czerwonego swiatla
         public static readonly int additionalWidthForBusRedLightRectangle = 50; // dodatkowy zakres szerokosci do wykrywania czerwonego swiatla dla autobusu
         public static readonly float lightDistanceFromStreet = 25.0f; // odległość światła od ulicy
         public static readonly int standartRedLightInterval = 10; // standartowy interwał trwania czerwonego światła
@@ -98,6 +98,10 @@ namespace Testy_mapy
 
         // dla Environment Simulation:
         public static readonly float timeBeetwenOneMinute = 0.05f; // czas w sekundach, w którym upływa jedna minuta w grze
+        public static readonly float sunsetProbability = 0.5f; // prawdopodobieństwo wystąpienia zachodu slonca (nigdy nie wystepuje gdy pada deszcz)
+        public static readonly float rainProbability = 0.3f; // prawdopodobieństwo wystąpienia deszczu
+        public static readonly int minWeatherChangeTime = 120; // minimalny czas pomiędzy zmianą pogody w minutach gry
+        public static readonly int maxWeatherChangeTime = 240; // maksymalny czas pomiędzy zmianą pogody w minutach gry
 
         // dla MinimapLogic:
         public static readonly float minimapScale = 3.0f; // skala minimapy

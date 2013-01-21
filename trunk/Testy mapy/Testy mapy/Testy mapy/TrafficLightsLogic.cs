@@ -248,7 +248,7 @@ namespace Testy_mapy
             position = Helper.ComputeRotation(new Vector2(x, y), new Vector2(0, 0), rotation);
 
             // obliczamy pozycje prostokata dla aut
-            width = (int)(GameParams.streetWidth / 2);
+            width = (int)(GameParams.streetWidth);
             height = GameParams.redLightRectangleHeight;
             x = -width / 2;
             y = -junctionOrigin.Y;
@@ -262,7 +262,7 @@ namespace Testy_mapy
             redLightForCarRectangle = new Rectangle((int)pos.X, (int)pos.Y, width, height);
 
             // obliczamy pozycje prostokata dla autobusu
-            width = (int)(GameParams.streetWidth + GameParams.additionalWidthForBusRedLightRectangle);
+            width = (int)((GameParams.streetWidth * 2) + GameParams.additionalWidthForBusRedLightRectangle);
             height = GameParams.redLightRectangleHeight;
             x = 0;
             y = -junctionOrigin.Y;
@@ -511,12 +511,10 @@ namespace Testy_mapy
         {
             List<Rectangle> redLightForCarsRectangles = new List<Rectangle>();
 
-            if (pair1.trafficLightState == TrafficLightState.red || pair1.trafficLightState == TrafficLightState.redYellow
-                    || pair1.trafficLightState == TrafficLightState.yellow)
+            if (pair1.trafficLightState == TrafficLightState.red || pair1.trafficLightState == TrafficLightState.yellow)
                 redLightForCarsRectangles.AddRange(pair1.getRedLightForCarsRectangles());
 
-            if (pair2.trafficLightState == TrafficLightState.red || pair2.trafficLightState == TrafficLightState.redYellow
-                    || pair2.trafficLightState == TrafficLightState.yellow)
+            if (pair2.trafficLightState == TrafficLightState.red || pair2.trafficLightState == TrafficLightState.yellow)
                 redLightForCarsRectangles.AddRange(pair2.getRedLightForCarsRectangles());
 
             return redLightForCarsRectangles;
