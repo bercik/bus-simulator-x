@@ -231,6 +231,8 @@ namespace Testy_mapy
         public readonly string name; // nazwa
         public readonly Location location; // polozenie (poziome, pionowe)
         public readonly float rotation; // rotacja
+        public readonly float min; // minimalny zakres poruszania się pieszych
+        public readonly float max; // maksymalny zakres poruszania się pieszych
 
         public Sidewalk(Vector2 pos, Vector2 size, Vector2 oneSidewalkSize, int id, Location location)
         {
@@ -242,6 +244,9 @@ namespace Testy_mapy
             this.name = "chodnik" + id.ToString();
             this.location = location;
             this.rotation = (int)location * 90;
+
+            this.min = (location == Location.horizontal) ? pos.X - origin.Y : pos.Y - origin.Y;
+            this.max = (location == Location.horizontal) ? pos.X + origin.Y : pos.Y + origin.Y;
         }
 
         public List<Object> GetSidewalksToShow()

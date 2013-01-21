@@ -126,6 +126,27 @@ namespace Testy_mapy
             rotate = destinationRotate;
         }
 
+        public Pedestrian(Vector2 pos, Vector2 size, int id, Location location, float min, float max, float startRotation)
+        {
+            this.collision = false; // na poczatek pieszy jest zywy :)
+            this.time = waitingTime; // dzieki temu od razu po utworzeniu pieszy porusza sie
+
+            this.name = "pedestrian" + id.ToString();
+            this.size = size;
+            this.origin = size / 2;
+
+            this.location = location;
+
+            pos_x = (location == Location.horizontal) ? pos.Y : pos.X;
+            pos_y = (location == Location.horizontal) ? pos.X : pos.Y;
+
+            this.min = min;
+            this.max = max;
+
+            rotate = startRotation;
+            RandomDestination();
+        }
+
         public void Update(TimeSpan framesInterval)
         {
             if (!collision)
@@ -406,18 +427,6 @@ namespace Testy_mapy
                 direction = (location == Location.horizontal) ? Direction.Left : Direction.Up;
             }
         }
-
-        private void RandomDirection()
-        {
-            if (rand.Next(1) == 0) // 0 - gora lub lewo, 1 - dol lub prawo
-            {
-                direction = (location == Location.horizontal) ? Direction.Left : Direction.Up;
-            }
-            else
-            {
-                direction = (location == Location.horizontal) ? Direction.Right : Direction.Down;
-            }
-        }
     }
 
     class PedestriansLogic
@@ -506,8 +515,25 @@ namespace Testy_mapy
             }
         }
 
-        public bool AddPedestrian(string id, Vector2 position, float rotation)
+        public bool AddPedestrian(int id, Vector2 position, float rotation)
         {
+            foreach (SidewalkPedestrian sidewalk in spawnSidewalks)
+            {
+                Vector2 leftUp, rightDown;
+
+                GetExtremePoints(out leftUp, out rightDown);
+
+                if (IsPointInWorkArea(position, leftUp, rightDown))
+                {
+                    Pedestrian pedestrian = new Pedestrian(position, pedestrianSize, id, sidewalk.sidewalk.location,
+                            sidewalk.sidewalk.min, sidewalk.sidewalk.max, rotation);
+
+                    sidewalk.AddPedestrian(pedestrian);
+
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -635,11 +661,6 @@ namespace Testy_mapy
 
             Sidewalk sidewalk = sidewalkPedestrian.sidewalk;
 
-            float min = (sidewalk.location == Location.horizontal) ? sidewalk.pos.X - sidewalk.origin.Y
-                    : sidewalk.pos.Y - sidewalk.origin.Y;
-            float max = (sidewalk.location == Location.horizontal) ? sidewalk.pos.X + sidewalk.origin.Y
-                    : sidewalk.pos.Y + sidewalk.origin.Y;
-
             int numberOfSidewalks = (int)(sidewalk.size.Y / oneSidewalkHeight); // ilosc "kawalkow" chodnika
             int numberOfDraws = numberOfSidewalks * frequences[sidewalk.id]; // liczba prób utworzenia pieszego
 
@@ -664,7 +685,7 @@ namespace Testy_mapy
                                 + sidewalk.pos.Y - sidewalk.origin.Y;
                     }
 
-                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, pedestrianSize, id, sidewalk.location, min, max));
+                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, pedestrianSize, id, sidewalk.location, sidewalk.min, sidewalk.max));
                 }
             }
         }

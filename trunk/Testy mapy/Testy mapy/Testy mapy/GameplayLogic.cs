@@ -610,7 +610,7 @@ namespace Testy_mapy
                     if (pedestrian.Idle())
                     {
                         // Jeśli uda się przekazać pieszego do DrawMap skasuj go lub nadal symuluj losowe ruchy.
-                        if (drawMap.AddPedestrian(pedestrian.skin.ToString(), pedestrian.position, pedestrian.direction))
+                        if (drawMap.AddPedestrian(pedestrian.skin, pedestrian.position, pedestrian.direction))
                         {
                             pedestrian.Delete();
                         }

@@ -88,7 +88,7 @@ namespace Testy_mapy
         /// <param name="position">Aktualna pozycja pieszego.</param>
         /// <param name="rotation">Aktualna rotacja pieszego.</param>
         /// <returns>True je¿eli uda³o siê dodaæ pieszego do chodnika. False je¿eli nie.</returns>
-        public bool AddPedestrian(string id, Vector2 position, float rotation)
+        public bool AddPedestrian(int id, Vector2 position, float rotation)
         {
             return pedestriansLogic.AddPedestrian(id, position, rotation);
         }
