@@ -1041,6 +1041,14 @@ namespace Testy_mapy
                     else
                         return false;
                 });
+
+                busStops[i].pedestriansWhoGotOff.RemoveAll(delegate(BusStop.Pedestrian pedestrian)
+                {
+                    if (pedestrian.delete)
+                        return true;
+                    else
+                        return false;
+                });
             }
         }
     }

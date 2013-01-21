@@ -49,6 +49,8 @@ namespace Testy_mapy
             actions.Add("click pause", new Action(50, "Klikniecie pauzy"));
 
             // Przed tym komentarzem Robert, po nim Filip.
+            actions.Add("pedestrian getting in", new Action(50, "Zabranie pieszego"));
+            actions.Add("pedestrian getting out", new Action(50, "Wysadzenie pieszego"));
         }
 
         public static int GetAddedScore()
