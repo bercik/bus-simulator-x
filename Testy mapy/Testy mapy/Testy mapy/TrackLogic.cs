@@ -234,7 +234,7 @@ namespace Testy_mapy
         public readonly float min; // minimalny zakres poruszania się pieszych
         public readonly float max; // maksymalny zakres poruszania się pieszych
 
-        public Sidewalk(Vector2 pos, Vector2 size, Vector2 oneSidewalkSize, int id, Location location)
+        public Sidewalk(Vector2 pos, Vector2 size, Vector2 oneSidewalkSize, int id, Location location, bool invert)
         {
             this.pos = pos;
             this.size = size;
@@ -244,6 +244,13 @@ namespace Testy_mapy
             this.name = "chodnik" + id.ToString();
             this.location = location;
             this.rotation = (int)location * 90;
+            if (invert)
+            {
+                this.rotation += 180;
+
+                if (this.rotation > 360)
+                    this.rotation -= 360;
+            }
 
             this.min = (location == Location.horizontal) ? pos.X - origin.Y : pos.Y - origin.Y;
             this.max = (location == Location.horizontal) ? pos.X + origin.Y : pos.Y + origin.Y;
@@ -412,8 +419,8 @@ namespace Testy_mapy
                 pos2 = new Vector2(connection.point1.X - differentPos, connection.point1.Y + size.Y / 2);
             }
 
-            sidewalks.Add(new Sidewalk(pos1, size, sidewalkSize, id, location));
-            sidewalks.Add(new Sidewalk(pos2, size, sidewalkSize, id, location));
+            sidewalks.Add(new Sidewalk(pos1, size, sidewalkSize, id, location, true));
+            sidewalks.Add(new Sidewalk(pos2, size, sidewalkSize, id, location, false));
         }
 
         // sprawdza czy dany punkt nalezy do skrzyzowania
