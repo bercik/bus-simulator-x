@@ -292,8 +292,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="pedestrians\died_pedestrian.png">
-      <Name>died_pedestrian</Name>
+    <Compile Include="pedestrians\died_pedestrian0.png">
+      <Name>died_pedestrian0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -625,6 +625,20 @@
   <ItemGroup>
     <Compile Include="particles\rain.png">
       <Name>rain</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="pedestrians\died_pedestrian1.png">
+      <Name>died_pedestrian1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="pedestrians\died_pedestrian2.png">
+      <Name>died_pedestrian2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

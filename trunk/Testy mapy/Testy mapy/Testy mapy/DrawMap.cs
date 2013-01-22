@@ -450,7 +450,9 @@ namespace Testy_mapy
 
             // ladowanie tekstur pieszych
             pedestrians = new Dictionary<string, Texture2D>();
-            pedestrians.Add("died_pedestrian", content.Load<Texture2D>("pedestrians/died_pedestrian"));
+            pedestrians.Add("died_pedestrian0", content.Load<Texture2D>("pedestrians/died_pedestrian0"));
+            pedestrians.Add("died_pedestrian1", content.Load<Texture2D>("pedestrians/died_pedestrian1"));
+            pedestrians.Add("died_pedestrian2", content.Load<Texture2D>("pedestrians/died_pedestrian2"));
             pedestrians.Add("pedestrian0", content.Load<Texture2D>("pedestrians/pedestrian0"));
             pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrians/pedestrian1"));
             pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrians/pedestrian2"));

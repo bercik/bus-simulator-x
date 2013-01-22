@@ -230,7 +230,7 @@ namespace Testy_mapy
 
                 if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
                 {
-                    name = "died_pedestrian";
+                    name = "died_pedestrian" + Helper.random.Next(3).ToString();
                     collision = true;
                     Score.AddAction("killed pedestrian", 1.0f);
                     return true;
