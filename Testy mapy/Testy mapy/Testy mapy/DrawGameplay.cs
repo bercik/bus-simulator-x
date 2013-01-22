@@ -49,7 +49,7 @@ namespace Testy_mapy
             signTextureScale = new Vector2(signSize.X / signTexture.Width, signSize.Y / signTexture.Height);
 
 
-            deadPedestrianTexture = content.Load<Texture2D>("pedestrians/died_pedestrian");
+            deadPedestrianTexture = content.Load<Texture2D>("pedestrians/died_pedestrian0");
             deadPedestrianTextureOrigin = new Vector2(deadPedestrianTexture.Width / 2, deadPedestrianTexture.Height / 2);
             deadPedestrianTextureScale = new Vector2(pedestrianSize.X / deadPedestrianTexture.Width, pedestrianSize.Y / deadPedestrianTexture.Height);
 
