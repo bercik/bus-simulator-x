@@ -861,6 +861,20 @@ namespace Testy_mapy
         }
     }
 
+    class LightObject : Object
+    {
+        public Color color { get; private set; } // kolor światła
+
+        public LightObject(string name, Vector2 pos, Vector2 size, float rotate, Color color)
+        {
+            this.name = name;
+            this.pos = pos;
+            this.rotate = rotate;
+            this.size = size;
+            this.color = color;
+        }
+    }
+
     class ObjectInformation
     {
         public readonly bool underBus; // czy dany typ obiektu jest pod autobusem

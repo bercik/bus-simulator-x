@@ -264,8 +264,8 @@ namespace Testy_mapy
             this.amountOfGrass = amountOfGrass;
             this.grassSize = grassSize;
             this.grassOrigin = grassSize / 2;
-            numberOfGrass.X = (int)((Helper.maxWorkAreaSize.X / (int)grassSize.X) + 3);
-            numberOfGrass.Y = (int)((Helper.maxWorkAreaSize.Y / (int)grassSize.Y) + 3);
+            numberOfGrass.X = (int)((Helper.maxWorkAreaSize.X / (int)grassSize.X) + 4);
+            numberOfGrass.Y = (int)((Helper.maxWorkAreaSize.Y / (int)grassSize.Y) + 4);
         }
     }
 }

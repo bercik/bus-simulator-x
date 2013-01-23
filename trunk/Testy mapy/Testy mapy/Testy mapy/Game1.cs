@@ -22,6 +22,9 @@ namespace Testy_mapy
 
         Effect lightEffect; // efekt œwiat³a
         EffectParameter globalLightColor; // globalny kolor œwiat³a
+        EffectParameter lightmapTexture; // tekstura lightmapy
+
+        RenderTarget2D scene;
 
         HUD hud;
 
@@ -36,6 +39,7 @@ namespace Testy_mapy
         DrawGameplay drawGameplay;
         ParticlesLogic particlesLogic;
         DrawParticles drawParticles;
+        DrawLightmap drawLightmap;
 
         EnvironmentSimulation environmentSimulation;
 
@@ -114,6 +118,8 @@ namespace Testy_mapy
             // inicjujemy klasê Helper
             Helper.mapPos = startPos;
 
+            scene = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
+
             hud = new HUD();
             environmentSimulation = new EnvironmentSimulation(0, 16);
             
@@ -128,6 +134,7 @@ namespace Testy_mapy
             drawGameplay = new DrawGameplay();
             particlesLogic = new ParticlesLogic();
             drawParticles = new DrawParticles();
+            drawLightmap = new DrawLightmap(GraphicsDevice);
 
             base.Initialize();
         }
@@ -144,6 +151,7 @@ namespace Testy_mapy
             // ³adujemy efekty:
             lightEffect = Content.Load<Effect>("effects/light");
             globalLightColor = lightEffect.Parameters["globalLightColor"];
+            lightmapTexture = lightEffect.Parameters["lightmap"];
 
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
@@ -165,6 +173,7 @@ namespace Testy_mapy
             drawParticles.LoadContent(this.Content);
 
             drawMap.LoadContent(this.Content);
+            drawLightmap.LoadContent(this.Content);
 
             font = Content.Load<SpriteFont>("fonts/font1");
             point = Content.Load<Texture2D>("help/point");
@@ -399,44 +408,27 @@ namespace Testy_mapy
             }
             else
             {
+                //drawing lightmap:
+                LightObject lo1 = new LightObject("light", new Vector2(350, 220), new Vector2(30, 30), 0.0f, Color.White);
+                drawLightmap.AddLightObject(lo1);
+                drawLightmap.Draw(spriteBatch);
+                lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
+
                 // drawing minimap:
                 drawMap.DrawMinimap(spriteBatch, busLogic.GetCurrentDirection(), gameplayLogic.GetCurrentBusStopPosition());
                 drawMap.DrawAreasChangeInit(GraphicsDevice, spriteBatch, gameTime);
 
+                DrawScene(spriteBatch, gameTime);
+
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend); // musimy zmieniæ tryb spriteBatch, ¿eby ekeft œwiat³a móg³ dzia³aæ
-
                 // turning on the light effect
                 lightEffect.CurrentTechnique = lightEffect.Techniques["Light"];
                 lightEffect.CurrentTechnique.Passes[0].Apply();
 
-                // track, objects under bus, pedestrians
-                drawMap.DrawTrack(spriteBatch, gameTime);
-                drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
-                drawMap.DrawPedestrians(spriteBatch, gameTime);
+                spriteBatch.Draw(scene, new Vector2(0, 0), Color.White);
 
-                // Gameplay.
-                drawGameplay.Draw(gameplayLogic, spriteBatch);
-
-                // Traffic.
-                drawTraffic.Draw(trafficLogic, spriteBatch);
-
-                // Bus.
-                drawBus.Draw(busLogic, spriteBatch);
-
-                // Something very nice and useful - most likely map object wchich are supposed to be above the bus.
-                drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
-
-                // traffic lights
-                drawMap.DrawTrafficLights(spriteBatch, gameTime);
-
-                // Particles.
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-                // turning on the light effect
-                lightEffect.CurrentTechnique = lightEffect.Techniques["Light"];
-                lightEffect.CurrentTechnique.Passes[0].Apply();
-                drawParticles.Draw(particlesLogic, spriteBatch);
-                spriteBatch.End();
+                
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                 // zmienne pomocnicze rysowane na ekranie:
@@ -498,6 +490,44 @@ namespace Testy_mapy
             }
 
             spriteBatch.End();
+        }
+
+        protected void DrawScene(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            GraphicsDevice.SetRenderTarget(scene); // ustawiamy obiekt renderowania
+
+            GraphicsDevice.Clear(Color.Transparent);
+
+            // rysowanie:
+            spriteBatch.Begin(); // inicjujemy sprite batch
+
+            // track, objects under bus, pedestrians
+            drawMap.DrawTrack(spriteBatch, gameTime);
+            drawMap.DrawObjectsUnderBus(spriteBatch, gameTime);
+            drawMap.DrawPedestrians(spriteBatch, gameTime);
+
+            // Gameplay.
+            drawGameplay.Draw(gameplayLogic, spriteBatch);
+
+            // Traffic.
+            drawTraffic.Draw(trafficLogic, spriteBatch);
+
+            // Bus.
+            drawBus.Draw(busLogic, spriteBatch);
+
+            // Something very nice and useful - most likely map object wchich are supposed to be above the bus.
+            drawMap.DrawObjectsOnBus(spriteBatch, gameTime);
+
+            // traffic lights
+            drawMap.DrawTrafficLights(spriteBatch, gameTime);
+
+            // Particles.
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            drawParticles.Draw(particlesLogic, spriteBatch);
+            spriteBatch.End();
+
+            GraphicsDevice.SetRenderTarget(null); // ustawiamy obiekt renderowania z powrotem na domyœlny (ekran)
         }
 
         protected void DrawHud(SpriteBatch spriteBatch, TimeSpan frameInterval)

@@ -126,6 +126,7 @@
     <Compile Include="CollisionsLogic.cs" />
     <Compile Include="DrawBus.cs" />
     <Compile Include="DrawGameplay.cs" />
+    <Compile Include="DrawLightmap.cs" />
     <Compile Include="DrawMap.cs" />
     <Compile Include="DrawParticles.cs" />
     <Compile Include="DrawTraffic.cs" />
