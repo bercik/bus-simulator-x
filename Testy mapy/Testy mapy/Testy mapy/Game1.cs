@@ -410,7 +410,11 @@ namespace Testy_mapy
             {
                 //drawing lightmap:
                 LightObject lo1 = new LightObject("light", new Vector2(350, 220), new Vector2(30, 30), 0.0f, Color.White);
+                LightObject spotlight1 = new LightObject("spotlight", new Vector2(440, 120), new Vector2(100, 100), 0.0f, Color.White);
+                LightObject spotlight2 = new LightObject("spotlight", new Vector2(460, 120), new Vector2(100, 100), 0.0f, Color.White);
                 drawLightmap.AddLightObject(lo1);
+                drawLightmap.AddLightObject(spotlight1);
+                drawLightmap.AddLightObject(spotlight2);
                 drawLightmap.Draw(spriteBatch);
                 lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
 
