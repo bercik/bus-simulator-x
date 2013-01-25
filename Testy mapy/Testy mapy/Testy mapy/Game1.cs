@@ -43,7 +43,7 @@ namespace Testy_mapy
 
         EnvironmentSimulation environmentSimulation;
 
-        bool left, right, brake, accelerate, up, down, prevup, prevdown, doors, prevdoors; // Zmienne s³u¿¹ce do sterowana autobusem.
+        bool left, right, brake, accelerate, up, down, prevup, prevdown, doors, prevdoors, lights, prevlights; // Zmienne s³u¿¹ce do sterowana autobusem.
         bool pause, p_release;
 
         // licznik FPS:
@@ -74,7 +74,7 @@ namespace Testy_mapy
             Vector2 newPos = Helper.CalculateScalePoint(pos);
             Rectangle rect = new Rectangle((int)Math.Round(newPos.X), (int)Math.Round(newPos.Y), 4, 4);
 
-            spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
+            //spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
         }
 
         public void DrawPoints(Vector2[] points)
@@ -259,8 +259,22 @@ namespace Testy_mapy
                             doors = false;
                         }
 
+
                         if (keybState.IsKeyUp(Keys.D))
                             prevdoors = false;
+
+                        if (keybState.IsKeyDown(Keys.L) && !prevlights)
+                        {
+                            lights = true;
+                            prevlights = true;
+                        }
+                        else
+                        {
+                            lights = false;
+                        }
+
+                        if (keybState.IsKeyUp(Keys.L))
+                            prevlights = false;
 
                         /* <ZMIANY BIEGOW>
                           To wszystko zapobiega zmienieniu biegu z ka¿dym tickiem, w koñcu chcemy ¿eby zosta³ zmieniony tylko przy wciœniêciu przycisku
@@ -289,7 +303,7 @@ namespace Testy_mapy
                         /* </ZMIANY BIEGOW> */
 
                         // Logika autobusu.
-                        busLogic.Update(accelerate, brake, left, right, up, down, doors);
+                        busLogic.Update(accelerate, brake, left, right, up, down, doors, lights);
 
                         // Ustawienia mapy i klasy pomocniczej.
                         drawMap.SetPosition(busLogic.GetBusPosition());
@@ -409,8 +423,13 @@ namespace Testy_mapy
             else
             {
                 //drawing lightmap:                
+                
                 // Œwiat³a samochodów.
                 drawTraffic.AddDynamicLights(trafficLogic, drawLightmap, environmentSimulation);
+
+                // Œwiat³a autobusu.
+                drawBus.AddDynamicLights(busLogic, drawLightmap);
+
                 drawLightmap.Draw(spriteBatch);
                 lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
 

@@ -193,13 +193,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="vehicles\vehicle_indicator.png">
-      <Name>vehicle_indicator</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="objects\barierka_duza.png">
       <Name>barierka_duza</Name>
       <Importer>TextureImporter</Importer>
@@ -294,13 +287,6 @@
   <ItemGroup>
     <Compile Include="pedestrians\died_pedestrian0.png">
       <Name>died_pedestrian0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="vehicles\vehicle_taillight.png">
-      <Name>vehicle_taillight</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

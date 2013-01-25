@@ -14,6 +14,7 @@ namespace Testy_mapy
         private Vector2 size;
 
         private bool doorsOpen = false; // Czy drzwi są otwarte.
+        private bool lightsActive = false; // Czy światła są zapalone?
 
         private bool breaking = false; // Used for displaying tail lights.
 
@@ -24,8 +25,19 @@ namespace Testy_mapy
         private float speedMultiplier = 4;
         private float brakeAcc = 20;
         private float speedDecay = (float)0.5;
-        private Vector2 tailLightTextureSize = new Vector2(50, 50); //Rozmiar tekstury migacza.
+
+        private Vector2 stopLightTextureSize = new Vector2(80, 80);
+        private Vector2 stopLightsOffset = new Vector2(-20, 0);
+        Color stopLightsColor = Color.Red;
+        
+        private Vector2 tailLightTextureSize = new Vector2(50, 50);
         private Vector2 tailLightsOffset = new Vector2(-20, 0);
+        Color tailLightsColor = Color.Red;
+        
+        private Vector2 headLightTextureSize = new Vector2(150, 350);
+        private Vector2 headLightsOffset = new Vector2(-20, 0);
+        Color headLightsColor = Color.LightYellow;
+
         private Vector2 exhaustPipeOffset = new Vector2(-20, 0);
 
         private GearBox gearBox = new GearBox();
@@ -141,11 +153,11 @@ namespace Testy_mapy
         }
 
         /// <summary>
-        /// Get tailight size.
+        /// Get stop light size.
         /// </summary>
-        public Vector2 GetTailLightSize()
+        public Vector2 GetStopLightSize()
         {
-            return tailLightTextureSize;
+            return stopLightTextureSize;
         }
 
         /// <summary>
@@ -157,24 +169,70 @@ namespace Testy_mapy
         }
 
         /// <summary>
-        /// Get the tail lights position if active or empty list if disabled.
+        /// Check if lights are turned on.
         /// </summary>
         /// <returns></returns>
-        public List<Object> GetTailLightsPoints()
+        public bool LightAreActive()
         {
-            List<Object> list = new List<Object>();
+            return lightsActive;
+        }
+
+        /// <summary>
+        /// Get the stop lights position if active or empty list if disabled.
+        /// </summary>
+        public List<LightObject> GetStopLightsPoints()
+        {
+            List<LightObject> list = new List<LightObject>();
             Vector2[] pointsArray;
 
             if (IsBreaking())
             {
-                pointsArray = GetCollisionPoints(position, direction, tailLightsOffset);
+                pointsArray = GetCollisionPoints(position, direction, stopLightsOffset);
 
-                list.Add(new Object("", pointsArray[2], tailLightTextureSize, 0));
-                list.Add(new Object("", pointsArray[3], tailLightTextureSize, 0));
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[2]), stopLightTextureSize, 0, stopLightsColor));
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[3]), stopLightTextureSize, 0, stopLightsColor));
             }
 
             return list;
         }
+
+        /// <summary>
+        /// Get the tail lights position if active or empty list if disabled.
+        /// </summary>
+        public List<LightObject> GetTailLightsPoints()
+        {
+            List<LightObject> list = new List<LightObject>();
+            Vector2[] pointsArray;
+
+            if (LightAreActive())
+            {
+                pointsArray = GetCollisionPoints(position, direction, tailLightsOffset);
+
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[2]), tailLightTextureSize, 0, tailLightsColor));
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[3]), tailLightTextureSize, 0, tailLightsColor));
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Get the head lights position if active or empty list if disabled.
+        /// </summary>
+        public List<LightObject> GetHeadLightsPoints()
+        {
+            List<LightObject> list = new List<LightObject>();
+            Vector2[] pointsArray;
+
+            if (LightAreActive())
+            {
+                pointsArray = GetCollisionPoints(position, direction, headLightsOffset);
+
+                list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[0]), headLightTextureSize, GetCurrentDirection(), headLightsColor));
+                list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[1]), headLightTextureSize, GetCurrentDirection(), headLightsColor));
+            }
+
+            return list;
+        }          
 
         /// <summary>
         /// Return the points where the exhaust fumes should appear.
@@ -483,15 +541,16 @@ namespace Testy_mapy
         /// <summary>
         /// Main logic.
         /// </summary>
-        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, bool triggerDoors)
+        public void Update(bool accelerate, bool brake, bool left, bool right, bool gearUp, bool gearDown, bool toggleDoors, bool toggleLights)
         {
             if (speed == 0)
             {
-                if (!doorsOpen && triggerDoors)
-                    doorsOpen = true;
-                else if (doorsOpen && triggerDoors)
-                    doorsOpen = false;
+                if (toggleDoors)
+                    doorsOpen = !doorsOpen;
             }
+
+            if (toggleLights)
+                lightsActive = !lightsActive;
 
             if (gearUp)
                 gearBox.GearUp();
