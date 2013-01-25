@@ -106,6 +106,10 @@ namespace Testy_mapy
 
         // dla MinimapLogic:
         public static readonly float minimapScale = 3.0f; // skala minimapy
+
+        // dla PedestriansLogic i GameplayLogic (size of pedestrians):
+        public static readonly Vector2 pedestrianSize = new Vector2(20, 20);
+        public static readonly Vector2 diedPedestrianSize = new Vector2(40, 40);
     }
 
     static class Helper
