@@ -12,19 +12,49 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Testy_mapy
 {
+    enum OriginType { Center, CenterDown }
+
+    class LightTexture
+    {
+        public LightTexture(Texture2D texture, OriginType originType)
+        {
+            this.texture = texture;
+            this.size = new Vector2(texture.Width, texture.Height);
+
+            switch (originType)
+            {
+                case OriginType.Center:
+                    origin = size / 2;
+                    break;
+                case OriginType.CenterDown:
+                    origin = new Vector2(size.X / 2, size.Y);
+                    break;
+            }
+        }
+
+        public Vector2 GetScale(Vector2 newSize)
+        {
+            return (newSize / this.size);
+        }
+
+        public Texture2D texture { get; private set; }
+        public Vector2 size { get; private set; }
+        public Vector2 origin { get; private set; }
+    }
+
     class DrawLightmap
     {
         RenderTarget2D lightmap;
         GraphicsDevice graphicsDevice;
 
-        Dictionary<string, Texture2D> lightTextures;
+        Dictionary<string, LightTexture> lightTextures;
 
         List<LightObject> lightObjects;
 
         public DrawLightmap(GraphicsDevice graphicsDevice)
         {
             lightObjects = new List<LightObject>();
-            lightTextures = new Dictionary<string, Texture2D>();
+            lightTextures = new Dictionary<string, LightTexture>();
 
             this.graphicsDevice = graphicsDevice;
 
@@ -33,8 +63,8 @@ namespace Testy_mapy
 
         public void LoadContent(ContentManager content)
         {
-            lightTextures.Add("light", content.Load<Texture2D>("light/light"));
-            lightTextures.Add("spotlight", content.Load<Texture2D>("light/spotlight"));
+            lightTextures.Add("light", new LightTexture(content.Load<Texture2D>("light/light"), OriginType.Center));
+            lightTextures.Add("spotlight", new LightTexture(content.Load<Texture2D>("light/spotlight"), OriginType.CenterDown));
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -48,8 +78,12 @@ namespace Testy_mapy
 
             foreach (LightObject lightObject in lightObjects)
             {
-                spriteBatch.Draw(lightTextures[lightObject.name], lightObject.pos, null, lightObject.color, lightObject.rotate,
-                        lightObject.original_origin, Helper.GetVectorScale(), SpriteEffects.None, 1.0f);
+                LightTexture lightTexture = lightTextures[lightObject.name];
+
+                Vector2 pos = Helper.CalculateScalePosition(lightObject.pos);
+
+                spriteBatch.Draw(lightTexture.texture, pos, null, lightObject.color, MathHelper.ToRadians(lightObject.rotate),
+                        lightTexture.origin, Helper.GetVectorScale() * lightTexture.GetScale(lightObject.size), SpriteEffects.None, 1.0f);
             }
 
             lightObjects.Clear();
