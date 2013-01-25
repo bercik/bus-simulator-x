@@ -861,8 +861,12 @@ namespace Testy_mapy
         }
     }
 
-    class LightObject : Object
+    class LightObject
     {
+        public string name { get; private set; }
+        public float rotate { get; private set; }
+        public Vector2 pos { get; private set; }
+        public Vector2 size { get; private set; }
         public Color color { get; private set; } // kolor światła
 
         public LightObject(string name, Vector2 pos, Vector2 size, float rotate, Color color)

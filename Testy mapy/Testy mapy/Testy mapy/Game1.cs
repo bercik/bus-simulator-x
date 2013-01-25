@@ -409,10 +409,12 @@ namespace Testy_mapy
             else
             {
                 //drawing lightmap:
-                LightObject lo1 = new LightObject("light", new Vector2(350, 220), new Vector2(30, 30), 0.0f, Color.White);
-                LightObject spotlight1 = new LightObject("spotlight", new Vector2(440, 120), new Vector2(100, 100), 0.0f, Color.White);
-                LightObject spotlight2 = new LightObject("spotlight", new Vector2(460, 120), new Vector2(100, 100), 0.0f, Color.White);
+                LightObject lo1 = new LightObject("light", Helper.screenOrigin + new Vector2(-20, 70), new Vector2(35, 35), 0.0f, Color.Red);
+                LightObject lo2 = new LightObject("light", Helper.screenOrigin + new Vector2(20, 70), new Vector2(35, 35), 0.0f, Color.Red);
+                LightObject spotlight1 = new LightObject("spotlight", Helper.screenOrigin + new Vector2(-20, -70), new Vector2(100, 250), busLogic.GetCurrentDirection(), Color.White);
+                LightObject spotlight2 = new LightObject("spotlight", Helper.screenOrigin + new Vector2(20, -70), new Vector2(100, 250), busLogic.GetCurrentDirection(), Color.White);
                 drawLightmap.AddLightObject(lo1);
+                drawLightmap.AddLightObject(lo2);
                 drawLightmap.AddLightObject(spotlight1);
                 drawLightmap.AddLightObject(spotlight2);
                 drawLightmap.Draw(spriteBatch);
