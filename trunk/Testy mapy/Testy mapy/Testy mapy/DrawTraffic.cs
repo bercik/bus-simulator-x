@@ -14,8 +14,6 @@ namespace Testy_mapy
 {
     class DrawTraffic
     {
-        Texture2D indicatorTexture, tailLightTexture;
-        Vector2 indicatorTextureOrigin, indicatorTextureScale, tailLightTextureOrigin, tailLightTextureScale;
         Texture2D[] vehicleTexture = new Texture2D[GameParams.numberOfCars];
         Vector2[] vehicleTextureOrigin = new Vector2[GameParams.numberOfCars];
         Vector2[] vehicleTextureScale = new Vector2[GameParams.numberOfCars];
@@ -28,7 +26,7 @@ namespace Testy_mapy
         /// <summary>
         /// Load sprites.
         /// </summary>
-        public void LoadContent(ContentManager content, Vector2[] vehicleSizes, Vector2 indicatorSize, Vector2 tailLightSize)
+        public void LoadContent(ContentManager content, Vector2[] vehicleSizes)
         {
             for (int i = 0; i < GameParams.numberOfCars; i++)
             {
@@ -36,14 +34,27 @@ namespace Testy_mapy
                 vehicleTextureOrigin[i] = new Vector2(vehicleTexture[i].Width / 2, vehicleTexture[i].Height / 2);
                 vehicleTextureScale[i] = new Vector2(vehicleSizes[i].X / vehicleTexture[i].Width, vehicleSizes[i].Y / vehicleTexture[i].Height);
             }
+        }
 
-            indicatorTexture = content.Load<Texture2D>("vehicles/vehicle_indicator");
-            indicatorTextureOrigin = new Vector2(indicatorTexture.Width / 2, indicatorTexture.Height / 2);
-            indicatorTextureScale = new Vector2(indicatorSize.X / indicatorTexture.Width, indicatorSize.Y / indicatorTexture.Height);
+        public void AddDynamicLights(TrafficLogic trafficLogic, DrawLightmap drawLightmap, EnvironmentSimulation environmentSimulation)
+        {
+            List<LightObject> list = new List<LightObject>();
 
-            tailLightTexture = content.Load<Texture2D>("vehicles/vehicle_taillight");
-            tailLightTextureOrigin = new Vector2(tailLightTexture.Width / 2, tailLightTexture.Height / 2);
-            tailLightTextureScale = new Vector2(tailLightSize.X / tailLightTexture.Width, tailLightSize.Y / tailLightTexture.Height);
+            list = trafficLogic.GetHeadLightsPoints(environmentSimulation);
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+
+            list = trafficLogic.GetTailLightsPoints(environmentSimulation);
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+
+            list = trafficLogic.GetStopLightsPoints();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+
+            list = trafficLogic.GetIndicatorPoints();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
         }
 
         /// <summary>
@@ -54,14 +65,6 @@ namespace Testy_mapy
             List<Object> vehiclesList = trafficLogic.GetAllVehicles();
             foreach (Object vehicle in vehiclesList)
                 DrawVehicle(spriteBatch, vehicle);
-
-            List<Object> indicatorsList = trafficLogic.GetIndicatorPoints();
-            foreach (Object indicator in indicatorsList)
-                DrawIndicator(spriteBatch, indicator);
-
-            List<Object> tailLightsList = trafficLogic.GetTailLightsPoints();
-            foreach (Object tailLight in tailLightsList)
-                DrawTailLight(spriteBatch, tailLight);
         }
 
         /// <summary>
@@ -73,28 +76,6 @@ namespace Testy_mapy
             position = Helper.CalculateScalePosition(position);
 
             spriteBatch.Draw(vehicleTexture[Int32.Parse(vehicle.name)], position, null, Color.White, MathHelper.ToRadians(vehicle.rotate), vehicleTextureOrigin[Int32.Parse(vehicle.name)], Helper.GetVectorScale() * vehicleTextureScale[Int32.Parse(vehicle.name)], SpriteEffects.None, 1);
-        }
-
-        /// <summary>
-        /// Draw indicator.
-        /// </summary>
-        public void DrawIndicator(SpriteBatch spriteBatch, Object indicator)
-        {
-            Vector2 position = Helper.MapPosToScreenPos(indicator.pos);
-            position = Helper.CalculateScalePosition(position);
-
-            spriteBatch.Draw(indicatorTexture, position, null, Color.White, MathHelper.ToRadians(indicator.rotate), indicatorTextureOrigin, Helper.GetVectorScale() * indicatorTextureScale, SpriteEffects.None, 1);
-        }
-
-        /// <summary>
-        /// Draw tail light.
-        /// </summary>
-        public void DrawTailLight(SpriteBatch spriteBatch, Object tailLight)
-        {
-            Vector2 position = Helper.MapPosToScreenPos(tailLight.pos);
-            position = Helper.CalculateScalePosition(position);
-
-            spriteBatch.Draw(tailLightTexture, position, null, Color.White, MathHelper.ToRadians(tailLight.rotate), tailLightTextureOrigin, Helper.GetVectorScale() * tailLightTextureScale, SpriteEffects.None, 1);
         }
     }
 }
