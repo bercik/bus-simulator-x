@@ -346,7 +346,8 @@ namespace Testy_mapy
                 public void Collision()
                 {
                     collision = true;
-                    skin = -1;
+
+                    skin = -Helper.random.Next(0, GameParams.numberOfDiedPedestriansTextures + 1);
                 }
 
                 /// <summary>

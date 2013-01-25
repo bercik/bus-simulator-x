@@ -99,12 +99,12 @@ namespace Testy_mapy
             {
                 foreach (GameplayLogic.BusStop.Pedestrian pedestrian in busStop.pedestrians)
                 {
-                    if (pedestrian.collisionActive)
+                    if (pedestrian.collisionActive && !pedestrian.collision)
                     {
                         Vector2[] pedestrianCollisionPoints = pedestrian.GetCollisionPoints();
                         MyRectangle pedestrianCollisionBox = PrepareRectangle(pedestrianCollisionPoints);
 
-                        // Sprawdź czy punkty kolizji subPojazdu są w collision boxie pojazdu
+                        // Sprawdź czy punkty kolizji subPojazdu są w collision boxie pieszego
                         foreach (Vector2 point in pedestrianCollisionPoints)
                         {
                             if (Helper.IsInside(point, busCollisionBox))
@@ -113,7 +113,7 @@ namespace Testy_mapy
                             }
                         }
 
-                        // Sprawdź czy punkty kolizji pojazdu są w collision boxie subPojazdu
+                        // Sprawdź czy punkty kolizji pieszego są w collision boxie subPojazdu
                         foreach (Vector2 point in busCollisionPoints)
                         {
                             if (Helper.IsInside(point, pedestrianCollisionBox))
