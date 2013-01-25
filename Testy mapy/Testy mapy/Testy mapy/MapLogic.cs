@@ -733,8 +733,20 @@ namespace Testy_mapy
         public MyRectangle[] collisionRectangles; // prostokaty kolziji
         public SpriteEffects spriteEffects; // efekty przy wyświetlaniu
         public Vector2 pos;
-        public Vector2 originalSize { get; private set; } // oryginalny rozmiar obiektu
-        public Vector2 origin { get; private set; }
+
+        private Vector2 v_originalSize; // oryginalny rozmiar obiektu
+        public Vector2 originalSize
+        {
+            get
+            {
+                return v_originalSize;
+            }
+            set
+            {
+                v_originalSize = value;
+                original_origin = v_originalSize / 2;
+            }
+        }
         public Vector2 original_origin { get; set; } // uzywac przy wyswietlaniu
                                                     // (oryginalny srodek dla standartowych rozmiarow tekstury)
 
@@ -751,6 +763,7 @@ namespace Testy_mapy
                 origin = v_size / 2;
             }
         }
+        public Vector2 origin { get; private set; }
 
         public Vector2 scale { get; private set; } // skala obiektu (wzgledem standartowego rozmiaru)
 

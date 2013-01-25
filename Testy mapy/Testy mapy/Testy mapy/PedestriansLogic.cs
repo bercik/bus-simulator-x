@@ -100,7 +100,7 @@ namespace Testy_mapy
         }
         public float rotate { get; private set; } // rotacja
         Vector2 origin; // srodek (polowa rozmiaru)
-        Vector2 size; // rozmiar
+        public Vector2 size { get; private set; } // rozmiar
 
         Location location; // polozenie (poziome lub pionowe)
         float min, max; // min i maks wspolrzedna (X lub Y zalezy od polozenia)
@@ -214,7 +214,7 @@ namespace Testy_mapy
             }
         }
 
-        public bool CheckCollision(Vector2[] busCollisionPoints, int amountOfDiedPedestrians)
+        public bool CheckCollision(Vector2[] busCollisionPoints)
         {
             if (!collision)
             {
@@ -230,7 +230,8 @@ namespace Testy_mapy
 
                 if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
                 {
-                    name = "died_pedestrian" + Helper.random.Next(amountOfDiedPedestrians).ToString();
+                    name = "died_pedestrian" + Helper.random.Next(GameParams.numberOfDiedPedestriansTextures).ToString();
+                    size = GameParams.diedPedestrianSize;
                     collision = true;
                     Score.AddAction("killed pedestrian", 1.0f);
                     return true;
@@ -433,23 +434,10 @@ namespace Testy_mapy
     {
         List<Sidewalk> sidewalks; // lista chodnikow
 
-        Vector2 v_pedestrianSize;
-        Vector2 pedestrianSize // rozmiar pieszego
-        {
-            set
-            {
-                v_pedestrianSize = value;
-                pedestrianOrigin = v_pedestrianSize / 2;
-            }
-            get
-            {
-                return v_pedestrianSize;
-            }
-        }
-        Vector2 pedestrianOrigin; // srodek pieszego
+        Vector2 pedestrianOrigin; // srodek tekstur pieszych
 
-        int amountOfPedestrians; // ilosc teksturek pieszych
-        int amountOfDiedPedestrians; // ilosc rozjechanych teksturek pieszych
+        Vector2 originalPedestrianSize; // oryginalny rozmiar teksturki pieszych
+        Vector2 originalDiedPedestrianSize; // oryginalny rozmiar teksturki rozjechanych pieszych
 
         List<SidewalkPedestrian> spawnSidewalks; // list chodnikow z utworzonymi pieszymi
 
@@ -466,6 +454,8 @@ namespace Testy_mapy
         {
             rand = new Random();
             spawnSidewalks = new List<SidewalkPedestrian>();
+
+            pedestrianOrigin = GameParams.pedestrianSize / 2;
         }
 
         public void SetSidewalks(List<Sidewalk> sidewalks)
@@ -473,11 +463,10 @@ namespace Testy_mapy
             this.sidewalks = sidewalks;
         }
 
-        public void SetProperties(Vector2 pedestrianSize, int amountOfPedestrians, int amountOfDiedPedestrians, float oneSidewalkHeight)
+        public void SetProperties(Vector2 originalPedestrianSize, Vector2 originalDiedPedestrianSize, float oneSidewalkHeight)
         {
-            this.pedestrianSize = pedestrianSize;
-            this.amountOfPedestrians = amountOfPedestrians;
-            this.amountOfDiedPedestrians = amountOfDiedPedestrians;
+            this.originalPedestrianSize = originalPedestrianSize;
+            this.originalDiedPedestrianSize = originalDiedPedestrianSize;
             this.oneSidewalkHeight = oneSidewalkHeight;
         }
 
@@ -508,7 +497,7 @@ namespace Testy_mapy
                 for (int i = 0; i < alivePedestrians.Count; ++i)
                 {
                     alivePedestrians[i].Update(framesInterval);
-                    if (alivePedestrians[i].CheckCollision(busCollisionPoints, amountOfDiedPedestrians))
+                    if (alivePedestrians[i].CheckCollision(busCollisionPoints))
                     {
                         sidewalkPedestrian.DiePedestrian(alivePedestrians[i]);
                         --i;
@@ -527,7 +516,7 @@ namespace Testy_mapy
 
                 if (IsPointInWorkArea(position, leftUp, rightDown))
                 {
-                    Pedestrian pedestrian = new Pedestrian(position, pedestrianSize, id, sidewalk.sidewalk.location,
+                    Pedestrian pedestrian = new Pedestrian(position, GameParams.pedestrianSize, id, sidewalk.sidewalk.location,
                             sidewalk.sidewalk.min, sidewalk.sidewalk.max, rotation);
 
                     sidewalk.AddPedestrian(pedestrian);
@@ -547,7 +536,16 @@ namespace Testy_mapy
             foreach (SidewalkPedestrian sp in spawnSidewalks)
             {
                 foreach (Pedestrian p in sp.GetAllPedestrians())
-                    pedestriansToShow.Add(new Object(p.name, Helper.MapPosToScreenPos(p.pos), pedestrianSize, p.rotate));
+                {
+                    Vector2 originalSize;
+
+                    if (p.name.StartsWith("died_pedestrian"))
+                        originalSize = originalDiedPedestrianSize;
+                    else
+                        originalSize = originalPedestrianSize;
+
+                    pedestriansToShow.Add(new Object(p.name, Helper.MapPosToScreenPos(p.pos), p.size, p.rotate, originalSize));
+                }
             }
 
             return pedestriansToShow;
@@ -670,7 +668,7 @@ namespace Testy_mapy
             {
                 if (rand.Next(4) == 1) // 25 % szans na utworzenie pieszego
                 {
-                    int id = rand.Next(0, amountOfPedestrians); // losowy typ pieszego
+                    int id = rand.Next(0, GameParams.numberOfPedestriansTextures); // losowy typ pieszego
 
                     if (sidewalk.location == Location.horizontal)
                     {
@@ -687,7 +685,7 @@ namespace Testy_mapy
                                 + sidewalk.pos.Y - sidewalk.origin.Y;
                     }
 
-                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, pedestrianSize, id, sidewalk.location, sidewalk.min, sidewalk.max));
+                    sidewalkPedestrian.AddPedestrian(new Pedestrian(pos, GameParams.pedestrianSize, id, sidewalk.location, sidewalk.min, sidewalk.max));
                 }
             }
         }
