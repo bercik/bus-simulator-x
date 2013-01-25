@@ -161,9 +161,10 @@ namespace Testy_mapy
             public Vector2 sizeOffset; // Pozwala modyfikować rozmiar, sprite'a.
 
             public Vector2 tailLightsOffset;  // Pozwala modyfikować przesunięcie świateł.
+            public Vector2 headLightsOffset;
             public Vector2 exhaustPipeOffset; // Pozwala modyfikować przesunięcie rury wydechowej.
 
-            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance, Vector2 moveSize, Vector2 sizeOffset, Vector2 tailLightsOffset, Vector2 exhaustPipeOffset) // Constructor.
+            public VehicleType(Vector2 size, int skin, int likelihoodOfApperance, Vector2 moveSize, Vector2 sizeOffset, Vector2 tailLightsOffset, Vector2 headLightsOffset, Vector2 exhaustPipeOffset) // Constructor.
             {
                 this.size = size;
                 this.skin = skin;
@@ -171,6 +172,7 @@ namespace Testy_mapy
                 this.moveSize = moveSize;
                 this.sizeOffset = sizeOffset;
                 this.tailLightsOffset = tailLightsOffset;
+                this.headLightsOffset = headLightsOffset;
                 this.exhaustPipeOffset = exhaustPipeOffset;
             }
 
@@ -195,6 +197,7 @@ namespace Testy_mapy
             public Vector2 sizeOffset;        // Pozwala modyfikować wielkość pojazdu, na podstawie której są obliczne collision points.
 
             public Vector2 tailLightsOffset;  // Pozwala modyfikować przesunięcie świateł.
+            public Vector2 headLightsOffset;
             public Vector2 exhaustPipeOffset; // Pozwala modyfikować przesunięcie rury wydechowej.
 
             private float detectionPointsDistance = 60; // Odległość detection points od przodu samochodu.
@@ -223,7 +226,7 @@ namespace Testy_mapy
             private float stopCounter = 0; // Licznik odpowiedzialny za długość postoju w razie zatrzymania się w celu uniknięcia kolizji.
             private float startAfter = 3;  // Po ilu sekundach od zatrzymania ma wystartować.
 
-            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset, Vector2 junctionCenter, Vector2 additionalOutpoint, Vector2 tailLightsOffset, Vector2 exhaustPipeOffset) // Constructor.
+            public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset, Vector2 junctionCenter, Vector2 additionalOutpoint, Vector2 tailLightsOffset, Vector2 headLightsOffset, Vector2 exhaustPipeOffset) // Constructor.
             {
                 this.road = new Road(start, destination, junctionCenter);
                 this.position = road.lane.start;
@@ -234,6 +237,7 @@ namespace Testy_mapy
                 this.sizeOffset = sizeOffset;
                 this.lastEnd = additionalOutpoint;
                 this.tailLightsOffset = tailLightsOffset;
+                this.headLightsOffset = headLightsOffset;
                 this.exhaustPipeOffset = exhaustPipeOffset;
             }
 
@@ -320,8 +324,8 @@ namespace Testy_mapy
                 // Oblicz punkt p1.
                 p1.X = p2.X - (((size.X + widthOffset) * (float)Math.Cos(MathHelper.ToRadians(detectionAngle))) / 2);
                 p1.Y = p2.Y - (((size.X + widthOffset) * (float)Math.Sin(MathHelper.ToRadians(detectionAngle))) / 2);
-                
-                
+
+
                 // Oblicz punkt p3.
                 p3.X = p2.X + (((size.X + widthOffset) * (float)Math.Cos(MathHelper.ToRadians(detectionAngle))) / 2);
                 p3.Y = p2.Y + (((size.X + widthOffset) * (float)Math.Sin(MathHelper.ToRadians(detectionAngle))) / 2);
@@ -417,7 +421,7 @@ namespace Testy_mapy
                 newPosition.X = position.X + (speedMultiplier * Helper.timeCoherenceMultiplier * vehicleSpeed * (float)Math.Sin(MathHelper.ToRadians(vehicleDirection)));
                 newPosition.Y = position.Y - (speedMultiplier * Helper.timeCoherenceMultiplier * vehicleSpeed * (float)Math.Cos(MathHelper.ToRadians(vehicleDirection)));
                 return newPosition;
-            } 
+            }
 
             /// <summary>
             /// Start driving.
@@ -427,7 +431,7 @@ namespace Testy_mapy
                 stopCounter += Helper.timeCoherenceMultiplier;
                 if (stopCounter > startAfter)
                     driving = true;
-            } 
+            }
 
             /// <summary>
             /// Stop driving.
@@ -606,11 +610,11 @@ namespace Testy_mapy
                     point = GenerateBezierCurve(bezierParameterT);
                     lastDistance = Helper.CalculateDistance(from, point);
 
-                    while(true)
+                    while (true)
                     {
                         bezierParameterT += bezierTInc;
                         point = GenerateBezierCurve(bezierParameterT);
-                        
+
                         float currentDistance = Helper.CalculateDistance(from, point);
 
                         if (currentDistance > lastDistance)
@@ -630,10 +634,10 @@ namespace Testy_mapy
                 {
                     Vector2 point;
                     bezierParameterT = (float)Math.Round(bezierParameterT, 5);
-                    
+
                     point.X = (float)((1 - bezierParameterT) * (1 - bezierParameterT) * start.X + 2 * (1 - bezierParameterT) * bezierParameterT * controlPoint.X + bezierParameterT * bezierParameterT * end.X);
                     point.Y = (float)((1 - bezierParameterT) * (1 - bezierParameterT) * start.Y + 2 * (1 - bezierParameterT) * bezierParameterT * controlPoint.Y + bezierParameterT * bezierParameterT * end.Y);
-                 
+
                     return point;
                 }
 
@@ -752,7 +756,7 @@ namespace Testy_mapy
                     {
                         Vector2 newPoint = new Vector2(0, 0);
 
-                        while (roadsSwitching.Reached(position, roadsSwitching.target)) 
+                        while (roadsSwitching.Reached(position, roadsSwitching.target))
                         {                                              // Jeśli dojechaliśmy do punktu wygenerowanego poprzednio
                             newPoint = roadsSwitching.GetNewPoint();   // szukaj takiego nowego do którego jeszcze nie dojechalismy.
                             roadsSwitching.target = newPoint;
@@ -769,7 +773,9 @@ namespace Testy_mapy
 
         private float minVehicleSpawnDistance = 100; // Minimalna odleglość od innego samochodu aby zespanowac.
         private Vector2 indicatorTextureSize = new Vector2(50, 50); // Rozmiar tekstury migacza.
-        private Vector2 tailLightTextureSize = new Vector2(50, 50); // Rozmiar tekstury tylnych świateł.
+        private Vector2 stopLightTextureSize = new Vector2(80, 80); // Rozmiar tekstury tylnych świateł stopu.
+        private Vector2 tailLightTextureSize = new Vector2(50, 50); // Rozmiar tekstury tylnych świateł stopu.
+        private Vector2 headLightTextureSize = new Vector2(100, 250); // Rozmiar tekstury tylnych świateł stopu.
         float indicatorBlinkInterval = 1; // Jak czesto mają migać migacze.
 
         public List<Vehicle> vehicles = new List<Vehicle>();
@@ -782,18 +788,18 @@ namespace Testy_mapy
         // Constructor. Tutaj zdefiniuj typy pojazdów.
         public TrafficLogic()
         {
-            VehicleType vehicleType1  = new VehicleType(new Vector2(50, 100), 0,  3, new Vector2(0, 0), new Vector2(20, 0), new Vector2(0, 0), new Vector2(-10, 0));    // Czerwony.
-            VehicleType vehicleType2  = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, 0));      // Niebieski.
-            VehicleType vehicleType3  = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0), new Vector2(-10, 0));     // Pickup.
-            VehicleType vehicleType4  = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(-10, -10), new Vector2(-10, 0)); // Srebrny.
-            VehicleType vehicleType5  = new VehicleType(new Vector2(40, 100), 4, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Taxi.
-            VehicleType vehicleType6  = new VehicleType(new Vector2(45, 100), 5, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Metalicznyniebieski.
-            VehicleType vehicleType7  = new VehicleType(new Vector2(45, 100), 6, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Srebrnopomarańczowy.
-            VehicleType vehicleType8  = new VehicleType(new Vector2(45, 100), 7, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Złoty ze spoilerem.
-            VehicleType vehicleType9  = new VehicleType(new Vector2(45, 100), 8, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Ferrari.
-            VehicleType vehicleType10 = new VehicleType(new Vector2(45, 100), 9, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Ferrari z pokrywą silnika.
-            VehicleType vehicleType11 = new VehicleType(new Vector2(45, 100), 10, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0)); // Mustang.
-            VehicleType vehicleType12 = new VehicleType(new Vector2(45, 100), 11, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0)); // Mustang + stripes.
+            VehicleType vehicleType1 = new VehicleType(new Vector2(50, 100), 0, 3, new Vector2(0, 0), new Vector2(20, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, 0));    // Czerwony.
+            VehicleType vehicleType2 = new VehicleType(new Vector2(40, 100), 1, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, 0));      // Niebieski.
+            VehicleType vehicleType3 = new VehicleType(new Vector2(40, 100), 2, 3, new Vector2(0, 0), new Vector2(10, 5), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, 0));     // Pickup.
+            VehicleType vehicleType4 = new VehicleType(new Vector2(50, 100), 3, 1, new Vector2(0, 0), new Vector2(5, 10), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0)); // Srebrny.
+            VehicleType vehicleType5 = new VehicleType(new Vector2(40, 100), 4, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Taxi.
+            VehicleType vehicleType6 = new VehicleType(new Vector2(45, 100), 5, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Metalicznyniebieski.
+            VehicleType vehicleType7 = new VehicleType(new Vector2(45, 100), 6, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Srebrnopomarańczowy.
+            VehicleType vehicleType8 = new VehicleType(new Vector2(45, 100), 7, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Złoty ze spoilerem.
+            VehicleType vehicleType9 = new VehicleType(new Vector2(45, 100), 8, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Ferrari.
+            VehicleType vehicleType10 = new VehicleType(new Vector2(45, 100), 9, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0));  // Ferrari z pokrywą silnika.
+            VehicleType vehicleType11 = new VehicleType(new Vector2(45, 100), 10, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0)); // Mustang.
+            VehicleType vehicleType12 = new VehicleType(new Vector2(45, 100), 11, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -10), new Vector2(-10, 0)); // Mustang + stripes.
 
             vehicleTypes = new VehicleType[12] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12 };
 
@@ -813,9 +819,9 @@ namespace Testy_mapy
         /// Get the size of te taillight texture.
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetTailLightTextureSize()
+        public Vector2 GetStopLightTextureSize()
         {
-            return tailLightTextureSize;
+            return stopLightTextureSize;
         }
 
         /// <summary>
@@ -1014,14 +1020,14 @@ namespace Testy_mapy
         /// </summary>
         /// <returns>X,Y,direction,speed</returns>
         public List<Vector4> GetExhaustPipePositions()
-        {           
+        {
             List<Vector4> list = new List<Vector4>();
             Vector2[] pointsArray;
 
             foreach (Vehicle vehicle in vehicles)
             {
-                    pointsArray = vehicle.GetCollisionPoints(vehicle.exhaustPipeOffset);
-                    list.Add(new Vector4(pointsArray[2], vehicle.GetVehicleDirection(), vehicle.GetVehicleSpeed()));
+                pointsArray = vehicle.GetCollisionPoints(vehicle.exhaustPipeOffset);
+                list.Add(new Vector4(pointsArray[2], vehicle.GetVehicleDirection(), vehicle.GetVehicleSpeed()));
             }
             return list;
         }
@@ -1029,9 +1035,9 @@ namespace Testy_mapy
         /// <summary>
         /// Get the positions of all active indicators.
         /// </summary>
-        public List<Object> GetIndicatorPoints()
+        public List<LightObject> GetIndicatorPoints()
         {
-            List<Object> list = new List<Object>();
+            List<LightObject> list = new List<LightObject>();
             Vector2[] pointsArray;
 
             foreach (Vehicle vehicle in vehicles)
@@ -1040,7 +1046,29 @@ namespace Testy_mapy
                 {
                     pointsArray = vehicle.GetCollisionPoints(vehicle.tailLightsOffset);
                     foreach (Vector2 point in pointsArray)
-                        list.Add(new Object("", point, indicatorTextureSize, 0));
+                        list.Add(new LightObject("light", Helper.MapPosToScreenPos(point), indicatorTextureSize, 0, Color.Yellow));
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Get the positions of all active stop lights.
+        /// </summary>
+        public List<LightObject> GetStopLightsPoints()
+        {
+            List<LightObject> list = new List<LightObject>();
+            Vector2[] pointsArray;
+
+            foreach (Vehicle vehicle in vehicles)
+            {
+                if (vehicle.IsBreaking())
+                {
+                    pointsArray = vehicle.GetCollisionPoints(vehicle.tailLightsOffset);
+
+                    list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[2]), stopLightTextureSize, 0, Color.Red));
+                    list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[3]), stopLightTextureSize, 0, Color.Red));
                 }
             }
 
@@ -1050,19 +1078,43 @@ namespace Testy_mapy
         /// <summary>
         /// Get the positions of all active tail lights.
         /// </summary>
-        public List<Object> GetTailLightsPoints()
+        public List<LightObject> GetTailLightsPoints(EnvironmentSimulation environmentSimulation)
         {
-            List<Object> list = new List<Object>();
-            Vector2[] pointsArray;
+            List<LightObject> list = new List<LightObject>();
 
-            foreach (Vehicle vehicle in vehicles)
+            if (environmentSimulation.GetGlobalLightColor().Y < GameParams.trafficGlobalLightToTurnOnTheLights)
             {
-                if (vehicle.IsBreaking())
+                Vector2[] pointsArray;
+
+                foreach (Vehicle vehicle in vehicles)
                 {
                     pointsArray = vehicle.GetCollisionPoints(vehicle.tailLightsOffset);
-                    
-                    list.Add(new Object("", pointsArray[2], tailLightTextureSize, 0));
-                    list.Add(new Object("", pointsArray[3], tailLightTextureSize, 0));
+
+                    list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[2]), tailLightTextureSize, 0, Color.Red));
+                    list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[3]), tailLightTextureSize, 0, Color.Red));
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Get the positions of all active head lights.
+        /// </summary>
+        public List<LightObject> GetHeadLightsPoints(EnvironmentSimulation environmentSimulation)
+        {
+            List<LightObject> list = new List<LightObject>();
+
+            if (environmentSimulation.GetGlobalLightColor().Y < GameParams.trafficGlobalLightToTurnOnTheLights)
+            {
+                Vector2[] pointsArray;
+
+                foreach (Vehicle vehicle in vehicles)
+                {
+                    pointsArray = vehicle.GetCollisionPoints(vehicle.tailLightsOffset);
+
+                    list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[0]), headLightTextureSize, vehicle.GetVehicleDirection(), Color.White));
+                    list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[1]), headLightTextureSize, vehicle.GetVehicleDirection(), Color.White));
                 }
             }
 
@@ -1107,18 +1159,18 @@ namespace Testy_mapy
 
                     current += vehicleType.likelihoodOfApperance;
                 }
-                
+
                 Vector2 junctionCenter, additionalOutpoint;
                 Connection getNewRoad;
 
                 drawMap.CreateTrack(GameParams.trafficSpawnDistance, type.size.Y, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
                 //if (!(getNewRoad.point1.X == 600 && getNewRoad.point1.Y == 450))
-                  //  return;
+                //  return;
 
                 if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
-                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset, junctionCenter, additionalOutpoint, type.tailLightsOffset, type.exhaustPipeOffset);
+                    Vehicle vehicle = new Vehicle(getNewRoad.point1, getNewRoad.point2, type.size, type.skin, type.moveSize, type.sizeOffset, junctionCenter, additionalOutpoint, type.tailLightsOffset, type.headLightsOffset, type.exhaustPipeOffset);
 
                     if (NoVehicleNearby(vehicle.GetVehiclePosition(), vehicle.GetVehicleSize()))
                     {

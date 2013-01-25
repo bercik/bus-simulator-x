@@ -166,10 +166,10 @@ namespace Testy_mapy
             hud.LoadContent(this.Content);
 
             // ³adowanie klas rysuj¹cych
-            drawBus.LoadContent(this.Content, busLogic.GetSize(), busLogic.GetTailLightSize());
+            drawBus.LoadContent(this.Content, busLogic.GetSize());
             drawGameplay.LoadContent(this.Content, gameplayLogic.GetPedestriansSize(), gameplayLogic.GetStopAreaSize(), gameplayLogic.GetSignSize());
 
-            drawTraffic.LoadContent(this.Content, trafficLogic.GetVehicleTypesSizes(), trafficLogic.GetIndicatorTextureSize(), trafficLogic.GetTailLightTextureSize());
+            drawTraffic.LoadContent(this.Content, trafficLogic.GetVehicleTypesSizes());
             drawParticles.LoadContent(this.Content);
 
             drawMap.LoadContent(this.Content);
@@ -408,15 +408,9 @@ namespace Testy_mapy
             }
             else
             {
-                //drawing lightmap:
-                LightObject lo1 = new LightObject("light", Helper.screenOrigin + new Vector2(-20, 70), new Vector2(35, 35), 0.0f, Color.Red);
-                LightObject lo2 = new LightObject("light", Helper.screenOrigin + new Vector2(20, 70), new Vector2(35, 35), 0.0f, Color.Red);
-                LightObject spotlight1 = new LightObject("spotlight", Helper.screenOrigin + new Vector2(-20, -70), new Vector2(100, 250), busLogic.GetCurrentDirection(), Color.White);
-                LightObject spotlight2 = new LightObject("spotlight", Helper.screenOrigin + new Vector2(20, -70), new Vector2(100, 250), busLogic.GetCurrentDirection(), Color.White);
-                drawLightmap.AddLightObject(lo1);
-                drawLightmap.AddLightObject(lo2);
-                drawLightmap.AddLightObject(spotlight1);
-                drawLightmap.AddLightObject(spotlight2);
+                //drawing lightmap:                
+                // Œwiat³a samochodów.
+                drawTraffic.AddDynamicLights(trafficLogic, drawLightmap, environmentSimulation);
                 drawLightmap.Draw(spriteBatch);
                 lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
 
