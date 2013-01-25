@@ -306,7 +306,7 @@ namespace Testy_mapy
                     Vector2 destinationPos = Helper.CalculateScalePosition(p.pos);
 
                     spriteBatch.Draw(pedestrians[p.name], destinationPos, null, Color.White, MathHelper.ToRadians(p.rotate),
-                            p.origin, Helper.GetVectorScale() * p.scale, p.spriteEffects, 1.0f);
+                            p.original_origin, Helper.GetVectorScale() * p.scale, p.spriteEffects, 1.0f);
 
                 }
             }
@@ -457,8 +457,10 @@ namespace Testy_mapy
             pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrians/pedestrian1"));
             pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrians/pedestrian2"));
 
-            size = new Vector2(20, 20);
-            pedestriansLogic.SetProperties(size, 3, 3, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych
+            Vector2 diedPedestrianTextureSize = new Vector2(pedestrians["died_pedestrian0"].Width, pedestrians["died_pedestrian0"].Height);
+            Vector2 pedestrianTextureSize = new Vector2(pedestrians["pedestrian0"].Width, pedestrians["pedestrian0"].Height);
+
+            pedestriansLogic.SetProperties(pedestrianTextureSize, diedPedestrianTextureSize, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu, startowa rotacja autobusu
