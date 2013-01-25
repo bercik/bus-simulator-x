@@ -21,6 +21,23 @@ namespace Testy_mapy
         {
         }
 
+        public void AddDynamicLights(BusLogic busLogic, DrawLightmap drawLightmap)
+        {
+            List<LightObject> list = new List<LightObject>();
+
+            list = busLogic.GetStopLightsPoints();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+
+            list = busLogic.GetTailLightsPoints();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+
+            list = busLogic.GetHeadLightsPoints();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+        }
+
         public void LoadContent(ContentManager content, Vector2 busSize)
         {
             busTexture = content.Load<Texture2D>("vehicles/bus");
