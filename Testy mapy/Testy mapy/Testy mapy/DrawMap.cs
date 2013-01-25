@@ -457,8 +457,8 @@ namespace Testy_mapy
             pedestrians.Add("pedestrian1", content.Load<Texture2D>("pedestrians/pedestrian1"));
             pedestrians.Add("pedestrian2", content.Load<Texture2D>("pedestrians/pedestrian2"));
 
-            size = new Vector2(pedestrians["pedestrian0"].Width, pedestrians["pedestrian0"].Height);
-            pedestriansLogic.SetProperties(size, 3, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych
+            size = new Vector2(20, 20);
+            pedestriansLogic.SetProperties(size, 3, 3, sidewalkHeight); // zmodyfikowac przy dodaniu lub usunieciu pieszych
         }
 
         // zwraca czy udalo sie zaladowac mape, startowa pozycja autobusu, startowa rotacja autobusu

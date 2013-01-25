@@ -214,7 +214,7 @@ namespace Testy_mapy
             }
         }
 
-        public bool CheckCollision(Vector2[] busCollisionPoints)
+        public bool CheckCollision(Vector2[] busCollisionPoints, int amountOfDiedPedestrians)
         {
             if (!collision)
             {
@@ -230,7 +230,7 @@ namespace Testy_mapy
 
                 if (busCollisionRectangle.IsInside(pedestrianCollisionRectangle) || pedestrianCollisionRectangle.IsInside(busCollisionRectangle)) // true = kolizja
                 {
-                    name = "died_pedestrian" + Helper.random.Next(3).ToString();
+                    name = "died_pedestrian" + Helper.random.Next(amountOfDiedPedestrians).ToString();
                     collision = true;
                     Score.AddAction("killed pedestrian", 1.0f);
                     return true;
@@ -448,7 +448,8 @@ namespace Testy_mapy
         }
         Vector2 pedestrianOrigin; // srodek pieszego
 
-        int amountOfPedestrians; // ilosc pieszych
+        int amountOfPedestrians; // ilosc teksturek pieszych
+        int amountOfDiedPedestrians; // ilosc rozjechanych teksturek pieszych
 
         List<SidewalkPedestrian> spawnSidewalks; // list chodnikow z utworzonymi pieszymi
 
@@ -472,10 +473,11 @@ namespace Testy_mapy
             this.sidewalks = sidewalks;
         }
 
-        public void SetProperties(Vector2 pedestrianSize, int amountOfPedestrians, float oneSidewalkHeight)
+        public void SetProperties(Vector2 pedestrianSize, int amountOfPedestrians, int amountOfDiedPedestrians, float oneSidewalkHeight)
         {
             this.pedestrianSize = pedestrianSize;
             this.amountOfPedestrians = amountOfPedestrians;
+            this.amountOfDiedPedestrians = amountOfDiedPedestrians;
             this.oneSidewalkHeight = oneSidewalkHeight;
         }
 
@@ -506,7 +508,7 @@ namespace Testy_mapy
                 for (int i = 0; i < alivePedestrians.Count; ++i)
                 {
                     alivePedestrians[i].Update(framesInterval);
-                    if (alivePedestrians[i].CheckCollision(busCollisionPoints))
+                    if (alivePedestrians[i].CheckCollision(busCollisionPoints, amountOfDiedPedestrians))
                     {
                         sidewalkPedestrian.DiePedestrian(alivePedestrians[i]);
                         --i;
