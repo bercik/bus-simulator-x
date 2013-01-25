@@ -15,16 +15,20 @@ namespace Testy_mapy
     class DrawGameplay
     {
         const int numberOfPedestrians = 3;
-        Texture2D stopAreaTexture, stopAreaActiveTexture, signTexture, deadPedestrianTexture;
+        const int numberOfDeadPedestrians = 3;
+        Texture2D stopAreaTexture, stopAreaActiveTexture, signTexture;
         
         Texture2D[] pedestrianTexture = new Texture2D[numberOfPedestrians];
         Vector2[] pedestrianTextureOrigin = new Vector2[numberOfPedestrians];
         Vector2[] pedestrianTextureScale = new Vector2[numberOfPedestrians];
 
+        Texture2D[] deadPedestrianTexture = new Texture2D[numberOfDeadPedestrians];
+        Vector2[] deadPedestrianTextureOrigin = new Vector2[numberOfDeadPedestrians];
+        Vector2[] deadPedestrianTextureScale = new Vector2[numberOfDeadPedestrians];
+
         Vector2 stopAreaTextureOrigin, stopAreaTextureScale,
                 stopAreaActiveTextureOrigin, stopAreaActiveTextureScale,
-                signTextureOrigin, signTextureScale,
-                deadPedestrianTextureOrigin, deadPedestrianTextureScale;
+                signTextureOrigin, signTextureScale;
 
         // Constructor.
         public DrawGameplay()
@@ -34,7 +38,7 @@ namespace Testy_mapy
         /// <summary>
         /// Load sprites.
         /// </summary>
-        public void LoadContent(ContentManager content, Vector2 pedestrianSize, Vector2 stopAreaSize, Vector2 signSize)
+        public void LoadContent(ContentManager content, Vector2 stopAreaSize, Vector2 signSize)
         {
             stopAreaTexture = content.Load<Texture2D>("busstops/busstoparea");
             stopAreaTextureOrigin = new Vector2(stopAreaTexture.Width / 2, stopAreaTexture.Height / 2);
@@ -48,16 +52,18 @@ namespace Testy_mapy
             signTextureOrigin = new Vector2(signTexture.Width / 2, signTexture.Height / 2);
             signTextureScale = new Vector2(signSize.X / signTexture.Width, signSize.Y / signTexture.Height);
 
-
-            deadPedestrianTexture = content.Load<Texture2D>("pedestrians/died_pedestrian0");
-            deadPedestrianTextureOrigin = new Vector2(deadPedestrianTexture.Width / 2, deadPedestrianTexture.Height / 2);
-            deadPedestrianTextureScale = new Vector2(pedestrianSize.X / deadPedestrianTexture.Width, pedestrianSize.Y / deadPedestrianTexture.Height);
-
             for (int i = 0; i < numberOfPedestrians; i++)
             {
                 pedestrianTexture[i] = content.Load<Texture2D>("pedestrians/pedestrian" + i.ToString());
                 pedestrianTextureOrigin[i] = new Vector2(pedestrianTexture[i].Width / 2, pedestrianTexture[i].Height / 2);
-                pedestrianTextureScale[i] = new Vector2(pedestrianSize.X / pedestrianTexture[i].Width, pedestrianSize.Y / pedestrianTexture[i].Height);
+                pedestrianTextureScale[i] = new Vector2(GameParams.pedestrianSize.X / pedestrianTexture[i].Width, GameParams.pedestrianSize.Y / pedestrianTexture[i].Height);
+            }
+
+            for (int i = 0; i < numberOfDeadPedestrians; i++)
+            {
+                deadPedestrianTexture[i] = content.Load<Texture2D>("pedestrians/died_pedestrian" + i.ToString());
+                deadPedestrianTextureOrigin[i] = new Vector2(deadPedestrianTexture[i].Width / 2, deadPedestrianTexture[i].Height / 2);
+                deadPedestrianTextureScale[i] = new Vector2(GameParams.diedPedestrianSize.X / deadPedestrianTexture[i].Width, GameParams.diedPedestrianSize.Y / deadPedestrianTexture[i].Height);
             }
         }
 
@@ -84,9 +90,10 @@ namespace Testy_mapy
             Vector2 position = Helper.MapPosToScreenPos(pedestrian.pos);
             position = Helper.CalculateScalePosition(position);
 
-            if (int.Parse(pedestrian.name) == -1)
+            if (int.Parse(pedestrian.name) < 0)
             {
-                spriteBatch.Draw(deadPedestrianTexture, position, null, Color.White, MathHelper.ToRadians(pedestrian.rotate), deadPedestrianTextureOrigin, Helper.GetVectorScale() * deadPedestrianTextureScale, SpriteEffects.None, 1);
+                pedestrian.name = (-int.Parse(pedestrian.name)).ToString();
+                spriteBatch.Draw(deadPedestrianTexture[int.Parse(pedestrian.name) - 1], position, null, Color.White, MathHelper.ToRadians(pedestrian.rotate), deadPedestrianTextureOrigin[int.Parse(pedestrian.name) - 1], Helper.GetVectorScale() * deadPedestrianTextureScale[int.Parse(pedestrian.name) - 1], SpriteEffects.None, 1);
             }
             else
             {

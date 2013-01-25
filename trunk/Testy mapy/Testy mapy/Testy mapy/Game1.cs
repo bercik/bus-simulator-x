@@ -167,7 +167,7 @@ namespace Testy_mapy
 
             // ³adowanie klas rysuj¹cych
             drawBus.LoadContent(this.Content, busLogic.GetSize());
-            drawGameplay.LoadContent(this.Content, gameplayLogic.GetPedestriansSize(), gameplayLogic.GetStopAreaSize(), gameplayLogic.GetSignSize());
+            drawGameplay.LoadContent(this.Content, gameplayLogic.GetStopAreaSize(), gameplayLogic.GetSignSize());
 
             drawTraffic.LoadContent(this.Content, trafficLogic.GetVehicleTypesSizes());
             drawParticles.LoadContent(this.Content);

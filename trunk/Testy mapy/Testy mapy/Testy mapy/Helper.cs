@@ -110,6 +110,8 @@ namespace Testy_mapy
         // dla PedestriansLogic i GameplayLogic (size of pedestrians):
         public static readonly Vector2 pedestrianSize = new Vector2(20, 20);
         public static readonly Vector2 diedPedestrianSize = new Vector2(40, 40);
+        public static readonly int numberOfPedestriansTextures = 3;
+        public static readonly int numberOfDiedPedestriansTextures = 3;
     }
 
     static class Helper
