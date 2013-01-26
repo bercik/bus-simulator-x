@@ -35,6 +35,15 @@ namespace Testy_mapy
         {
         }
 
+        public void AddDynamicLights(GameplayLogic gameplayLogic, DrawLightmap drawLightmap)
+        {
+            List<LightObject> list = new List<LightObject>();
+
+            list = gameplayLogic.GetDynamicLights();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
+        }
+
         /// <summary>
         /// Load sprites.
         /// </summary>

@@ -547,10 +547,12 @@ namespace Testy_mapy
 
                             pedestrian.GoToTheBus(busLogic, timeCoherenceMultiplier);
 
+                            // Doszedł do autobusum wsiada.
                             if (pedestrian.BusReached(busLogic))
                             {
                                 pedestriansWhoReachedTheBus++;
                                 pedestrian.Delete();
+                                Score.AddAction("pedestrian getting in", 1.0f); // Dodajemy punkty.
                             }
                         }
                         else
@@ -644,6 +646,8 @@ namespace Testy_mapy
         protected bool busOnTheBusStop = false;
         protected bool doorsOpen = false;
 
+        public Vector2 stopAreaMarkerLightSize = new Vector2(110, 60);
+
         protected static GameplayParams gameplayParams = new GameplayParams();
 
         /// <summary>
@@ -666,7 +670,7 @@ namespace Testy_mapy
         /// </summary>
         public bool ArePedestriansGettingIn()
         {
-            if (doorsOpen && busOnTheBusStop && busStops[busStopsOrder[currentBusStop]].NumberOfPedestriansWaiting() > 0)
+            if (doorsOpen && busOnTheBusStop && busStops[busStopsOrder[currentBusStop]].NumberOfPedestriansWaiting() > 0 && !ArePedestriansGettingOff())
             {
                 return true;
             }
@@ -727,15 +731,44 @@ namespace Testy_mapy
         public List<Object> GetStopAreasToDraw()
         {
             List<Object> list = new List<Object>();
-            /*
-            foreach (BusStop busStop in busStops)
-            {
-                list.Add(new Object("", busStop.GetStopAreaPosition(), busStop.stopAreaSize, busStop.stopAreaDirection));
-            }
-            */
+
             BusStop busStop = busStops[busStopsOrder[currentBusStop]];
 
             list.Add(new Object(busOnTheBusStop.ToString(), busStop.GetStopAreaPosition(), gameplayParams.stopAreaSize, busStop.stopAreaDirection));
+
+            return list;
+        }
+
+        public List<LightObject> GetDynamicLights()
+        {
+            List<LightObject> list = new List<LightObject>();
+            /*Vector2[] pointsArray;
+
+            BusStop busStop = busStops[busStopsOrder[currentBusStop]];
+            pointsArray = busStop.GetStopAreaCollisionPoints();
+            
+            Color color;
+
+            if (busOnTheBusStop)
+            {
+                color = Color.Green;
+            }
+            else
+            {
+                color = Color.Yellow;
+            }
+
+            list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[0]), stopAreaMarkerLightSize, busStop.stopAreaDirection + 90 + 45, color));
+            list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[1]), stopAreaMarkerLightSize, busStop.stopAreaDirection + 180 + 45, color));
+            list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[2]), stopAreaMarkerLightSize, busStop.stopAreaDirection + 270 + 45, color));
+            list.Add(new LightObject("spotlight", Helper.MapPosToScreenPos(pointsArray[3]), stopAreaMarkerLightSize, busStop.stopAreaDirection + 45, color));
+
+            list.Add(new LightObject("busstop_stoparea", Helper.MapPosToScreenPos(busStop.GetStopAreaPosition()), GetStopAreaSize(), busStop.stopAreaDirection, color));*/
+
+            foreach (BusStop busStop in busStops)
+            {
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(busStop.GetSignPosition()), GetSignSize(), 0, Color.LightBlue));
+            }
 
             return list;
         }
@@ -1006,6 +1039,7 @@ namespace Testy_mapy
                                 busStops[i].pedestriansWhoGotOff.Add(new BusStop.Pedestrian(busStops[i].waitingArea, gameplayParams.waitingAreaSize, busStops[i].waitingAreaDirection, busLogic.GetBusPosition()));
                                 peopleGettingOff -= 1;
                                 peopleInTheBus -= 1;
+                                Score.AddAction("pedestrian getting out", 1.0f); // Dodajemy punkty.
 
                                 // Zresetuj licznik.
                                 getOffCounter = gameplayParams.getOffInterval;
