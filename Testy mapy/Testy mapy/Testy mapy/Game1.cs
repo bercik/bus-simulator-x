@@ -430,6 +430,9 @@ namespace Testy_mapy
                 // Œwiat³a autobusu.
                 drawBus.AddDynamicLights(busLogic, drawLightmap);
 
+                // Œwiat³a gameplay logic.
+                drawGameplay.AddDynamicLights(gameplayLogic, drawLightmap);
+
                 drawLightmap.Draw(spriteBatch);
                 lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
 
