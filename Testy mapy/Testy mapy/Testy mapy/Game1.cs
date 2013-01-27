@@ -121,7 +121,7 @@ namespace Testy_mapy
             scene = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             hud = new HUD();
-            environmentSimulation = new EnvironmentSimulation(0, 16);
+            environmentSimulation = new EnvironmentSimulation(0, 18);
             
             drawMap = new DrawMap(graphics.GraphicsDevice);
             drawBus = new DrawBus();
@@ -359,7 +359,7 @@ namespace Testy_mapy
 
                     trafficLogic.Update(drawMap, busLogic);
                     gameplayLogic.Update(busLogic, drawMap, gameTime.ElapsedGameTime);
-                    drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic);
+                    drawMap.Update(gameTime, busLogic.GetCollisionPoints(), ref trafficLogic, ref environmentSimulation);
                     environmentSimulation.Update(gameTime.ElapsedGameTime, ref particlesLogic);
                     globalLightColor.SetValue(environmentSimulation.GetGlobalLightColor());
                     particlesLogic.Update(trafficLogic, busLogic);
@@ -434,7 +434,7 @@ namespace Testy_mapy
                 drawGameplay.AddDynamicLights(gameplayLogic, drawLightmap);
 
                 // Œwiat³a mapy (œwiat³a uliczne, latarnie uliczne):
-                drawMap.AddDynamicLights(drawLightmap);
+                drawMap.AddDynamicLights(ref drawLightmap);
 
                 drawLightmap.Draw(spriteBatch);
                 lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());

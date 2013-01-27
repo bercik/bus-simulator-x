@@ -392,7 +392,7 @@ namespace Testy_mapy
 
         private void RandomSpeed()
         {
-            speed = (float)rand.Next(8, 14) / 400.0f;
+            speed = (float)rand.Next(6, 12) / 400.0f;
         }
 
         private void RandomDestinationRotate()
@@ -476,11 +476,11 @@ namespace Testy_mapy
             this.frequences = frequences;
         }
 
-        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints)
+        public void Update(TimeSpan framesInterval, Vector2[] busCollisionPoints, float globalLightValue)
         {
             if (lastUpdateTime > updateTime)
             {
-                SpawnPedestrian();
+                SpawnPedestrian(globalLightValue);
                 RemoveSpawnSidewalksOutOfArea();
 
                 lastUpdateTime = 0.0f;
@@ -651,7 +651,7 @@ namespace Testy_mapy
                     ++numberOfPointsInWorkArea;
             }
 
-            if (numberOfPointsInWorkArea == 1 || numberOfPointsInWorkArea == 2)
+            if (numberOfPointsInWorkArea >= 1)
             {
                 return true;
             }
@@ -675,14 +675,15 @@ namespace Testy_mapy
             return false;
         }
 
-        private void GeneratePedestrian(ref SidewalkPedestrian sidewalkPedestrian)
+        private void GeneratePedestrian(ref SidewalkPedestrian sidewalkPedestrian, float globalLightValue)
         {
             Vector2 pos = new Vector2();
 
             Sidewalk sidewalk = sidewalkPedestrian.sidewalk;
 
             int numberOfSidewalks = (int)(sidewalk.size.Y / oneSidewalkHeight); // ilosc "kawalkow" chodnika
-            int numberOfDraws = numberOfSidewalks * frequences[sidewalk.id]; // liczba prób utworzenia pieszego
+            globalLightValue += ((1 - globalLightValue) / 4); // zmieniamy zakres wartość z 0.2 - 1 na 0.4 - 1
+            int numberOfDraws = (int)Math.Ceiling(numberOfSidewalks * frequences[sidewalk.id] * globalLightValue); // liczba prób utworzenia pieszego
 
             for (int i = 0; i < numberOfDraws; ++i)
             {
@@ -722,7 +723,7 @@ namespace Testy_mapy
             return false;
         }
 
-        private void SpawnPedestrian()
+        private void SpawnPedestrian(float globalLightValue)
         {
             foreach (Sidewalk sidewalk in sidewalks)
             {
@@ -732,7 +733,7 @@ namespace Testy_mapy
                     {
                         SidewalkPedestrian sidewalkPedestrian = new SidewalkPedestrian(sidewalk);
                         spawnSidewalks.Add(sidewalkPedestrian);
-                        GeneratePedestrian(ref sidewalkPedestrian);
+                        GeneratePedestrian(ref sidewalkPedestrian, globalLightValue);
                     }
                 }
             }

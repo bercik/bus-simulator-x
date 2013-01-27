@@ -93,13 +93,13 @@ namespace Testy_mapy
         public static readonly float trafficLightIntervalBeforeRedYellowStart2 = 4.0f; // (dla dużych skrzyżowań) interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
         public static readonly float trafficLightYellowInterval = 2.0f; // czas trwania zoltego swiatla
         public static readonly float trafficLightRedYellowInterval = 0.8f; // czas trwania czerwono-zoltego swiatla
-        public static readonly Vector2 trafficLightDynamicLightSize = new Vector2(50, 50); // wielkość dynamicznego światła ulicznego
+        public static readonly Vector2 trafficLightDynamicLightSize = new Vector2(40, 40); // wielkość dynamicznego światła ulicznego
 
 
         public const int numberOfCars = 12; // Number of cars/car skins.
 
         // dla Environment Simulation:
-        public static readonly float timeBeetwenOneMinute = 0.05f; // czas w sekundach, w którym upływa jedna minuta w grze
+        public static readonly float timeBeetwenOneMinute = 0.2f; // czas w sekundach, w którym upływa jedna minuta w grze
         public static readonly float sunsetProbability = 0.5f; // prawdopodobieństwo wystąpienia zachodu slonca (nigdy nie wystepuje gdy pada deszcz)
         public static readonly float rainProbability = 0.3f; // prawdopodobieństwo wystąpienia deszczu
         public static readonly int minWeatherChangeTime = 120; // minimalny czas pomiędzy zmianą pogody w minutach gry
