@@ -433,6 +433,9 @@ namespace Testy_mapy
                 // Œwiat³a gameplay logic.
                 drawGameplay.AddDynamicLights(gameplayLogic, drawLightmap);
 
+                // Œwiat³a mapy (œwiat³a uliczne, latarnie uliczne):
+                drawMap.AddDynamicLights(drawLightmap);
+
                 drawLightmap.Draw(spriteBatch);
                 lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
 

@@ -510,11 +510,7 @@ namespace Testy_mapy
         {
             foreach (SidewalkPedestrian sidewalk in spawnSidewalks)
             {
-                Vector2 leftUp, rightDown;
-
-                GetExtremePoints(out leftUp, out rightDown);
-
-                if (IsPointInWorkArea(position, leftUp, rightDown))
+                if (IsPedestrianOnSidewalk(position, sidewalk.sidewalk))
                 {
                     Pedestrian pedestrian = new Pedestrian(position, GameParams.pedestrianSize, id, sidewalk.sidewalk.location,
                             sidewalk.sidewalk.min, sidewalk.sidewalk.max, rotation);
@@ -526,6 +522,30 @@ namespace Testy_mapy
             }
 
             return false;
+        }
+
+        public bool IsPedestrianOnSidewalk(Vector2 pos, Sidewalk sidewalk)
+        {
+            Vector2 sidewalkOrigin = (sidewalk.location == Location.horizontal) ? // srodek chodnika wg. konwencjii
+                    new Vector2(sidewalk.origin.Y, sidewalk.origin.X) : sidewalk.origin;
+
+            // wyliczamy skrajne punkty chodnika:
+            float sx1 = sidewalk.pos.X - sidewalkOrigin.X;
+            float sx2 = sidewalk.pos.X + sidewalkOrigin.X;
+            float sy1 = sidewalk.pos.Y - sidewalkOrigin.Y;
+            float sy2 = sidewalk.pos.Y + sidewalkOrigin.Y;
+
+            // wyliczamy skrajne punkty pieszego:
+            float px1 = pos.X - pedestrianOrigin.X;
+            float px2 = pos.X + pedestrianOrigin.X;
+            float py1 = pos.Y - pedestrianOrigin.Y;
+            float py2 = pos.Y + pedestrianOrigin.Y;
+
+            // porównujemy skrajne punkty w celu sprawdzenia czy pieszy znajduje się na chodniku:
+            if (px1 > sx1 && px2 < sx2 && py1 > sy1 && py2 < sy2)
+                return true;
+            else
+                return false;
         }
 
         // pobiera liste pieszych do wyswietlenia
