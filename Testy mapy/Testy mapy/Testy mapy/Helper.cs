@@ -93,6 +93,7 @@ namespace Testy_mapy
         public static readonly float trafficLightIntervalBeforeRedYellowStart2 = 4.0f; // (dla dużych skrzyżowań) interwał pomiędzy zmianą na czerwone światło dla jednej pary świateł, a uruchomieniem czerwono zółtego na drugiej parze
         public static readonly float trafficLightYellowInterval = 2.0f; // czas trwania zoltego swiatla
         public static readonly float trafficLightRedYellowInterval = 0.8f; // czas trwania czerwono-zoltego swiatla
+        public static readonly Vector2 trafficLightDynamicLightSize = new Vector2(50, 50); // wielkość dynamicznego światła ulicznego
 
 
         public const int numberOfCars = 12; // Number of cars/car skins.

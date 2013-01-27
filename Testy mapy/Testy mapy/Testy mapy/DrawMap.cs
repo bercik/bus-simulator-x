@@ -331,6 +331,46 @@ namespace Testy_mapy
             }
         }
 
+        public void AddDynamicLights(DrawLightmap drawLightmap)
+        {
+            List<TrafficLightObject> trafficLightObjects = mapLogic.GetTrafficLightsToShow();
+
+            foreach (TrafficLightObject tlo in trafficLightObjects)
+            {
+                AddTrafficLightObjectDynamicLight(tlo, drawLightmap);
+            }
+        }
+
+        private void AddTrafficLightObjectDynamicLight(TrafficLightObject tlo, DrawLightmap drawLightmap)
+        {
+            TrafficLightState trafficLightState = trackLogic.GetTrafficLightPairState(tlo.junctionIndex, tlo.pairIndex);
+
+            switch (trafficLightState)
+            {
+                case TrafficLightState.green:
+                    drawLightmap.AddLightObject(GetTrafficLightLightObject(new Vector2(0, 24), tlo.pos, tlo.rotate, Color.Green));
+                    break;
+                case TrafficLightState.yellow:
+                    drawLightmap.AddLightObject(GetTrafficLightLightObject(new Vector2(0, 0), tlo.pos, tlo.rotate, Color.Yellow));
+                    break;
+                case TrafficLightState.red:
+                    drawLightmap.AddLightObject(GetTrafficLightLightObject(new Vector2(0, -24), tlo.pos, tlo.rotate, Color.Red));
+                    break;
+                case TrafficLightState.redYellow:
+                    drawLightmap.AddLightObject(GetTrafficLightLightObject(new Vector2(0, 0), tlo.pos, tlo.rotate, Color.Yellow));
+                    drawLightmap.AddLightObject(GetTrafficLightLightObject(new Vector2(0, -24), tlo.pos, tlo.rotate, Color.Red));
+                    break;
+            }
+        }
+
+        private LightObject GetTrafficLightLightObject(Vector2 lightPosition, Vector2 trafficLightPosition, float rotation, Color color)
+        {
+            lightPosition = Helper.ComputeRotation(lightPosition, Vector2.Zero, rotation);
+            lightPosition += trafficLightPosition;
+
+            return new LightObject("light", lightPosition, GameParams.trafficLightDynamicLightSize, rotation, color);
+        }
+
         // funkcja pomocnicza sluzaca do pobrania punktow kolizji do ich pozniejszego wyswietlenia na ekranie
         public Vector2[] GetCollisionPointsToDraw()
         {
