@@ -28,6 +28,9 @@ namespace Testy_mapy
         private int weatherChangeTimer; // ile czasu uplynelo od zmiany pogody (w minutach)
         private int weatherChangeTime; // ile czasu ma trwac dana pogoda (w minutach)
 
+        // global light
+        private Vector4 globalLightColor;
+
         public EnvironmentSimulation()
         {
             hour = 0;
@@ -68,9 +71,16 @@ namespace Testy_mapy
         {
             this.minute = minute;
             this.hour = hour;
+
+            SetGlobalLightColor();
         }
 
         public Vector4 GetGlobalLightColor()
+        {
+            return globalLightColor;
+        }
+
+        private void SetGlobalLightColor()
         {
             float red = 1.0f, greenBlue = 1.0f;
 
@@ -105,7 +115,7 @@ namespace Testy_mapy
                 red = greenBlue = 1.0f;
             }
 
-            return new Vector4(red, greenBlue, greenBlue, 1);
+            globalLightColor = new Vector4(red, greenBlue, greenBlue, 1);
         }
 
         private void SetSunset()
@@ -169,6 +179,8 @@ namespace Testy_mapy
                     hour -= 24;
                 }
             }
+
+            SetGlobalLightColor();
         }
     }
 }

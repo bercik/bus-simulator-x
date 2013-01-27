@@ -73,10 +73,10 @@ namespace Testy_mapy
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public void Update(GameTime gameTime, Vector2[] busCollisionPoints, ref TrafficLogic trafficLogic)
+        public void Update(GameTime gameTime, Vector2[] busCollisionPoints, ref TrafficLogic trafficLogic, ref EnvironmentSimulation environmentSimulation)
         {
             // TODO: Add your update code here
-            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints);
+            pedestriansLogic.Update(gameTime.ElapsedGameTime, busCollisionPoints, environmentSimulation.GetGlobalLightColor().Y);
             areasLogic.Update(gameTime.ElapsedGameTime, ref trafficLogic);
             trackLogic.Update(gameTime.ElapsedGameTime);
         }
@@ -331,17 +331,17 @@ namespace Testy_mapy
             }
         }
 
-        public void AddDynamicLights(DrawLightmap drawLightmap)
+        public void AddDynamicLights(ref DrawLightmap drawLightmap)
         {
             List<TrafficLightObject> trafficLightObjects = mapLogic.GetTrafficLightsToShow();
 
             foreach (TrafficLightObject tlo in trafficLightObjects)
             {
-                AddTrafficLightObjectDynamicLight(tlo, drawLightmap);
+                AddTrafficLightObjectDynamicLight(tlo, ref drawLightmap);
             }
         }
 
-        private void AddTrafficLightObjectDynamicLight(TrafficLightObject tlo, DrawLightmap drawLightmap)
+        private void AddTrafficLightObjectDynamicLight(TrafficLightObject tlo, ref DrawLightmap drawLightmap)
         {
             TrafficLightState trafficLightState = trackLogic.GetTrafficLightPairState(tlo.junctionIndex, tlo.pairIndex);
 
