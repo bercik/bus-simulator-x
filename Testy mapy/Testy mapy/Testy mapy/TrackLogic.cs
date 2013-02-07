@@ -899,7 +899,7 @@ namespace Testy_mapy
             }
         }
 
-        public void GetRedLightRectangles(out List<Rectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
+        public void GetRedLightRectangles(out List<MyRectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
         {
             trafficLightsLogic.GetRedLightRectangles(out redLightRectanglesForCars, out redLightRectanglesForBus);
         }

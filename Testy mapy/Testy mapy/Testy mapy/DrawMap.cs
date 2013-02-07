@@ -567,7 +567,7 @@ namespace Testy_mapy
             backgroundLogic.CreateGrass(mapPos);
         }
 
-        public void GetRedLightRectangles(out List<Rectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
+        public void GetRedLightRectangles(out List<MyRectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
         {
             trackLogic.GetRedLightRectangles(out redLightRectanglesForCars, out redLightRectanglesForBus);
         }
