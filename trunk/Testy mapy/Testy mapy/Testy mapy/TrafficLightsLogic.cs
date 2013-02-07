@@ -84,10 +84,10 @@ namespace Testy_mapy
             return trafficLightJunctionsInRange;
         }
 
-        public void GetRedLightRectangles(out List<Rectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
+        public void GetRedLightRectangles(out List<MyRectangle> redLightRectanglesForCars, out List<TrafficLightRectangle> redLightRectanglesForBus)
         {
             redLightRectanglesForBus = new List<TrafficLightRectangle>();
-            redLightRectanglesForCars = new List<Rectangle>();
+            redLightRectanglesForCars = new List<MyRectangle>();
 
             List<TrafficLightJunction> trafficLightJunctions = GetTrafficLightJunctionsInRange();
 
@@ -116,7 +116,20 @@ namespace Testy_mapy
 
     struct TrafficLightRectangle
     {
-        public Rectangle redLightRectangle; // prostokat do wykrywania czerwonego swiatla
+        protected Rectangle r_redLightRectangle; // j.n.
+        public Rectangle redLightRectangle // prostokat do wykrywania czerwonego swiatla
+        {
+            get
+            {
+                return r_redLightRectangle;
+            }
+            set
+            {
+                r_redLightRectangle = value;
+                redLightMyRectangle = Helper.ToMyRectangle(r_redLightRectangle);
+            }
+        }
+        public MyRectangle redLightMyRectangle;
         public Direction direction; // po ktorej stronie skrzyzowania znajduje sie dany prostokat
     }
 
@@ -125,7 +138,20 @@ namespace Testy_mapy
         public Vector2 position { get; private set; } // pozycja światla
         public float rotation { get; private set; } // rotacja
         protected TrafficLightRectangle redLightForBusRectangle; // prostokat do wykrywania czerwonego swiatla dla autobusu
-        protected Rectangle redLightForCarRectangle; // prostokat do wykrywania czerwonego swiatla dla aut
+        protected Rectangle r_redLightForCarRectangle; // j.n.
+        protected Rectangle redLightForCarRectangle // prostokat do wykrywania czerwonego swiatla dla aut
+        {
+            get
+            {
+                return r_redLightForCarRectangle;
+            }
+            set
+            {
+                r_redLightForCarRectangle = value;
+                redLightForCarMyRectangle = Helper.ToMyRectangle(r_redLightForCarRectangle);
+            }
+        }
+        protected MyRectangle redLightForCarMyRectangle; // prostokat do wykrywania czerwonego swiatla dla aut
 
         protected TrafficLightObjectInformation()
         {
@@ -151,9 +177,9 @@ namespace Testy_mapy
             return redLightForBusRectangle;
         }
 
-        public Rectangle getRedLightForCarRectangle()
+        public MyRectangle getRedLightForCarRectangle()
         {
-            return redLightForCarRectangle;
+            return redLightForCarMyRectangle;
         }
 
         // obraca współrzędne o zadany kąt i przesuwa o dany wektor
@@ -377,9 +403,9 @@ namespace Testy_mapy
             return redLightForBusRectangles;
         }
 
-        public Rectangle[] getRedLightForCarsRectangles()
+        public MyRectangle[] getRedLightForCarsRectangles()
         {
-            Rectangle[] redLightForCarsRectangles = new Rectangle[trafficLightObjects.Length];
+            MyRectangle[] redLightForCarsRectangles = new MyRectangle[trafficLightObjects.Length];
 
             for (int i = 0; i < redLightForCarsRectangles.Length; ++i)
             {
@@ -507,9 +533,9 @@ namespace Testy_mapy
             return redLightForBusRectangles;
         }
 
-        public List<Rectangle> getRedLightForCarsRectangles()
+        public List<MyRectangle> getRedLightForCarsRectangles()
         {
-            List<Rectangle> redLightForCarsRectangles = new List<Rectangle>();
+            List<MyRectangle> redLightForCarsRectangles = new List<MyRectangle>();
 
             if (pair1.trafficLightState == TrafficLightState.red || pair1.trafficLightState == TrafficLightState.yellow)
                 redLightForCarsRectangles.AddRange(pair1.getRedLightForCarsRectangles());
