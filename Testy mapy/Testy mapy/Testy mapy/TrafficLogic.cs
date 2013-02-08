@@ -26,11 +26,13 @@ namespace Testy_mapy
             /// Checks if end of the road has been reached.
             /// </summary>
             /// <param name="position">Current position</param>
-            public bool EndReached(Vector2 position)
+            public bool EndReached(Vector2 position, float VehicleSizeY)
             {
+                float aditionalSpace = VehicleSizeY * 1.5f;
+
                 if (lane.direction == 0) // Droga w górę.
                 {
-                    if (position.Y <= end.Y)
+                    if (position.Y - aditionalSpace <= end.Y)
                         return true;
                     else
                         return false;
@@ -38,7 +40,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 180) // Droga w dół.
                 {
-                    if (position.Y >= end.Y)
+                    if (position.Y + aditionalSpace >= end.Y)
                         return true;
                     else
                         return false;
@@ -46,7 +48,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 90) // Droga w prawo.
                 {
-                    if (position.X >= end.X)
+                    if (position.X + aditionalSpace >= end.X)
                         return true;
                     else
                         return false;
@@ -54,7 +56,7 @@ namespace Testy_mapy
 
                 if (lane.direction == 270) // Droga w lewo.
                 {
-                    if (position.X <= end.X)
+                    if (position.X - aditionalSpace <= end.X)
                         return true;
                     else
                         return false;
@@ -184,6 +186,7 @@ namespace Testy_mapy
         public class Vehicle // Klasa pojazdu.
         {
             public Road road; // Droga którą jedzie pojazd.
+            public Road lastRoad; // Droga którą jechał pojazd.
             public RoadsSwitching roadsSwitching; //klasa odpowiadajaca za przekierowania od drogi do drogi (zakrety - czyli także zakręty).
 
             private bool driving = true;      // Jedzie czy został zmuszony do zatrzymania się?
@@ -224,7 +227,7 @@ namespace Testy_mapy
             private bool breaking = false;      // Czy zwalnia? Używane do rysowania świateł tylnych.
 
             private float stopCounter = 0; // Licznik odpowiedzialny za długość postoju w razie zatrzymania się w celu uniknięcia kolizji.
-            private float startAfter = 3;  // Po ilu sekundach od zatrzymania ma wystartować.
+            private float startAfter = 1;  // Po ilu sekundach od zatrzymania ma wystartować.
 
             public Vehicle(Vector2 start, Vector2 destination, Vector2 size, int skin, Vector2 moveSize, Vector2 sizeOffset, Vector2 junctionCenter, Vector2 additionalOutpoint, Vector2 tailLightsOffset, Vector2 headLightsOffset, Vector2 exhaustPipeOffset) // Constructor.
             {
@@ -490,12 +493,13 @@ namespace Testy_mapy
 
             public class RoadsSwitching // Odpowiada za zmianę drogi.
             {
-                private float bezierT = 0; // Dynamiczny parametr dla funkcji generującej krzywe Beziera.
+                public float bezierT = 0; // Dynamiczny parametr dla funkcji generującej krzywe Beziera.
                 private float bezierTInc = (float)0.01; // Co ile zmienić parametr z każdym wywołaniem?
-                private Vector2 start; // Początek (koniec Lane'a poprzedniej drogi).
-                private Vector2 end;   // Koniec (początek Lane'a nowej drogi).
+                public Vector2 start; // Początek (koniec Lane'a poprzedniej drogi).
+                public Vector2 end;   // Koniec (początek Lane'a nowej drogi).
                 private Vector2 controlPoint; // Punkt dodatkowy dla krzywych Beziera.
                 public Vector2 target; // Dokąd aktualnie jedzie pojazd?
+                public Vector2 center; // Środek skrzyżowania.
 
                 /// <summary>
                 /// Calculate control point for Bezier curve.
@@ -544,12 +548,14 @@ namespace Testy_mapy
                     return controlPoint;
                 }
 
-                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 center) // Constructor.
+                // Constructor.
+                public RoadsSwitching(Vector2 start, Vector2 end, Vector2 center)
                 {
                     this.start = start;
                     this.end = end;
                     this.controlPoint = CalculateControlPoint(start, end, center);
                     this.target = GetNewPoint();
+                    this.center = center;
                 }
 
                 /// <summary>
@@ -678,6 +684,8 @@ namespace Testy_mapy
                             return false;
                     }
 
+    // tutaj nie bierze pod uwage ze jest prosto i zwraca false
+
                     return false;
                 }
             }
@@ -686,12 +694,14 @@ namespace Testy_mapy
             {
                 if (maxSpeed == 0) // Jeśli maxSpeed nie został nadpisany przez funkcję wykrywającą czy należy zwolnić z powodu innego pojazdu.
                 {
+                    // Dostosuj prędkość na podstawie odległości do końca drogi.
                     if (Helper.CalculateDistance(GetVehiclePosition(), road.lane.end) > minDistanceToFastSpeed && !IsRedirecting())
                         maxSpeed = fastSpeed;
                     else
                         maxSpeed = normalSpeed;
                 }
 
+                // Zaokrąglij maxSpeed (mogła zostać nadpisana i zawierać dziwny ułamek).
                 maxSpeed = (float)Math.Round(maxSpeed, 0);
 
                 if (driving)
@@ -721,7 +731,7 @@ namespace Testy_mapy
 
                 if (!redirecting)
                 {
-                    if (road.EndReached(position))
+                    if (road.EndReached(position, size.Y))
                     {
                         Vector2 junctionCenter;
                         Connection getNewRoad;
@@ -729,12 +739,13 @@ namespace Testy_mapy
                         drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter); // Zapytaj o nową drogę.
 
                         lastEnd = road.end; // Koniec poprzedniej drogi to teraz koniec drogi aktualnej.
+                        lastRoad = road;
 
                         Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter); // Generujemy nową drogę w oparciu o punkty podane przez funkcje ChangeTrack.
 
                         roadsSwitching = new RoadsSwitching(road.lane.end, newRoad.lane.start, junctionCenter); // Generujemy klasę przekierowującą.
 
-                        if (!roadsSwitching.IsStraight()) // Jeśli droga nie jest naprzeciwko rozpoczynamy przekierowanie.
+                        //if (!roadsSwitching.IsStraight()) // Jeśli droga nie jest naprzeciwko rozpoczynamy przekierowanie.
                             redirecting = true;
 
                         road = newRoad; // Auto otrzymuje nową drogę.
@@ -862,31 +873,69 @@ namespace Testy_mapy
         /// </summary>
         public void SetTrafficDensityHigh()
         {
-            spawnInterval = 2;
-            maxVehicles = 15;
+            spawnInterval = 0;
+            maxVehicles = 70;
+        }
+
+        /// <summary>
+        /// Check if the junction is blocked.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsJunctionBlocked(Vehicle vehicle)
+        {
+            // Jeśli pojazd jest przekierowywany i nie jest przekierowywany prosto (ten zapis chyba i tak nie ma sensu ale lepiej zostawić).
+            if (vehicle.IsRedirecting() && !vehicle.roadsSwitching.IsStraight())
+            {
+                foreach (Vehicle checkedVehicle in vehicles)
+                {
+                    // Jeśli to auto jest inne, przekierowuje się i jedzie.
+                    if (checkedVehicle != vehicle && checkedVehicle.IsRedirecting() && checkedVehicle.roadsSwitching.bezierT > vehicle.roadsSwitching.bezierT && checkedVehicle.roadsSwitching.bezierT < 0.8f)
+                    {
+                        // Jeśli są na tym samym skrzyżowaniu.
+                        if (checkedVehicle.roadsSwitching.center == vehicle.roadsSwitching.center)
+                        {
+                            // Czy te pojazdy jadą do dróg które są naprzeciwko (lub są te same)?
+                            if (checkedVehicle.road.start.Y == vehicle.road.start.Y || checkedVehicle.road.start.X == vehicle.road.start.X)
+                            {
+                                // Czy wyjechały z różnych dróg?
+                                if (checkedVehicle.lastRoad.end != vehicle.lastRoad.end)
+                                {
+                                    // Zablokowane!
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
         /// Check if the road in front of the car is clear.
         /// </summary>
-        private bool IsRoadClear(Vehicle vehicle, BusLogic busLogic, DrawMap drawMap)
+        private bool IsRoadClear(Vehicle vehicle, BusLogic busLogic, DrawMap drawMap, List<MyRectangle> trafficLightsForCars)
         {
             Vector2[] points = vehicle.GetDetectionPoints();
+
             foreach (Vector2 point in points)
             {
                 Vector2[] collisionPoints;
                 MyRectangle rectangle;
-                List<Rectangle> trafficLightsForCars;
-                List<TrafficLightRectangle> trafficLightsForBus;
 
-                drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
+                // Sprawdź czy należy zatrzymać się by uniknąć kolizji na skrzyżowaniu, kiedy samochód z przeciwka skręca w przeciwną stronę.
+                if (IsJunctionBlocked(vehicle))
+                    return false;
 
-                foreach (Rectangle trafficLightsRectangle in trafficLightsForCars)
+                // Sprawdź czy należy zatrzymać się na światłach.
+                foreach (MyRectangle trafficLightsRectangle in trafficLightsForCars)
                 {
-                    if (Helper.IsInside(point, Helper.ToMyRectangle(trafficLightsRectangle)))
+                    if (Helper.IsInside(point, trafficLightsRectangle))
                         return false;
                 }
 
+                // Sprawdź czy należy zatrzymać się z powodu autobusu blokującego drogę.
                 if (Helper.CalculateDistance(busLogic.GetBusPosition(), point) < 200) // Jeśli autobus jest blisko, sprawdź go.
                 {
                     collisionPoints = busLogic.GetCollisionPoints();
@@ -895,6 +944,7 @@ namespace Testy_mapy
                         return false;
                 }
 
+                // Sprawdź czy należy się zatrzymać z powodu któregoś z pojazdów.
                 foreach (Vehicle checkedVehicle in vehicles)
                 {
                     if (Helper.CalculateDistance(checkedVehicle.GetVehiclePosition(), point) < 200 && vehicle != checkedVehicle) // Jeśli dany pojazd jest dostatecznie blisko, sprawdż go.
@@ -906,6 +956,7 @@ namespace Testy_mapy
                     }
                 }
             }
+
             return true;
         }
 
@@ -915,6 +966,7 @@ namespace Testy_mapy
         public void MatchSpeeds(Vehicle vehicle, BusLogic busLogic)
         {
             Vector2[] points = vehicle.GetForwardDetectionPoints();
+
             foreach (Vector2 point in points)
             {
                 Vector2[] collisionPoints;
@@ -929,12 +981,14 @@ namespace Testy_mapy
                         float direction = busLogic.GetCurrentDirection() - vehicle.GetVehicleDirection();
                         float speed = busLogic.GetCurrentSpeed() * (float)Math.Cos(MathHelper.ToRadians(Math.Abs(direction)));
                         vehicle.SetMaxSpeed(speed);
+                        return;
                     }
                 }
 
                 foreach (Vehicle checkedVehicle in vehicles)
                 {
-                    if (Helper.CalculateDistance(checkedVehicle.GetVehiclePosition(), point) < 200 && vehicle != checkedVehicle) // Jeśli dany pojazd jest dostatecznie blisko, sprawdż go.
+                    // Jeśli dany pojazd jest dostatecznie blisko, sprawdż go.
+                    if (Helper.CalculateDistance(checkedVehicle.GetVehiclePosition(), point) < 200 && vehicle != checkedVehicle)
                     {
                         collisionPoints = checkedVehicle.GetCollisionPoints();
                         rectangle = new MyRectangle(collisionPoints[0], collisionPoints[1], collisionPoints[2], collisionPoints[3]);
@@ -943,6 +997,7 @@ namespace Testy_mapy
                             float direction = checkedVehicle.GetVehicleDirection() - vehicle.GetVehicleDirection();
                             float speed = checkedVehicle.GetVehicleSpeed() * (float)Math.Cos(MathHelper.ToRadians(Math.Abs(direction)));
                             vehicle.SetMaxSpeed(speed);
+                            return;
                         }
                     }
                 }
@@ -1165,8 +1220,8 @@ namespace Testy_mapy
 
                 drawMap.CreateTrack(GameParams.trafficSpawnDistance, type.size.Y, out getNewRoad, out junctionCenter, out additionalOutpoint);
 
-                //if (!(getNewRoad.point1.X == 600 && getNewRoad.point1.Y == 450))
-                //  return;
+                if (!(getNewRoad.point1.Y == 750))
+                  return;
 
                 if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
@@ -1198,6 +1253,12 @@ namespace Testy_mapy
                     return false;
             });
 
+            // Te zmienne przechowują dane żeby ciągle ich nie pobierać.
+            List<MyRectangle> trafficLightsForCars;
+            List<TrafficLightRectangle> trafficLightsForBus;
+
+            // Pobierz dane jednorazowo.
+            drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
 
             foreach (Vehicle vehicle in vehicles) // Dla każdego pojazdu...
             {
@@ -1205,13 +1266,12 @@ namespace Testy_mapy
                 {
                     MatchSpeeds(vehicle, busLogic); // ...dopasuj prędkość do pojazdów z przodu
 
-                    if (IsRoadClear(vehicle, busLogic, drawMap)) // ...sprawdź czy ma się zatrzymać
+                    if (IsRoadClear(vehicle, busLogic, drawMap, trafficLightsForCars)) // ...sprawdź czy ma się zatrzymać
                         vehicle.Start();
                     else
                         vehicle.Stop();
 
-                    if (!vehicle.accident) //jesli nie mial wypadku
-                        vehicle.Update(drawMap); // ...zaktualizuj jego pozycję
+                    vehicle.Update(drawMap); // ...zaktualizuj jego pozycję
                 }
                 else
                 {
