@@ -74,6 +74,32 @@ pole;3410;1430;0;0;0,0;0
 pole;3460;1430;0;0;0,0;0
 pole;3510;1430;0;0;0,0;0
 oczko_wodne;780;3675;0;0;0,0;0
+*lampadaires*
+//pozycja x;pozycja y;rotacja(0-360)
+2100;1950;90,0
+2400;1950;270,0
+2100;1650;90,0
+2400;1650;270,0
+2100;1350;90,0
+2100;1050;90,0
+2400;1050;270,0
+2550;1200;180,0
+2550;1500;0,0
+2700;1950;90,0
+3000;1950;270,0
+2700;1650;90,0
+3000;1650;270,0
+2700;1050;90,0
+3000;1050;270,0
+2550;600;180,0
+2550;900;0,0
+2850;600;180,0
+3150;600;180,0
+3150;900;0,0
+3450;600;180,0
+3450;900;0,0
+2375;1475;315,0
+2375;1225;225,0
 *junctions*
 //id;pozycja x;pozycja y(srodka);rotacja(0-3);czy maj¹ byæ œwiat³a uliczne(1-tak, 0-nie);czas trwania czerwonego œwiat³a (w sek.; 0-domyœlna wartoœæ): 1 pary(pierwszy napotkany wlot licz¹c od góry i id¹c w prawo po rotacji skrzy¿owania); 2 pary
 1;150;150;0;0

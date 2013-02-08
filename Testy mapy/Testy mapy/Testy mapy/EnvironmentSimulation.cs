@@ -80,6 +80,14 @@ namespace Testy_mapy
             return globalLightColor;
         }
 
+        public bool EnableLampadaire()
+        {
+            if (globalLightColor.Y < GameParams.lampadaireGlobalLightToTurnOnTheLights)
+                return true;
+            else
+                return false;
+        }
+
         private void SetGlobalLightColor()
         {
             float red = 1.0f, greenBlue = 1.0f;

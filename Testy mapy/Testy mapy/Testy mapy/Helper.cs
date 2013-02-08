@@ -113,6 +113,12 @@ namespace Testy_mapy
         public static readonly Vector2 diedPedestrianSize = new Vector2(50, 50);
         public static readonly int numberOfPedestriansTextures = 3;
         public static readonly int numberOfDiedPedestriansTextures = 3;
+
+        // dla MapLogic:
+        public static readonly Vector2 lampadaireSize = new Vector2(20, 30); // rozmiar latarni ulicznych
+        public static readonly Vector2 lampadaireLightSize = new Vector2(550, 550); // rozmiar światła dawanego przez latarnie uliczne
+        public static readonly Color lampadaireLightColor = new Color(180, 180, 140); // kolor światła latarni ulicznych
+        public static readonly float lampadaireGlobalLightToTurnOnTheLights = 0.4f;       // poziom oświetlania poniżej którego włączane są światła w latarniach ulicznych
     }
 
     static class Helper

@@ -2,18 +2,23 @@ sampler s0;
 
 float4 globalLightColor;
 
-Texture lightmap;
-sampler lightmapSampler = sampler_state {
-    texture = <lightmap>;
+Texture firstLightmap;
+sampler firstLightmapSampler = sampler_state {
+    texture = <firstLightmap>;
+};
+Texture secondLightmap;
+sampler secondLightmapSampler = sampler_state {
+    texture = <secondLightmap>;
 };
 
 float4 PixelShaderFunction(float2 coords: TEXCOORD0) : COLOR0
 {
     // TODO: add your pixel shader code here.
 	float4 color = tex2D(s0, coords);
-	float4 lightColor = tex2D(lightmapSampler, coords);
+	float4 firstLightColor = tex2D(firstLightmapSampler, coords);
+	float4 secondLightColor = tex2D(secondLightmapSampler, coords);
 
-	float4 finalColor = (color * (globalLightColor + lightColor));
+	float4 finalColor = color * (globalLightColor + firstLightColor + secondLightColor);
 
 	return finalColor;
 }

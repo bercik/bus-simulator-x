@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Testy_mapy
 {
-    enum ObjectType { underBus, onBus, junction, trafficLight } // typ obiektu (pod autobusem, nad autobusem, skrzyżowanie, światło uliczne)
+    enum ObjectType { underBus, onBus, junction, trafficLight, light } // typ obiektu (pod autobusem, nad autobusem, skrzyżowanie, światło uliczne, światło)
 
     class MapLogic
     {
@@ -36,6 +36,7 @@ namespace Testy_mapy
         List<Object> objectsUnderBusInRange;
         List<Object> objectsOnBusInRange;
         List<Object> trafficLightsInRange;
+        List<Object> lightsInRange;
 
         Size maxObjectSize = new Size(300, 300); // maksymalny możliwy rozmiar obiektu
                                                          // uwzględnij rotację o 45 stopni
@@ -49,6 +50,7 @@ namespace Testy_mapy
             objectsUnderBusInRange = new List<Object>();
             objectsOnBusInRange = new List<Object>();
             trafficLightsInRange = new List<Object>();
+            lightsInRange = new List<Object>();
         }
 
         /// <summary>
@@ -197,6 +199,17 @@ namespace Testy_mapy
                     chunks[i, y] = new Chunk();
                 }
             }
+        }
+
+        private void AddLampadaireToChunk(string s_object)
+        {
+            string[] split = s_object.Split(new char[] { ';' });
+
+            Vector2 pos = new Vector2(float.Parse(split[0]), float.Parse(split[1]));
+            float rotate = float.Parse(split[2]);
+
+            AddObjectToChunk("lampadaire", pos, GameParams.lampadaireSize, rotate, ObjectType.onBus);
+            AddObjectToChunk("light", pos, GameParams.lampadaireLightSize, rotate, ObjectType.light);
         }
 
         private void AddObjectToChunk(string s_object)
@@ -483,6 +496,16 @@ namespace Testy_mapy
             }
         }
 
+        public void LoadLampadaires(ref StreamReader sr)
+        {
+            string s_object = sr.ReadLine(); // !!! ta linia to komentarz (DO USUNIECIA) !!!
+
+            while ((s_object = sr.ReadLine()) != null && s_object[0] != '*')
+            {
+                AddLampadaireToChunk(s_object);
+            }
+        }
+
         // laduje informacje o obiektach
         public void LoadObjectsInformation(string path)
         {
@@ -504,12 +527,13 @@ namespace Testy_mapy
         }
 
         // ustawia obiekty do wyswietlenia (pos - pozycja srodka mapy)
-        public void SetObjectsInRange(Vector2 mapPos)
+        public void SetObjectsInRange(Vector2 mapPos, bool addLights)
         {
             junctionsInRange.Clear();
             objectsOnBusInRange.Clear();
             objectsUnderBusInRange.Clear();
             trafficLightsInRange.Clear();
+            lightsInRange.Clear();
 
             // przypisujemy aktualna pozycje mapy
             this.mapPos = mapPos;
@@ -542,6 +566,9 @@ namespace Testy_mapy
                     GetObjectsInRangeFrom(ref objectsOnBusInRange, chunks[chunk_x, chunk_y].GetObjectsOnBus(), mapPos, Helper.workAreaSize);
                     GetObjectsInRangeFrom(ref objectsUnderBusInRange, chunks[chunk_x, chunk_y].GetObjectsUnderBus(), mapPos, Helper.workAreaSize);
                     GetObjectsInRangeFrom(ref trafficLightsInRange, chunks[chunk_x, chunk_y].GetTrafficLights(), mapPos, Helper.workAreaSize);
+
+                    if (addLights)
+                        GetObjectsInRangeFrom(ref lightsInRange, chunks[chunk_x, chunk_y].GetLights(), mapPos, Helper.workAreaSize);
                 }
             }
         }
@@ -597,6 +624,19 @@ namespace Testy_mapy
             }
 
             return trafficLightsToShow;
+        }
+
+        public List<Object> GetLightsToShow()
+        {
+            List<Object> lightsToShow = new List<Object>(lightsInRange.Count);
+
+            for (int i = 0; i < lightsInRange.Count; ++i)
+            {
+                lightsToShow.Add((Object)lightsInRange[i].Clone());
+                lightsToShow[i].pos = Helper.MapPosToScreenPos(lightsToShow[i].pos);
+            }
+
+            return lightsToShow;
         }
 
         // pobiera liste obiektow w zasiegu w wspolrzednych ekranowych
@@ -666,6 +706,7 @@ namespace Testy_mapy
     class Chunk
     {
         List<Object> junctions;
+        List<Object> lights;
         List<Object> objectsUnderBus;
         List<Object> objectsOnBus;
         List<TrafficLightObject> trafficLights;
@@ -673,6 +714,7 @@ namespace Testy_mapy
         public Chunk()
         {
             junctions = new List<Object>();
+            lights = new List<Object>();
             objectsUnderBus = new List<Object>();
             objectsOnBus = new List<Object>();
             trafficLights = new List<TrafficLightObject>();
@@ -693,6 +735,9 @@ namespace Testy_mapy
                     break;
                 case ObjectType.trafficLight:
                     trafficLights.Add((TrafficLightObject)o);
+                    break;
+                case ObjectType.light:
+                    lights.Add(o);
                     break;
             }
         }
@@ -717,12 +762,18 @@ namespace Testy_mapy
             return new List<Object>(trafficLights.Cast<Object>());
         }
 
+        public List<Object> GetLights()
+        {
+            return lights;
+        }
+
         public void Clear()
         {
             junctions.Clear();
             objectsUnderBus.Clear();
             objectsOnBus.Clear();
             trafficLights.Clear();
+            lights.Clear();
         }
     }
 
