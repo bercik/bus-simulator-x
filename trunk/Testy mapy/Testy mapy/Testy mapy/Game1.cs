@@ -74,7 +74,7 @@ namespace Testy_mapy
             Vector2 newPos = Helper.CalculateScalePoint(pos);
             Rectangle rect = new Rectangle((int)Math.Round(newPos.X), (int)Math.Round(newPos.Y), 4, 4);
 
-            //spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
+            spriteBatch.Draw(point, rect, null, Color.White, 0, new Vector2(2, 2), SpriteEffects.None, 1);
         }
 
         public void DrawPoints(Vector2[] points)
@@ -497,8 +497,10 @@ namespace Testy_mapy
 
                 spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 270), Color.White);
                 spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 300), Color.White);
-                spriteBatch.DrawString(font, "Global Light (red): " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
-                spriteBatch.DrawString(font, "Global Light (greenBlue): " + environmentSimulation.GetGlobalLightColor().Y.ToString(), new Vector2(0, 360), Color.White);
+                spriteBatch.DrawString(font, "GL (R): " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
+                spriteBatch.DrawString(font, "GL (GB): " + environmentSimulation.GetGlobalLightColor().Y.ToString(), new Vector2(0, 360), Color.White);
+                spriteBatch.DrawString(font, "Cars: " + trafficLogic.vehicles.Count, new Vector2(0, 390), Color.White);
+                spriteBatch.DrawString(font, "Fumes: " + particlesLogic.CountFumes(), new Vector2(0, 420), Color.White);
             }
 
             // licznik FPS

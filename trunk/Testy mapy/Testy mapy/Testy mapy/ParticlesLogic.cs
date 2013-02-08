@@ -303,6 +303,11 @@ namespace Testy_mapy
             return (float)Helper.random.NextDouble() * (maximum - minimum) + minimum;
         }
 
+        public int CountFumes()
+        {
+            return exhaustFumes.particlesList.Count;
+        }
+
         public void Update(TrafficLogic trafficLogic, BusLogic busLogic)
         {
             // EXHAUST FUMES.
