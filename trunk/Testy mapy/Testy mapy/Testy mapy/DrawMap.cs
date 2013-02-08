@@ -331,7 +331,7 @@ namespace Testy_mapy
             }
         }
 
-        public void AddDynamicLights(ref DrawLightmap drawLightmap)
+        public void AddDynamicTrafficLights(ref DrawLightmap drawLightmap)
         {
             List<TrafficLightObject> trafficLightObjects = mapLogic.GetTrafficLightsToShow();
 
@@ -369,6 +369,23 @@ namespace Testy_mapy
             lightPosition += trafficLightPosition;
 
             return new LightObject("light", lightPosition, GameParams.trafficLightDynamicLightSize, rotation, color);
+        }
+
+        public void AddDynamicLampadaireLights(ref DrawLightmap drawLightmap)
+        {
+            List<Object> lightObjects = mapLogic.GetLightsToShow();
+
+            foreach (Object light in lightObjects)
+            {
+                AddLightObjectDynamicLight(light, ref drawLightmap);
+            }
+        }
+
+        private void AddLightObjectDynamicLight(Object light, ref DrawLightmap drawLightmap)
+        {
+            LightObject lo = new LightObject(light.name, light.pos, light.size, light.rotate, GameParams.lampadaireLightColor);
+
+            drawLightmap.AddLightObject(lo);
         }
 
         // funkcja pomocnicza sluzaca do pobrania punktow kolizji do ich pozniejszego wyswietlenia na ekranie
@@ -518,6 +535,7 @@ namespace Testy_mapy
             startRotation = float.Parse(sr.ReadLine()); // pobieramy startow¹ rotacjê
 
             mapLogic.LoadMap(ref sr);
+            mapLogic.LoadLampadaires(ref sr);
             trackLogic.LoadTrack(ref sr);
             areasLogic.LoadAreas(ref sr);
             mapLogic.AddJunctionsToChunks(trackLogic.GetJunctions()); // dodajemy skrzyzowania, drogi i chodniki jako obiekty do wyswietlenia
@@ -527,11 +545,11 @@ namespace Testy_mapy
             load = true;
         }
 
-        public void SetPosition(Vector2 pos)
+        public void SetPosition(Vector2 pos, bool addLights)
         {
             this.pos = pos;
 
-            mapLogic.SetObjectsInRange(pos);
+            mapLogic.SetObjectsInRange(pos, addLights);
         }
 
         public bool IsCollision(Vector2 point)

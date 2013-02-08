@@ -22,7 +22,8 @@ namespace Testy_mapy
 
         Effect lightEffect; // efekt œwiat³a
         EffectParameter globalLightColor; // globalny kolor œwiat³a
-        EffectParameter lightmapTexture; // tekstura lightmapy
+        EffectParameter firstLightmapTexture; // pierwsza tekstura lightmapy
+        EffectParameter secondLightmapTexture; // druga tekstura lightmapy
 
         RenderTarget2D scene;
 
@@ -85,14 +86,19 @@ namespace Testy_mapy
 
         public void UpdatePos(KeyboardState keybState, GameTime gameTime)
         {
+            float modifier = 1.0f;
+
+            if (keybState.IsKeyDown(Keys.LeftShift))
+                modifier = 0.05f;
+
             if (keybState.IsKeyDown(Keys.Up))
-                Helper.mapPos += new Vector2(0, -scrollingSpeed);
+                Helper.mapPos += new Vector2(0, -scrollingSpeed * modifier);
             if (keybState.IsKeyDown(Keys.Down))
-                Helper.mapPos += new Vector2(0, scrollingSpeed);
+                Helper.mapPos += new Vector2(0, scrollingSpeed * modifier);
             if (keybState.IsKeyDown(Keys.Left))
-                Helper.mapPos += new Vector2(-scrollingSpeed, 0);
+                Helper.mapPos += new Vector2(-scrollingSpeed * modifier, 0);
             if (keybState.IsKeyDown(Keys.Right))
-                Helper.mapPos += new Vector2(scrollingSpeed, 0);
+                Helper.mapPos += new Vector2(scrollingSpeed * modifier, 0);
         }
 
         public Game1()
@@ -121,7 +127,7 @@ namespace Testy_mapy
             scene = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             hud = new HUD();
-            environmentSimulation = new EnvironmentSimulation(0, 18);
+            environmentSimulation = new EnvironmentSimulation(00, 19);
             
             drawMap = new DrawMap(graphics.GraphicsDevice);
             drawBus = new DrawBus();
@@ -151,7 +157,8 @@ namespace Testy_mapy
             // ³adujemy efekty:
             lightEffect = Content.Load<Effect>("effects/light");
             globalLightColor = lightEffect.Parameters["globalLightColor"];
-            lightmapTexture = lightEffect.Parameters["lightmap"];
+            firstLightmapTexture = lightEffect.Parameters["firstLightmap"];
+            secondLightmapTexture = lightEffect.Parameters["secondLightmap"];
 
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
@@ -306,7 +313,7 @@ namespace Testy_mapy
                         busLogic.Update(accelerate, brake, left, right, up, down, doors, lights);
 
                         // Ustawienia mapy i klasy pomocniczej.
-                        drawMap.SetPosition(busLogic.GetBusPosition());
+                        drawMap.SetPosition(busLogic.GetBusPosition(), environmentSimulation.EnableLampadaire());
                         Helper.mapPos = busLogic.GetBusPosition();
                         Helper.busPos = busLogic.GetBusPosition();
 
@@ -317,7 +324,7 @@ namespace Testy_mapy
                     {
                         UpdatePos(keybState, gameTime);
 
-                        drawMap.SetPosition(Helper.mapPos);
+                        drawMap.SetPosition(Helper.mapPos, environmentSimulation.EnableLampadaire());
                     }
 
                     // obs³uga BUS MODE i MAP PREVIEW
@@ -422,7 +429,7 @@ namespace Testy_mapy
             }
             else
             {
-                //drawing lightmap:                
+                //drawing first lightmap:                
                 
                 // Œwiat³a samochodów.
                 drawTraffic.AddDynamicLights(trafficLogic, drawLightmap, environmentSimulation);
@@ -433,11 +440,19 @@ namespace Testy_mapy
                 // Œwiat³a gameplay logic.
                 drawGameplay.AddDynamicLights(gameplayLogic, drawLightmap);
 
-                // Œwiat³a mapy (œwiat³a uliczne, latarnie uliczne):
-                drawMap.AddDynamicLights(ref drawLightmap);
+                // Œwiat³a uliczne:
+                drawMap.AddDynamicTrafficLights(ref drawLightmap);
 
-                drawLightmap.Draw(spriteBatch);
-                lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
+                drawLightmap.Draw(spriteBatch, LightmapOrder.First);
+                firstLightmapTexture.SetValue(drawLightmap.GetFirsLightmapTexture());
+
+                //drawing second lightmap:
+
+                // Latarnie uliczne:
+                drawMap.AddDynamicLampadaireLights(ref drawLightmap);
+
+                drawLightmap.Draw(spriteBatch, LightmapOrder.Second);
+                secondLightmapTexture.SetValue(drawLightmap.GetSecondLightmapTexture());
 
                 // drawing minimap:
                 drawMap.DrawMinimap(spriteBatch, busLogic.GetCurrentDirection(), gameplayLogic.GetCurrentBusStopPosition());
@@ -460,15 +475,13 @@ namespace Testy_mapy
                 DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
 
                 /*punkty*/
-                List<Rectangle> trafficLightsForCars;
+                List<MyRectangle> trafficLightsForCars;
                 List<TrafficLightRectangle> trafficLightsForBus;
 
                 drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
 
-                foreach (Rectangle rect in trafficLightsForCars)
+                foreach (MyRectangle myRect in trafficLightsForCars)
                 {
-                    MyRectangle myRect = Helper.ToMyRectangle(rect);
-
                     DrawPoint(Helper.MapPosToScreenPos(myRect.point1));
                     DrawPoint(Helper.MapPosToScreenPos(myRect.point2));
                     DrawPoint(Helper.MapPosToScreenPos(myRect.point3));

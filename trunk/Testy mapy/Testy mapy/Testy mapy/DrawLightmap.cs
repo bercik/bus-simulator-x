@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Media;
 namespace Testy_mapy
 {
     enum OriginType { Center, CenterDown }
+    enum LightmapOrder { First, Second }
 
     class LightTexture
     {
@@ -44,7 +45,8 @@ namespace Testy_mapy
 
     class DrawLightmap
     {
-        RenderTarget2D lightmap;
+        RenderTarget2D firstLightmap;
+        RenderTarget2D secondLightmap;
         GraphicsDevice graphicsDevice;
 
         Dictionary<string, LightTexture> lightTextures;
@@ -58,7 +60,8 @@ namespace Testy_mapy
 
             this.graphicsDevice = graphicsDevice;
 
-            lightmap = new RenderTarget2D(graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight);
+            firstLightmap = new RenderTarget2D(graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight);
+            secondLightmap = new RenderTarget2D(graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight);
         }
 
         public void LoadContent(ContentManager content)
@@ -67,10 +70,17 @@ namespace Testy_mapy
             lightTextures.Add("spotlight", new LightTexture(content.Load<Texture2D>("light/spotlight"), OriginType.CenterDown));
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, LightmapOrder lightmapOrder)
         {
-            graphicsDevice.SetRenderTarget(lightmap); // ustawiamy obiekt renderowania
-
+            switch (lightmapOrder)
+            {
+                case LightmapOrder.First:
+                    graphicsDevice.SetRenderTarget(firstLightmap); // ustawiamy obiekt renderowania
+                    break;
+                case LightmapOrder.Second:
+                    graphicsDevice.SetRenderTarget(secondLightmap); // ustawiamy obiekt renderowania
+                    break;
+            }
             graphicsDevice.Clear(Color.Black);
 
             // rysowanie oświetlenia na teksturę lightmapy:
@@ -93,9 +103,14 @@ namespace Testy_mapy
             graphicsDevice.SetRenderTarget(null); // ustawiamy obiekt renderowania z powrotem na domyślny (ekran)
         }
 
-        public Texture2D GetLightmapTexture()
+        public Texture2D GetFirsLightmapTexture()
         {
-            return lightmap;
+            return firstLightmap;
+        }
+
+        public Texture2D GetSecondLightmapTexture()
+        {
+            return secondLightmap;
         }
 
         public void AddLightObject(LightObject newLightObject)

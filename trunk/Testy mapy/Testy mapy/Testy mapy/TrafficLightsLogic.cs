@@ -116,7 +116,7 @@ namespace Testy_mapy
 
     struct TrafficLightRectangle
     {
-        protected Rectangle r_redLightRectangle; // j.n.
+        private Rectangle r_redLightRectangle; // j.n.
         public Rectangle redLightRectangle // prostokat do wykrywania czerwonego swiatla
         {
             get
