@@ -38,6 +38,10 @@ namespace Testy_mapy
         private Vector2 headLightsOffset = new Vector2(-20, 0);
         Color headLightsColor = Color.LightYellow;
 
+        private Vector2 reversingLightTextureSize = new Vector2(100, 100);
+        private Vector2 reversingLightsOffset = new Vector2(-20, 0);
+        Color reversingLightsColor = Color.White;
+
         private Vector2 exhaustPipeOffset = new Vector2(-20, 0);
 
         private GearBox gearBox = new GearBox();
@@ -232,7 +236,26 @@ namespace Testy_mapy
             }
 
             return list;
-        }          
+        }
+
+        /// <summary>
+        /// Get the head lights position if active or empty list if disabled.
+        /// </summary>
+        public List<LightObject> GetReversingLightsPoints()
+        {
+            List<LightObject> list = new List<LightObject>();
+            Vector2[] pointsArray;
+
+            if (GetCurrentGear() == 0)
+            {
+                pointsArray = GetCollisionPoints(position, direction, reversingLightsOffset);
+
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[2]), reversingLightTextureSize, GetCurrentDirection(), reversingLightsColor));
+                list.Add(new LightObject("light", Helper.MapPosToScreenPos(pointsArray[3]), reversingLightTextureSize, GetCurrentDirection(), reversingLightsColor));
+            }
+
+            return list;
+        }   
 
         /// <summary>
         /// Return the points where the exhaust fumes should appear.

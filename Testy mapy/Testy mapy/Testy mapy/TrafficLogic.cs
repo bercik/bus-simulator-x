@@ -684,7 +684,40 @@ namespace Testy_mapy
                             return false;
                     }
 
-    // tutaj nie bierze pod uwage ze jest prosto i zwraca false
+                    if (start.X == end.X && start.Y < end.Y) // Down.
+                    {
+                        if (position.Y > point.Y)
+                            return true;
+                        else
+                            return false;
+                    }
+
+                    if (start.X == end.X && start.Y > end.Y) // Up.
+                    {
+                        if (position.Y < point.Y)
+                            return true;
+                        else
+                            return false;
+                    }
+
+                    if (start.Y == end.Y && start.X < end.X) // Right.
+                    {
+                        if (position.X > point.X)
+                            return true;
+                        else
+                            return false;
+                    }
+
+                    if (start.Y == end.Y && start.X > end.X) // Left.
+                    {
+                        if (position.X < point.X)
+                            return true;
+                        else
+                            return false;
+                    }
+
+
+
 
                     return false;
                 }
@@ -1219,9 +1252,11 @@ namespace Testy_mapy
                 Connection getNewRoad;
 
                 drawMap.CreateTrack(GameParams.trafficSpawnDistance, type.size.Y, out getNewRoad, out junctionCenter, out additionalOutpoint);
-
+                
+                /*
                 if (!(getNewRoad.point1.Y == 750))
                   return;
+                 */
 
                 if (!getNewRoad.IsEmpty() && junctionCenter.X != 0 && junctionCenter.Y != 0)
                 {
