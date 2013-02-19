@@ -24,6 +24,10 @@ namespace Testy_mapy
         public void AddDynamicLights(BusLogic busLogic, DrawLightmap drawLightmap)
         {
             List<LightObject> list = new List<LightObject>();
+ 
+            list = busLogic.GetReversingLightsPoints();
+            foreach (LightObject lightObject in list)
+                drawLightmap.AddLightObject(lightObject);
 
             list = busLogic.GetStopLightsPoints();
             foreach (LightObject lightObject in list)
@@ -35,7 +39,7 @@ namespace Testy_mapy
 
             list = busLogic.GetHeadLightsPoints();
             foreach (LightObject lightObject in list)
-                drawLightmap.AddLightObject(lightObject);
+                drawLightmap.AddLightObject(lightObject);           
         }
 
         public void LoadContent(ContentManager content, Vector2 busSize)
