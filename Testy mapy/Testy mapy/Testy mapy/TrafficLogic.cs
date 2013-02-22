@@ -725,20 +725,29 @@ namespace Testy_mapy
 
             public void Update(DrawMap drawMap)
             {
-                if (maxSpeed == 0) // Jeśli maxSpeed nie został nadpisany przez funkcję wykrywającą czy należy zwolnić z powodu innego pojazdu.
+                // Jeśli maxSpeed nie został nadpisany przez funkcję wykrywającą czy należy zwolnić z powodu innego pojazdu.
+                if (maxSpeed == 0)
                 {
                     // Dostosuj prędkość na podstawie odległości do końca drogi.
                     if (Helper.CalculateDistance(GetVehiclePosition(), road.lane.end) > minDistanceToFastSpeed && !IsRedirecting())
+                    {
+                        // Daleko, szybka jazda.
                         maxSpeed = fastSpeed;
+                    }
                     else
+                    {
+                        // Blisko, wolna jazda.
                         maxSpeed = normalSpeed;
+                    }
                 }
 
                 // Zaokrąglij maxSpeed (mogła zostać nadpisana i zawierać dziwny ułamek).
                 maxSpeed = (float)Math.Round(maxSpeed, 0);
 
+                // Accelerate or decelerate.
                 if (driving)
                 {
+                    // Light speed changes from normal to fast speed etc.
                     if (speed <= maxSpeed)
                     {
                         Accelerate(lightAcceleration);
@@ -754,37 +763,45 @@ namespace Testy_mapy
                 }
                 else
                 {
+                    // Hard breaking.
                     Break(acceleration);
                     if (speed < 0)
                         speed = 0;
                 }
 
+                // Remember old position and direction for collisions.
                 oldDirection = direction;
                 oldPosition = position;
 
                 if (!redirecting)
                 {
+                    // Jeśli dojechał do końca drogi.
                     if (road.EndReached(position, size.Y))
                     {
                         Vector2 junctionCenter;
                         Connection getNewRoad;
 
-                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter); // Zapytaj o nową drogę.
+                        // Ask for a new road.
+                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter);
 
-                        lastEnd = road.end; // Koniec poprzedniej drogi to teraz koniec drogi aktualnej.
+                        // Koniec poprzedniej drogi to teraz koniec drogi aktualnej.
+                        lastEnd = road.end;
                         lastRoad = road;
 
-                        Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter); // Generujemy nową drogę w oparciu o punkty podane przez funkcje ChangeTrack.
+                        // Generujemy nową drogę w oparciu o punkty podane przez funkcje ChangeTrack.
+                        Road newRoad = new Road(getNewRoad.point1, getNewRoad.point2, junctionCenter);
 
-                        roadsSwitching = new RoadsSwitching(road.lane.end, newRoad.lane.start, junctionCenter); // Generujemy klasę przekierowującą.
+                        // Generujemy klasę przekierowującą.
+                        roadsSwitching = new RoadsSwitching(road.lane.end, newRoad.lane.start, junctionCenter); 
 
-                        //if (!roadsSwitching.IsStraight()) // Jeśli droga nie jest naprzeciwko rozpoczynamy przekierowanie.
-                            redirecting = true;
+                        redirecting = true;
 
-                        road = newRoad; // Auto otrzymuje nową drogę.
+                        // Auto otrzymuje nową drogę.
+                        road = newRoad;
                     }
                     else
                     {
+                        // Nie ma żanych przekierowywań, nie dojechał do końca etc.
                         position = CalculateNewPosition(speed, direction);
                     }
                 }
@@ -792,7 +809,8 @@ namespace Testy_mapy
                 {
                     if (roadsSwitching.Reached(position, road.lane.start))
                     {
-                        redirecting = false; // Jeśli już dojechaliśmy do nowej drogi ustawmy odpowiednio auto i dajmy mu normalnie jechać.
+                        // Jeśli już dojechaliśmy do nowej drogi ustawmy odpowiednio auto i dajmy mu normalnie jechać.
+                        redirecting = false;
                         direction = road.lane.direction;
                         position = road.lane.start;
                     }
@@ -844,8 +862,14 @@ namespace Testy_mapy
             VehicleType vehicleType10 = new VehicleType(new Vector2(45, 100), 9, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, 0), new Vector2(-10, -10), new Vector2(-10, 0));   // Ferrari z pokrywą silnika.
             VehicleType vehicleType11 = new VehicleType(new Vector2(45, 100), 10, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Mustang.
             VehicleType vehicleType12 = new VehicleType(new Vector2(45, 100), 11, 1, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Mustang + stripes.
+            VehicleType vehicleType13 = new VehicleType(new Vector2(35, 65), 12, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0));  // Mini.
+            VehicleType vehicleType14 = new VehicleType(new Vector2(45, 100), 13, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Fioletowy.
+            VehicleType vehicleType15 = new VehicleType(new Vector2(45, 100), 14, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Red + stripes.
+            VehicleType vehicleType16 = new VehicleType(new Vector2(45, 100), 15, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Light blue.
+            VehicleType vehicleType17 = new VehicleType(new Vector2(45, 90), 16, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Delorean.
 
-            vehicleTypes = new VehicleType[12] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12 };
+
+            vehicleTypes = new VehicleType[17] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12, vehicleType13, vehicleType14, vehicleType15, vehicleType16, vehicleType17 };
 
             foreach (VehicleType vehicleType in vehicleTypes)
                 maxRandom += vehicleType.likelihoodOfApperance;
