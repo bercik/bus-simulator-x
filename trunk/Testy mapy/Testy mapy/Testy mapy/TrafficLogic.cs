@@ -931,7 +931,7 @@ namespace Testy_mapy
         public void SetTrafficDensityHigh()
         {
             spawnInterval = 0;
-            maxVehicles = 70;
+            maxVehicles = 20;
         }
 
         /// <summary>
