@@ -96,7 +96,7 @@ namespace Testy_mapy
         public static readonly Vector2 trafficLightDynamicLightSize = new Vector2(40, 40); // wielkość dynamicznego światła ulicznego
 
 
-        public const int numberOfCars = 12; // Number of cars/car skins.
+        public const int numberOfCars = 17; // Number of cars/car skins.
 
         // dla Environment Simulation:
         public static readonly float timeBeetwenOneMinute = 0.2f; // czas w sekundach, w którym upływa jedna minuta w grze
