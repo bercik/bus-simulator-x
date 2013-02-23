@@ -81,7 +81,7 @@ namespace Testy_mapy
         // dla TrafficLogic:
         public static readonly Vector2 trafficSpawnDistance = new Vector2(2000, 2000); // Maksymalna odleglość spawowania od autobusu.
         public static readonly float trafficDistanceToDelete = 2000;                   // Samochody będace dalej niż podany dystans zostaną usunięte.
-        public static readonly float trafficDistanceToDeleteWhenAccident = 500;        // Samochody, które uległy wypadkowi będace dalej niż podany dystans zostaną usunięte.
+        public static readonly float trafficDistanceToDeleteWhenAccident = 800;        // Samochody, które uległy wypadkowi będace dalej niż podany dystans zostaną usunięte.
         public static readonly float trafficGlobalLightToTurnOnTheLights = 0.6f;       // Poziom oświetlania poniżej którego włączane są światła.
 
         // dla TrafficLights:

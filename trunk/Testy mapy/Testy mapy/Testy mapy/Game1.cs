@@ -31,7 +31,7 @@ namespace Testy_mapy
 
         DrawMap drawMap;
         DrawBus drawBus;
-        
+
         BusLogic busLogic;
         TrafficLogic trafficLogic;
         DrawTraffic drawTraffic;
@@ -44,15 +44,38 @@ namespace Testy_mapy
 
         EnvironmentSimulation environmentSimulation;
 
-        // licznik FPS:
-        int a_fps = 0;
-        int fps = 60;
-        double time = 0.0f;
+        static class FPSCounter
+        {
+            public static int fps;
+
+            static int frameRate = 0;
+            static int frameCounter = 0;
+            static TimeSpan elapsedTime = TimeSpan.Zero;
+
+            public static void Update(GameTime gameTime)
+            {
+                elapsedTime += gameTime.ElapsedGameTime;
+
+                if (elapsedTime > TimeSpan.FromSeconds(1))
+                {
+                    elapsedTime -= TimeSpan.FromSeconds(1);
+                    frameRate = frameCounter;
+                    frameCounter = 0;
+
+                    fps = frameRate;
+                }
+            }
+
+            public static void IncFrameCounter()
+            {
+                frameCounter++;
+            }
+        }
 
         // !!! pomocnicze zmienne do EW. USUNIECIA !!!
         Vector2 startPos = new Vector2(0, 0); //poczatkowa pozycja
         Texture2D point; // tekstura punktu
-        
+
         float scrollingSpeed = 10.0f; // predkosc przewijania mapy
 
         // BUS MODE:
@@ -125,10 +148,10 @@ namespace Testy_mapy
 
             hud = new HUD();
             environmentSimulation = new EnvironmentSimulation(00, 19);
-            
+
             drawMap = new DrawMap(graphics.GraphicsDevice);
             drawBus = new DrawBus();
-            
+
             busLogic = new BusLogic(startPos.X, startPos.Y, 0, 0, new Vector2(50, 150));
             trafficLogic = new TrafficLogic();
             drawTraffic = new DrawTraffic();
@@ -217,7 +240,7 @@ namespace Testy_mapy
         {
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();           
+                this.Exit();
 
             // Obs³uga klawiatury.
             KeyboardState keybState = Keyboard.GetState();
@@ -227,18 +250,21 @@ namespace Testy_mapy
 
             // Aktualizacja InputLogic. Przed t¹ akcj¹ nie powinno byæ ¿adnych innych update'ów.
             InputLogic.Update(keybState, mouseState);
-            
+
             // Zaktualizuj Helper. Przed t¹ akcj¹ nie powinno byæ ¿adnych innych update'ów oprócz InputLogic.
             Helper.Update(gameTime);
+
+            // Zaktualizuj logikê FPS counter.
+            FPSCounter.Update(gameTime);
 
             if (!previewMode) // je¿eli nie jesteœmy obecnie w podgl¹dzie mapy to wszystko dzia³a normalnie
             {
                 if (!InputLogic.pauseButton.state)
                 {
                     if (busMode)
-                    {                       
+                    {
                         if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos);          // Przywróæ na pozycje pocz¹tkow¹.
-                     
+
                         // Logika autobusu.
                         busLogic.Update(InputLogic.accelerateButton.state, InputLogic.brakeButton.state, InputLogic.leftTurnButton.state, InputLogic.rightTurnButton.state, InputLogic.gearUpButton.state, InputLogic.gearDownButton.state, InputLogic.doorsButton.state, InputLogic.lightsButton.state);
 
@@ -276,16 +302,6 @@ namespace Testy_mapy
                     }
                     if (keybState.IsKeyUp(Keys.M))
                         m_release = true;
-
-                    // obs³uga skali mapy:
-                    if (keybState.IsKeyDown(Keys.PageUp))
-                        Helper.SetScale(Helper.GetScale() + 0.01f);
-
-                    if (keybState.IsKeyDown(Keys.PageDown))
-                        Helper.SetScale(Helper.GetScale() - 0.01f);
-
-                    if (keybState.IsKeyDown(Keys.Delete))
-                        Helper.SetScale(1.0f);
 
                     // ob³usga skali HUDU:
                     if (keybState.IsKeyDown(Keys.OemPlus))
@@ -360,7 +376,7 @@ namespace Testy_mapy
             else
             {
                 //drawing first lightmap:                
-                
+
                 // Œwiat³a samochodów.
                 drawTraffic.AddDynamicLights(trafficLogic, drawLightmap, environmentSimulation);
 
@@ -398,32 +414,37 @@ namespace Testy_mapy
                 spriteBatch.Draw(scene, new Vector2(0, 0), Color.White);
 
                 spriteBatch.End();
-                
+
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                 // zmienne pomocnicze rysowane na ekranie:
                 DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
 
                 /*punkty*/
-                List<MyRectangle> trafficLightsForCars;
-                List<TrafficLightRectangle> trafficLightsForBus;
-
-                drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
-
-                foreach (MyRectangle myRect in trafficLightsForCars)
+                if (InputLogic.debugButton.state)
                 {
-                    DrawPoint(Helper.MapPosToScreenPos(myRect.point1));
-                    DrawPoint(Helper.MapPosToScreenPos(myRect.point2));
-                    DrawPoint(Helper.MapPosToScreenPos(myRect.point3));
-                    DrawPoint(Helper.MapPosToScreenPos(myRect.point4));
+                    List<MyRectangle> trafficLightsForCars;
+                    List<TrafficLightRectangle> trafficLightsForBus;
+
+                    drawMap.GetRedLightRectangles(out trafficLightsForCars, out trafficLightsForBus);
+
+                    foreach (MyRectangle myRect in trafficLightsForCars)
+                    {
+                        DrawPoint(Helper.MapPosToScreenPos(myRect.point1));
+                        DrawPoint(Helper.MapPosToScreenPos(myRect.point2));
+                        DrawPoint(Helper.MapPosToScreenPos(myRect.point3));
+                        DrawPoint(Helper.MapPosToScreenPos(myRect.point4));
+                    }
+
+
+
+                    DrawPoints(trafficLogic.GetPointsToDraw());
+                    DrawPoints(busLogic.GetPointsToDraw());
+                    DrawPoints(gameplayLogic.GetPointsToDraw());
+
+                    DrawPoints(drawMap.GetCollisionPointsToDraw());
                 }
                 /*/punkty*/
-
-                DrawPoints(trafficLogic.GetPointsToDraw());
-                DrawPoints(busLogic.GetPointsToDraw());
-                DrawPoints(gameplayLogic.GetPointsToDraw());
-
-                DrawPoints(drawMap.GetCollisionPointsToDraw());
 
                 // rysujemy nazwe zmienionego obszaru (jezeli obszar sie zmienil)
                 spriteBatch.End();
@@ -432,32 +453,26 @@ namespace Testy_mapy
 
                 DrawHud(spriteBatch, gameTime.ElapsedGameTime);
 
-                spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 90), Color.White);
-                spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 120), Color.White);
-                spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 150), Color.White);
-                spriteBatch.DrawString(font, "Acc: " + Math.Round(busLogic.GetCurrentAcceleration(), 2), new Vector2(0, 180), Color.White);
-                spriteBatch.DrawString(font, "Side acc: " + Math.Round(busLogic.GetSideAcceleration(), 2), new Vector2(0, 210), Color.White);
+                if (InputLogic.debugButton.state)
+                {
+                    spriteBatch.DrawString(font, "FPS: " + FPSCounter.fps, new Vector2(0, 60), Color.White);
 
-                spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 270), Color.White);
-                spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 300), Color.White);
-                spriteBatch.DrawString(font, "GL (R): " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
-                spriteBatch.DrawString(font, "GL (GB): " + environmentSimulation.GetGlobalLightColor().Y.ToString(), new Vector2(0, 360), Color.White);
-                spriteBatch.DrawString(font, "Cars: " + trafficLogic.vehicles.Count, new Vector2(0, 390), Color.White);
-                spriteBatch.DrawString(font, "Fumes: " + particlesLogic.CountFumes(), new Vector2(0, 420), Color.White);
+                    spriteBatch.DrawString(font, "X: " + Helper.mapPos.X, new Vector2(0, 90), Color.White);
+                    spriteBatch.DrawString(font, "Y: " + Helper.mapPos.Y, new Vector2(0, 120), Color.White);
+                    spriteBatch.DrawString(font, "Time: " + (float)gameTime.ElapsedGameTime.Milliseconds / 1000, new Vector2(0, 150), Color.White);
+                    spriteBatch.DrawString(font, "Acc: " + Math.Round(busLogic.GetCurrentAcceleration(), 2), new Vector2(0, 180), Color.White);
+                    spriteBatch.DrawString(font, "Side acc: " + Math.Round(busLogic.GetSideAcceleration(), 2), new Vector2(0, 210), Color.White);
+
+                    spriteBatch.DrawString(font, "Scale: " + Helper.GetScale(), new Vector2(0, 270), Color.White);
+                    spriteBatch.DrawString(font, "HUD Scale: " + hud.scale.ToString("0.00"), new Vector2(0, 300), Color.White);
+                    spriteBatch.DrawString(font, "GL (R): " + environmentSimulation.GetGlobalLightColor().X.ToString(), new Vector2(0, 330), Color.White);
+                    spriteBatch.DrawString(font, "GL (GB): " + environmentSimulation.GetGlobalLightColor().Y.ToString(), new Vector2(0, 360), Color.White);
+                    spriteBatch.DrawString(font, "Cars: " + trafficLogic.vehicles.Count, new Vector2(0, 390), Color.White);
+                    spriteBatch.DrawString(font, "Fumes: " + particlesLogic.CountFumes(), new Vector2(0, 420), Color.White);
+                }
             }
 
-            // licznik FPS
-            time += gameTime.ElapsedGameTime.TotalMilliseconds;
-            ++a_fps;
-            
-            spriteBatch.DrawString(font, "FPS: " + fps, new Vector2(0, 60), Color.White);
-
-            if (time > 1000)
-            {
-                time -= 1000;
-                fps = a_fps;
-                a_fps = 0;
-            }
+            FPSCounter.IncFrameCounter();
 
             spriteBatch.End();
         }

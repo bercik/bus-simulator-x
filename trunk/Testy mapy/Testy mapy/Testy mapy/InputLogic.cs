@@ -11,6 +11,8 @@ namespace Testy_mapy
     {
         public static ToggleButton pauseButton = new ToggleButton(Keys.P);
 
+        public static ToggleButton debugButton = new ToggleButton(Keys.F1, true);
+
         public static NormalButton brakeButton = new NormalButton(Keys.Down);
         public static NormalButton accelerateButton = new NormalButton(Keys.Up);
         public static NormalButton rightTurnButton = new NormalButton(Keys.Right);
@@ -24,20 +26,32 @@ namespace Testy_mapy
         {
             // Update pause button.
             pauseButton.Update(keybState);
+
+            // Update debug button.
+            debugButton.Update(keybState);
             
-            // Update movement buttons.
+            // Update bus related buttons.
             brakeButton.Update(keybState);
             accelerateButton.Update(keybState);
             rightTurnButton.Update(keybState);
             leftTurnButton.Update(keybState);
-
             doorsButton.Update(keybState);
             lightsButton.Update(keybState);
             gearUpButton.Update(keybState);
             gearDownButton.Update(keybState);            
 
             // Update mouse.
-            Mouse.Update(mouseState);      
+            Mouse.Update(mouseState);
+
+            // Obsługa skali mapy.
+            if (keybState.IsKeyDown(Keys.PageUp))
+                Helper.SetScale(Helper.GetScale() + 0.01f);
+
+            if (keybState.IsKeyDown(Keys.PageDown))
+                Helper.SetScale(Helper.GetScale() - 0.01f);
+
+            if (keybState.IsKeyDown(Keys.Delete))
+                Helper.SetScale(1.0f);            
         }
 
         /// <summary>
