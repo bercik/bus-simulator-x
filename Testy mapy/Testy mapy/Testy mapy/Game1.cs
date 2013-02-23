@@ -44,9 +44,6 @@ namespace Testy_mapy
 
         EnvironmentSimulation environmentSimulation;
 
-        bool left, right, brake, accelerate, up, down, prevup, prevdown, doors, prevdoors, lights, prevlights; // Zmienne s³u¿¹ce do sterowana autobusem.
-        bool pause, p_release;
-
         // licznik FPS:
         int a_fps = 0;
         int fps = 60;
@@ -220,97 +217,30 @@ namespace Testy_mapy
         {
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
-
-            // TODO: Add your update logic here
-
-            // Zaktualizuj helper. Przed t¹ akcj¹ nie powinno byæ ¿adnych innych update'ów.
-            Helper.Update(gameTime);
+                this.Exit();           
 
             // Obs³uga klawiatury.
             KeyboardState keybState = Keyboard.GetState();
 
+            // Obs³uga myszy.
+            MouseState mouseState = Mouse.GetState();
+
+            // Aktualizacja InputLogic. Przed t¹ akcj¹ nie powinno byæ ¿adnych innych update'ów.
+            InputLogic.Update(keybState, mouseState);
+            
+            // Zaktualizuj Helper. Przed t¹ akcj¹ nie powinno byæ ¿adnych innych update'ów oprócz InputLogic.
+            Helper.Update(gameTime);
+
             if (!previewMode) // je¿eli nie jesteœmy obecnie w podgl¹dzie mapy to wszystko dzia³a normalnie
             {
-                if (keybState.IsKeyDown(Keys.P) && p_release)
-                {
-                    Score.AddAction("click pause", 1.0f); // !!! DO USUNIECIA (DLA TESTOW) !!!
-                    pause = !pause;
-                    p_release = false;
-                }
-
-                if (keybState.IsKeyUp(Keys.P))
-                    p_release = true;
-
-                if (!pause)
+                if (!InputLogic.pauseButton.state)
                 {
                     if (busMode)
-                    {
-                        if (keybState.IsKeyDown(Keys.Down)) brake = true; else brake = false;         // Powinien hamowac?
-
-                        if (keybState.IsKeyDown(Keys.Up)) accelerate = true; else accelerate = false; // Powinien przyspieszac?
-
-                        if (keybState.IsKeyDown(Keys.Right)) right = true; else right = false;        // Skrêcamy w prawo?
-
-                        if (keybState.IsKeyDown(Keys.Left)) left = true; else left = false;           // Skrêcamy w lewo?
-
+                    {                       
                         if (keybState.IsKeyDown(Keys.Space)) busLogic.SetPosition(startPos);          // Przywróæ na pozycje pocz¹tkow¹.
-
-                        if (keybState.IsKeyDown(Keys.D) && !prevdoors)
-                        {
-                            doors = true;
-                            prevdoors = true;
-                        }
-                        else
-                        {
-                            doors = false;
-                        }
-
-
-                        if (keybState.IsKeyUp(Keys.D))
-                            prevdoors = false;
-
-                        if (keybState.IsKeyDown(Keys.L) && !prevlights)
-                        {
-                            lights = true;
-                            prevlights = true;
-                        }
-                        else
-                        {
-                            lights = false;
-                        }
-
-                        if (keybState.IsKeyUp(Keys.L))
-                            prevlights = false;
-
-                        /* <ZMIANY BIEGOW>
-                          To wszystko zapobiega zmienieniu biegu z ka¿dym tickiem, w koñcu chcemy ¿eby zosta³ zmieniony tylko przy wciœniêciu przycisku
-                        */
-                        if (keybState.IsKeyDown(Keys.A) && prevup)
-                        {
-                            up = true;
-                            prevup = false;
-                        }
-                        else
-                            up = false;
-
-                        if (keybState.IsKeyUp(Keys.A))
-                            prevup = true;
-
-                        if (keybState.IsKeyDown(Keys.Z) && prevdown)
-                        {
-                            down = true;
-                            prevdown = false;
-                        }
-                        else
-                            down = false;
-
-                        if (keybState.IsKeyUp(Keys.Z))
-                            prevdown = true;
-                        /* </ZMIANY BIEGOW> */
-
+                     
                         // Logika autobusu.
-                        busLogic.Update(accelerate, brake, left, right, up, down, doors, lights);
+                        busLogic.Update(InputLogic.accelerateButton.state, InputLogic.brakeButton.state, InputLogic.leftTurnButton.state, InputLogic.rightTurnButton.state, InputLogic.gearUpButton.state, InputLogic.gearDownButton.state, InputLogic.doorsButton.state, InputLogic.lightsButton.state);
 
                         // Ustawienia mapy i klasy pomocniczej.
                         drawMap.SetPosition(busLogic.GetBusPosition(), environmentSimulation.EnableLampadaire());
@@ -596,7 +526,7 @@ namespace Testy_mapy
 
             infoForHud.currentTime = environmentSimulation.GetCurrentTime();
 
-            hud.Draw(spriteBatch, GraphicsDevice, frameInterval, infoForHud, drawMap.GetMinimapTexture(), pause);
+            hud.Draw(spriteBatch, GraphicsDevice, frameInterval, infoForHud, drawMap.GetMinimapTexture(), InputLogic.pauseButton.state);
         }
     }
 }
