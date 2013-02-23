@@ -304,7 +304,7 @@ namespace Testy_mapy
 
                 float detectionDirection; // Kierunek detekcji.
                 float detectionAngle; // Kąt detekcji.
-                if (IsRedirecting())
+                if (IsRedirecting() && !roadsSwitching.IsStraight())
                 {
                     Vector2 forwardPoint = roadsSwitching.GetForwardPoint(distanceFromFront, frontPosition); //Oblicz kierunek z kierunku ruchu po skrzyżowaniu.
                     detectionDirection = Helper.CalculateDirection(frontPosition, forwardPoint);
@@ -572,20 +572,6 @@ namespace Testy_mapy
                 }
 
                 /// <summary>
-                /// Calculate direction beetween two points.
-                /// </summary>
-                /// <param name="start">Point 1.</param>
-                /// <param name="end">Point 2.</param>
-                public float CalculateDirection(Vector2 start, Vector2 end)
-                {
-                    float direction = MathHelper.ToDegrees((float)Math.Atan2(end.X - start.X, start.Y - end.Y));
-                    if (direction < 0)
-                        direction += 360;
-
-                    return direction;
-                }
-
-                /// <summary>
                 /// Function generating new point from Bezier curve.
                 /// </summary>
                 public Vector2 GetNewPoint()
@@ -824,7 +810,7 @@ namespace Testy_mapy
                             roadsSwitching.target = newPoint;
                         }
 
-                        direction = roadsSwitching.CalculateDirection(position, roadsSwitching.target);
+                        direction = Helper.CalculateDirection(position, roadsSwitching.target);
                         position = CalculateNewPosition(speed, direction);
                     }
                 }
