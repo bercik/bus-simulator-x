@@ -135,6 +135,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HUD.cs" />
+    <Compile Include="InputLogic.cs" />
     <Compile Include="MapLogic.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="MinimapLogic.cs" />
