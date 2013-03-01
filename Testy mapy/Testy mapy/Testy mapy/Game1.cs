@@ -22,8 +22,7 @@ namespace Testy_mapy
 
         Effect lightEffect; // efekt œwiat³a
         EffectParameter globalLightColor; // globalny kolor œwiat³a
-        EffectParameter firstLightmapTexture; // pierwsza tekstura lightmapy
-        EffectParameter secondLightmapTexture; // druga tekstura lightmapy
+        EffectParameter lightmapTexture; // tekstura lightmapy
 
         RenderTarget2D scene;
 
@@ -177,8 +176,7 @@ namespace Testy_mapy
             // ³adujemy efekty:
             lightEffect = Content.Load<Effect>("effects/light");
             globalLightColor = lightEffect.Parameters["globalLightColor"];
-            firstLightmapTexture = lightEffect.Parameters["firstLightmap"];
-            secondLightmapTexture = lightEffect.Parameters["secondLightmap"];
+            lightmapTexture = lightEffect.Parameters["lightmap"];
 
             // ustawianie wielkoœci ekranu w klasie Helper
             Helper.SetScreenSize(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
@@ -377,6 +375,9 @@ namespace Testy_mapy
             {
                 //drawing first lightmap:                
 
+                // Latarnie uliczne:
+                drawMap.AddDynamicLampadaireLights(ref drawLightmap);
+
                 // Œwiat³a samochodów.
                 drawTraffic.AddDynamicLights(trafficLogic, drawLightmap, environmentSimulation);
 
@@ -389,16 +390,8 @@ namespace Testy_mapy
                 // Œwiat³a uliczne:
                 drawMap.AddDynamicTrafficLights(ref drawLightmap);
 
-                drawLightmap.Draw(spriteBatch, LightmapOrder.First);
-                firstLightmapTexture.SetValue(drawLightmap.GetFirsLightmapTexture());
-
-                //drawing second lightmap:
-
-                // Latarnie uliczne:
-                drawMap.AddDynamicLampadaireLights(ref drawLightmap);
-
-                drawLightmap.Draw(spriteBatch, LightmapOrder.Second);
-                secondLightmapTexture.SetValue(drawLightmap.GetSecondLightmapTexture());
+                drawLightmap.Draw(spriteBatch);
+                lightmapTexture.SetValue(drawLightmap.GetLightmapTexture());
 
                 // drawing minimap:
                 drawMap.DrawMinimap(spriteBatch, busLogic.GetCurrentDirection(), gameplayLogic.GetCurrentBusStopPosition());
