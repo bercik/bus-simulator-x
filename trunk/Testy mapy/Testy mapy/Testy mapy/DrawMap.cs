@@ -575,9 +575,9 @@ namespace Testy_mapy
             trackLogic.CreateTrack(size, carLength, out connection, out origin, out randomOutPoint);
         }
 
-        public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)
+        public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin, out bool intersection)
         {
-            trackLogic.ChangeTrack(endPoint, lastEndPoint, out connection, out origin);
+            trackLogic.ChangeTrack(endPoint, lastEndPoint, out connection, out origin, out intersection);
         }
 
         public void CreateGrass(Vector2 mapPos)
