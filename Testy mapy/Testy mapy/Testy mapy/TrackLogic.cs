@@ -871,7 +871,7 @@ namespace Testy_mapy
             randomOutPoint = new Vector2(0, 0);
         }
 
-        public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin)
+        public void ChangeTrack(Vector2 endPoint, Vector2 lastEndPoint, out Connection connection, out Vector2 origin, out bool intersection)
         {
             Junction junction = SearchJunctionFromEndPoint(endPoint, lastEndPoint);
 
@@ -891,11 +891,13 @@ namespace Testy_mapy
 
                 connection = possibleConnections[rand.Next(possibleConnections.Length)];
                 origin = junction.pos;
+                intersection = (junction.connections.Length > 2) ? true : false;
             }
             else
             {
                 connection = new Connection();
                 origin = Vector2.Zero;
+                intersection = false;
             }
         }
 
