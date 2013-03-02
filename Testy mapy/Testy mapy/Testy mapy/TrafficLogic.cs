@@ -766,9 +766,10 @@ namespace Testy_mapy
                     {
                         Vector2 junctionCenter;
                         Connection getNewRoad;
+                        bool isIntersection;
 
                         // Ask for a new road.
-                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter);
+                        drawMap.ChangeTrack(road.end, lastEnd, out getNewRoad, out junctionCenter, out isIntersection);
 
                         // Koniec poprzedniej drogi to teraz koniec drogi aktualnej.
                         lastEnd = road.end;
@@ -853,9 +854,10 @@ namespace Testy_mapy
             VehicleType vehicleType15 = new VehicleType(new Vector2(45, 100), 14, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Red + stripes.
             VehicleType vehicleType16 = new VehicleType(new Vector2(45, 100), 15, 3, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Light blue.
             VehicleType vehicleType17 = new VehicleType(new Vector2(45, 90), 16, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, -5), new Vector2(-10, -10), new Vector2(-10, 0)); // Delorean.
+            VehicleType vehicleType18 = new VehicleType(new Vector2(45, 100), 17, 2, new Vector2(0, 0), new Vector2(0, 0), new Vector2(-10, 0), new Vector2(-10, -10), new Vector2(-10, 0));    // Cabrio.
 
 
-            vehicleTypes = new VehicleType[17] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12, vehicleType13, vehicleType14, vehicleType15, vehicleType16, vehicleType17 };
+            vehicleTypes = new VehicleType[18] { vehicleType1, vehicleType2, vehicleType3, vehicleType4, vehicleType5, vehicleType6, vehicleType7, vehicleType8, vehicleType9, vehicleType10, vehicleType11, vehicleType12, vehicleType13, vehicleType14, vehicleType15, vehicleType16, vehicleType17, vehicleType18 };
 
             foreach (VehicleType vehicleType in vehicleTypes)
                 maxRandom += vehicleType.likelihoodOfApperance;

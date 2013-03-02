@@ -96,7 +96,7 @@ namespace Testy_mapy
         public static readonly Vector2 trafficLightDynamicLightSize = new Vector2(40, 40); // wielkość dynamicznego światła ulicznego
 
 
-        public const int numberOfCars = 17; // Number of cars/car skins.
+        public const int numberOfCars = 18; // Number of cars/car skins.
 
         // dla Environment Simulation:
         public static readonly float timeBeetwenOneMinute = 0.2f; // czas w sekundach, w którym upływa jedna minuta w grze
@@ -231,11 +231,11 @@ namespace Testy_mapy
         /// </summary>
         /// <param name="point">Point.</param>
         /// <param name="givenRrectangle">Rectangle. Points should be given clockwise.</param>
-        public static bool IsInside(Vector2 point, MyRectangle givenRrectangle)
+        public static bool IsInside(Vector2 point, MyRectangle givenRectangle)
         {
             Vector2 p1, p2;
 
-            Vector2[] rectangle = new Vector2[4] { givenRrectangle.point1, givenRrectangle.point2, givenRrectangle.point3, givenRrectangle.point4 };
+            Vector2[] rectangle = new Vector2[4] { givenRectangle.point1, givenRectangle.point2, givenRectangle.point3, givenRectangle.point4 };
 
             bool inside = false;
 
@@ -266,6 +266,82 @@ namespace Testy_mapy
             }
 
             return inside;
+            /*
+            Vector2[] lines = new Vector2[4];
+
+            lines[0] = CalculateLine(givenRectangle.point1, givenRectangle.point2);
+            lines[1] = CalculateLine(givenRectangle.point2, givenRectangle.point3);
+            lines[2] = CalculateLine(givenRectangle.point3, givenRectangle.point4);
+            lines[3] = CalculateLine(givenRectangle.point4, givenRectangle.point1);
+
+            if (lines[0].Y > lines[2].Y)
+            {
+                if (point.Y < CalculateLinearFunctionValue(lines[0], point.X))
+                {
+                    return false;
+                }
+
+                if (point.Y > CalculateLinearFunctionValue(lines[2], point.X))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (point.Y > CalculateLinearFunctionValue(lines[0], point.X))
+                {
+                    return false;
+                }
+
+                if (point.Y < CalculateLinearFunctionValue(lines[2], point.X))
+                {
+                    return false;
+                }
+            }
+
+            if (lines[1].Y > lines[3].Y)
+            {
+                if (point.Y < CalculateLinearFunctionValue(lines[1], point.X))
+                {
+                    return false;
+                }
+
+                if (point.Y > CalculateLinearFunctionValue(lines[2], point.X))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (point.Y > CalculateLinearFunctionValue(lines[1], point.X))
+                {
+                    return false;
+                }
+
+                if (point.Y < CalculateLinearFunctionValue(lines[2], point.X))
+                {
+                    return false;
+                }
+            }
+
+            return true;*/
+        }
+
+        private static float CalculateLinearFunctionValue(Vector2 line, float argument)
+        {
+            return (line.X * argument + line.Y);
+        }
+
+        /// <summary>
+        /// Calculate the linear function for given two points.
+        /// </summary>
+        /// <returns>Vector2(a, b)</returns>
+        private static Vector2 CalculateLine(Vector2 point1, Vector2 point2)
+        {
+            float a = (point2.Y - point1.Y) / (point2.X - point1.X);
+            float b = point1.Y - a * point1.X;
+            Vector2 line = new Vector2(a, b);
+            return line;
         }
 
         public static float ComputeRotationX(Vector2 point, Vector2 center, float angel)
