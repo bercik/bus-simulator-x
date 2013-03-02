@@ -126,8 +126,8 @@ namespace Testy_mapy
             Content.RootDirectory = "Content";
 
             //graphics.IsFullScreen = true;
-            graphics.PreferredBackBufferHeight = 768;
             graphics.PreferredBackBufferWidth = 1024;
+            graphics.PreferredBackBufferHeight = 768;
         }
 
         /// <summary>
