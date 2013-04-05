@@ -410,12 +410,11 @@ namespace Testy_mapy
 
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
-                // zmienne pomocnicze rysowane na ekranie:
-                DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
-
                 /*punkty*/
                 if (InputLogic.debugButton.state)
                 {
+                    DrawPoint(Helper.MapPosToScreenPos(Helper.mapPos));
+
                     List<MyRectangle> trafficLightsForCars;
                     List<TrafficLightRectangle> trafficLightsForBus;
 
