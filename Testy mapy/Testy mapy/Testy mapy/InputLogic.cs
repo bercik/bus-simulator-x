@@ -11,7 +11,7 @@ namespace Testy_mapy
     {
         public static ToggleButton pauseButton = new ToggleButton(Keys.P);
 
-        public static ToggleButton debugButton = new ToggleButton(Keys.F1, true);
+        public static ToggleButton debugButton = new ToggleButton(Keys.F1, false);
 
         public static NormalButton brakeButton = new NormalButton(Keys.Down);
         public static NormalButton accelerateButton = new NormalButton(Keys.Up);
