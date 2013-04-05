@@ -239,11 +239,11 @@ namespace Testy_mapy
         // Define environments here as normal variables.
 
         // Exhaust fumes.
-        ParticlesEnvironment exhaustFumes = new ParticlesEnvironment((float)1.05, (float)0.95, new ParticlesEnvironment.Wind((float)2, 45, new Vector2(-30, 30), (float)10), 0);
+        ParticlesEnvironment exhaustFumes = new ParticlesEnvironment((float)1.03, (float)0.96, new ParticlesEnvironment.Wind((float)2, 45, new Vector2(-30, 30), (float)10), 0);
         float lastFumesSpawn = 0;
         float spawnFumesEvery = (float)0.03;
         Vector2 fumeSize = new Vector2(10, 10);       // Starting size.
-        float fumesSpeed = 15;                        // Starting speed of the exhaust fumes.
+        float fumesSpeed = 20;                        // Starting speed of the exhaust fumes.
         Vector2 randDirection = new Vector2(-25, 25); // Random value from this interval is added to the direction. [X - min, Y - max]
 
         // Rain.
@@ -346,7 +346,7 @@ namespace Testy_mapy
 
             exhaustFumes.particlesList.RemoveAll(delegate(ParticlesEnvironment.Particle particle) // Usuńmy cząsteczki, które są za duże.
             {
-                if (particle.size.X > 100)
+                if (particle.alpha < 0.01)
                     return true;
                 else
                     return false;
